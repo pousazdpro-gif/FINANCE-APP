@@ -827,12 +827,12 @@ async def get_dashboard_summary():
     
     monthly_income = sum(
         txn.get('amount', 0) for txn in transactions 
-        if txn.get('type') == 'income' and datetime.fromisoformat(txn.get('date')) > month_ago
+        if txn.get('type') == 'income' and datetime.fromisoformat(txn.get('date')).replace(tzinfo=timezone.utc) > month_ago
     )
     
     monthly_expenses = sum(
         txn.get('amount', 0) for txn in transactions 
-        if txn.get('type') == 'expense' and datetime.fromisoformat(txn.get('date')) > month_ago
+        if txn.get('type') == 'expense' and datetime.fromisoformat(txn.get('date')).replace(tzinfo=timezone.utc) > month_ago
     )
     
     return {
