@@ -315,13 +315,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "camelCase/snake_case conversion for all GET endpoints"
     - "OCR with Tesseract.js"
     - "PDF Export for Reports"
     - "CSV Importer Component"
-    - "Bank CSV Import endpoint"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
