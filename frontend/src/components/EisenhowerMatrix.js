@@ -104,6 +104,10 @@ const EisenhowerMatrix = () => {
   };
 
   const getTasksByQuadrant = (quadrantId) => {
+    if (quadrantId === null) {
+      // "À classer" - tasks without quadrant
+      return tasks.filter(t => !t.quadrant);
+    }
     return tasks.filter(t => t.quadrant === quadrantId);
   };
 
