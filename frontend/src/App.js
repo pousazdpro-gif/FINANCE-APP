@@ -23,6 +23,8 @@ import SettingsPanel from './components/SettingsPanel';
 import TransferModal from './components/TransferModal';
 import OCRScanner from './components/OCRScanner';
 import InvestmentProjection from './components/InvestmentProjection';
+import DebtDetailModal from './components/DebtDetailModal';
+import ReceivableDetailModal from './components/ReceivableDetailModal';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
