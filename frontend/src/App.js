@@ -782,6 +782,9 @@ const Modal = ({ type, data, onClose, onSave, accounts }) => {
       onClose();
     } catch (error) {
       console.error('Error saving:', error);
+      alert('Erreur lors de la sauvegarde: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
