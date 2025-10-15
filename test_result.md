@@ -328,8 +328,7 @@ metadata:
 test_plan:
   current_focus:
     - "PDF Export for Reports"
-  stuck_tasks:
-    - "PDF Export for Reports"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
