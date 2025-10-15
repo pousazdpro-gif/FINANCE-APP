@@ -159,6 +159,7 @@ export const transfersAPI = {
 export const dataAPI = {
   exportAll: () => api.get('/export/all'),
   importAll: (data) => api.post('/import/all', data),
+  deleteAllUserData: () => api.delete('/user/data/all'),
 };
 
 // External APIs
