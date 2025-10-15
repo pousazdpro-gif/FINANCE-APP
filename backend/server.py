@@ -1507,14 +1507,21 @@ async def get_receivables(request: Request):
     
     receivables = await db.receivables.find(query, {"_id": 0}).to_list(1000)
     for rec in receivables:
-        if isinstance(rec.get('created_at'), str):
-            rec['created_at'] = datetime.fromisoformat(rec['created_at'])
-        if rec.get('due_date') and isinstance(rec.get('due_date'), str):
-            rec['due_date'] = datetime.fromisoformat(rec['due_date'])
+        # Convert camelCase to snake_case
+        rec = convert_camel_to_snake(rec, RECEIVABLE_FIELD_MAP)
+        
+        # Ensure amounts have defaults
+        if 'total_amount' not in rec:
+            rec['total_amount'] = 0
+        if 'remaining_amount' not in rec:
+            rec['remaining_amount'] = rec.get('total_amount', 0)
+        
+        # Handle dates
+        rec = convert_dates_from_string(rec, ['created_at', 'due_date'])
+        
         # Handle payments dates
         for payment in rec.get('payments', []):
-            if isinstance(payment.get('date'), str):
-                payment['date'] = datetime.fromisoformat(payment['date'])
+            payment = convert_dates_from_string(payment, ['date'])
     return receivables
 
 @api_router.put("/receivables/{receivable_id}", response_model=Receivable)
