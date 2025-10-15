@@ -259,19 +259,19 @@ const SettingsPanel = ({ onClose, onSave }) => {
           </div>
         )}
 
-        {activeTab === 'notifications' && (
-          <div className="max-w-2xl space-y-6">
-            <div className="bg-white p-6 rounded-lg shadow border-2 border-red-200">
-              <h3 className="text-lg font-semibold mb-4 text-red-600">⚠️ Zone Dangereuse</h3>
-              <p className="text-gray-600 mb-4">
-                Supprimer toutes vos données définitivement. Cette action est irréversible.
+        {activeTab === 'danger' && (
+          <div className="max-w-2xl">
+            <div className="bg-white p-6 rounded-lg shadow border-4 border-red-500">
+              <h3 className="text-2xl font-bold mb-4 text-red-600">⚠️ ZONE DANGEREUSE</h3>
+              <p className="text-gray-700 mb-4 text-lg">
+                Supprimer <strong>TOUTES</strong> vos données définitivement. Cette action est <strong>IRRÉVERSIBLE</strong>.
               </p>
               <button
                 onClick={async () => {
                   if (window.confirm('Êtes-vous ABSOLUMENT SÛR de vouloir supprimer TOUTES vos données ? Cette action est IRRÉVERSIBLE.')) {
                     if (window.confirm('DERNIÈRE CONFIRMATION: Toutes vos données (comptes, transactions, investissements, etc.) seront DÉFINITIVEMENT supprimées. Continuer ?')) {
                       try {
-                        const response = await api.delete('/user/data/all');
+                        await api.delete('/user/data/all');
                         alert('Toutes vos données ont été supprimées. Rechargement de la page...');
                         window.location.reload();
                       } catch (error) {
@@ -281,12 +281,16 @@ const SettingsPanel = ({ onClose, onSave }) => {
                     }
                   }
                 }}
-                className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 font-bold"
+                className="bg-red-600 text-white px-8 py-4 rounded-lg hover:bg-red-700 font-bold text-lg w-full"
               >
-                🗑️ Supprimer TOUTES mes données
+                🗑️ SUPPRIMER TOUTES MES DONNÉES
               </button>
             </div>
+          </div>
+        )}
 
+        {activeTab === 'notifications' && (
+          <div className="max-w-2xl space-y-6">
             <div className="bg-white p-6 rounded-lg shadow">
               <h3 className="text-lg font-semibold mb-4 flex items-center">
                 <Bell className="mr-2" size={20} />
