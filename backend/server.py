@@ -253,7 +253,7 @@ class Investment(BaseModel):
 
 class InvestmentCreate(BaseModel):
     name: str
-    symbol: str
+    symbol: str = ""  # Made optional with default empty string
     type: str = "stock"  # Changed back to str for backward compatibility
     currency: str = "EUR"  # Changed back to str for backward compatibility
     purchase_date: Optional[datetime] = None
