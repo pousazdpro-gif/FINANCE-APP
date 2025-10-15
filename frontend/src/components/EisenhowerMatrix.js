@@ -17,6 +17,7 @@ const EisenhowerMatrix = () => {
   });
 
   const quadrants = [
+    { id: null, name: 'À CLASSER', color: 'bg-purple-50 border-purple-200', textColor: 'text-purple-700', special: true },
     { id: 'urgent_important', name: 'FAIRE (Urgent & Important)', color: 'bg-red-50 border-red-200', textColor: 'text-red-700' },
     { id: 'not_urgent_important', name: 'PLANIFIER (Important)', color: 'bg-blue-50 border-blue-200', textColor: 'text-blue-700' },
     { id: 'urgent_not_important', name: 'DÉLÉGUER (Urgent)', color: 'bg-yellow-50 border-yellow-200', textColor: 'text-yellow-700' },
