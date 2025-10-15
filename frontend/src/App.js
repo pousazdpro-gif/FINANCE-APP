@@ -766,6 +766,34 @@ const Modal = ({ type, data, onClose, onSave, accounts }) => {
             await transactionsAPI.create({ ...formData, date: new Date().toISOString() });
           }
           break;
+        case 'investment':
+          if (data.id) {
+            await investmentsAPI.update(data.id, formData);
+          } else {
+            await investmentsAPI.create(formData);
+          }
+          break;
+        case 'goal':
+          if (data.id) {
+            await goalsAPI.update(data.id, formData);
+          } else {
+            await goalsAPI.create(formData);
+          }
+          break;
+        case 'debt':
+          if (data.id) {
+            await debtsAPI.update(data.id, formData);
+          } else {
+            await debtsAPI.create(formData);
+          }
+          break;
+        case 'receivable':
+          if (data.id) {
+            await receivablesAPI.update(data.id, formData);
+          } else {
+            await receivablesAPI.create(formData);
+          }
+          break;
         case 'product':
           await productsAPI.create(formData);
           break;
