@@ -745,9 +745,11 @@ const SimpleListView = ({ items, title, onAdd, onDelete, renderItem }) => (
 // Modal Component (Simplified - you'll need to expand this)
 const Modal = ({ type, data, onClose, onSave, accounts }) => {
   const [formData, setFormData] = useState(data || {});
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       switch (type) {
         case 'account':
