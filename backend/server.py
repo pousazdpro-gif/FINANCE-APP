@@ -752,22 +752,20 @@ async def get_transactions(
     
     if account_id:
         query["account_id"] = account_id
+        # Also check camelCase version
+        if not await db.transactions.count_documents(query):
+            query["accountId"] = account_id
+            del query["account_id"]
     if type:
         query["type"] = type
     
     transactions = await db.transactions.find(query, {"_id": 0}).sort("date", -1).limit(limit).to_list(limit)
     for txn in transactions:
         # Convert camelCase to snake_case for backward compatibility
-        if 'accountId' in txn and 'account_id' not in txn:
-            txn['account_id'] = txn['accountId']
-        if 'linkedTo' in txn and 'linked_investment_id' not in txn:
-            txn['linked_investment_id'] = txn.get('linkedTo')
+        txn = convert_camel_to_snake(txn, TRANSACTION_FIELD_MAP)
         
         # Handle dates
-        if isinstance(txn.get('date'), str):
-            txn['date'] = datetime.fromisoformat(txn['date'])
-        if isinstance(txn.get('created_at'), str):
-            txn['created_at'] = datetime.fromisoformat(txn['created_at'])
+        txn = convert_dates_from_string(txn, ['date', 'created_at', 'recurring_next_date'])
     return transactions
 
 @api_router.get("/transactions/{transaction_id}", response_model=Transaction)
