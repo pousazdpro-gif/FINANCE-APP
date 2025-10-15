@@ -1055,7 +1055,7 @@ const ShoppingView = ({ products, shoppingLists, openModal, setProducts, setShop
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {products.map((product) => (
             <div key={product.id} className="bg-white p-4 rounded-lg shadow">
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start mb-3">
                 <div className="flex-1">
                   <h4 className="font-semibold">{product.name}</h4>
                   <p className="text-sm text-gray-500">{product.category}</p>
@@ -1076,6 +1076,38 @@ const ShoppingView = ({ products, shoppingLists, openModal, setProducts, setShop
                   <Trash2 size={16} />
                 </button>
               </div>
+              
+              {/* Quick Add to List */}
+              {shoppingLists.length > 0 && (
+                <div className="flex items-center space-x-2 mt-2">
+                  <select 
+                    id={`list-select-${product.id}`}
+                    className="flex-1 text-sm px-2 py-1 border rounded"
+                    defaultValue=""
+                  >
+                    <option value="" disabled>Choisir liste...</option>
+                    {shoppingLists.map(list => (
+                      <option key={list.id} value={list.id}>{list.name}</option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={async () => {
+                      const listId = document.getElementById(`list-select-${product.id}`).value;
+                      if (listId) {
+                        await shoppingListsAPI.addProduct(listId, product.id);
+                        // Refresh lists
+                        const updatedLists = await shoppingListsAPI.getAll();
+                        setShoppingLists(updatedLists.data);
+                        alert('Produit ajouté à la liste!');
+                      }
+                    }}
+                    className="bg-green-600 text-white p-2 rounded hover:bg-green-700"
+                    title="Ajouter à la liste"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
