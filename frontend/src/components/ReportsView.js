@@ -271,13 +271,22 @@ const ReportsView = ({ transactions = [] }) => {
           {/* Export */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Export</label>
-            <button
-              onClick={exportToPDF}
-              className="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center justify-center space-x-2"
-            >
-              <Download size={18} />
-              <span>Exporter TXT</span>
-            </button>
+            <div className="flex space-x-2">
+              <button
+                onClick={exportToPDF}
+                className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center justify-center space-x-1"
+              >
+                <Download size={16} />
+                <span>PDF</span>
+              </button>
+              <button
+                onClick={exportToText}
+                className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center justify-center space-x-1"
+              >
+                <FileText size={16} />
+                <span>TXT</span>
+              </button>
+            </div>
           </div>
         </div>
 
