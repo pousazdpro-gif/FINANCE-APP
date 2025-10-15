@@ -40,6 +40,11 @@ function App() {
   const [modalType, setModalType] = useState('');
   const [modalData, setModalData] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showInvestmentDetail, setShowInvestmentDetail] = useState(false);
+  const [selectedInvestment, setSelectedInvestment] = useState(null);
+  const [showGlobalSearch, setShowGlobalSearch] = useState(false);
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   // Load all data
   useEffect(() => {
