@@ -858,7 +858,7 @@ const ShoppingView = ({ products, shoppingLists, openModal, setProducts, setShop
 
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold">Listes de Courses</h3>
+          <h3 className="text-xl font-semibold">Listes d'Achats</h3>
           <button
             onClick={() => openModal('shoppingList')}
             className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2"
