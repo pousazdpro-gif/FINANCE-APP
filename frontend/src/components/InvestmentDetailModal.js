@@ -33,16 +33,95 @@ const InvestmentDetailModal = ({ investment, onClose, onUpdate, onAddOperation, 
     return totalQuantity > 0 ? totalCost / totalQuantity : 0;
   };
 
-  // Calculate gains/losses
-  const calculateGains = () => {
+  // Calculate metrics based on investment type
+  const calculateMetrics = () => {
+    const type = investment.type || 'stock';
     const pru = calculatePRU();
     const currentValue = investment.quantity * investment.current_price;
     const costBasis = investment.quantity * pru;
-    const gain = currentValue - costBasis;
-    const gainPercent = costBasis > 0 ? (gain / costBasis) * 100 : 0;
     
-    return { gain, gainPercent, pru, currentValue, costBasis };
+    // Common metrics
+    let metrics = {
+      pru,
+      currentValue,
+      costBasis,
+      gain: currentValue - costBasis,
+      gainPercent: costBasis > 0 ? ((currentValue - costBasis) / costBasis) * 100 : 0
+    };
+    
+    // Type-specific calculations
+    switch(type) {
+      case 'crypto':
+        // Crypto: PRU, Gains, DeFi yields
+        const defiYields = investment.operations?.filter(op => op.type === 'dividend').reduce((sum, op) => sum + (op.total || 0), 0) || 0;
+        metrics.defiYields = defiYields;
+        metrics.totalReturn = metrics.gain + defiYields;
+        metrics.totalReturnPercent = costBasis > 0 ? (metrics.totalReturn / costBasis) * 100 : 0;
+        break;
+        
+      case 'stock':
+        // Stock: PRU, Gains, Dividends
+        const dividends = investment.operations?.filter(op => op.type === 'dividend').reduce((sum, op) => sum + (op.total || 0), 0) || 0;
+        metrics.dividends = dividends;
+        metrics.totalReturn = metrics.gain + dividends;
+        metrics.totalReturnPercent = costBasis > 0 ? (metrics.totalReturn / costBasis) * 100 : 0;
+        metrics.dividendYield = costBasis > 0 ? (dividends / costBasis) * 100 : 0;
+        break;
+        
+      case 'real_estate':
+      case 'commodity':
+        // Immobilier / Matériel Passif: Total cost, maintenance, depreciation
+        const maintenanceCosts = investment.monthly_costs ? investment.monthly_costs * 12 * ((Date.now() - new Date(investment.purchase_date || Date.now())) / (365.25 * 24 * 60 * 60 * 1000)) : 0;
+        metrics.maintenanceCosts = maintenanceCosts;
+        metrics.totalCost = costBasis + maintenanceCosts;
+        
+        // Depreciation for commodity/passive material
+        if (type === 'commodity' && investment.depreciation_rate) {
+          const yearsOwned = (Date.now() - new Date(investment.purchase_date || Date.now())) / (365.25 * 24 * 60 * 60 * 1000);
+          const depreciationAmount = costBasis * (investment.depreciation_rate / 100) * yearsOwned;
+          metrics.depreciation = depreciationAmount;
+          metrics.currentValue = Math.max(0, costBasis - depreciationAmount);
+          metrics.gain = metrics.currentValue - costBasis;
+        }
+        break;
+        
+      case 'mining_rig':
+        // Matériel Actif: Total cost, maintenance, mining rewards (dividends)
+        const miningRewards = investment.operations?.filter(op => op.type === 'dividend').reduce((sum, op) => sum + (op.total || 0), 0) || 0;
+        const miningMaintenanceCosts = investment.monthly_costs ? investment.monthly_costs * 12 * ((Date.now() - new Date(investment.purchase_date || Date.now())) / (365.25 * 24 * 60 * 60 * 1000)) : 0;
+        metrics.miningRewards = miningRewards;
+        metrics.maintenanceCosts = miningMaintenanceCosts;
+        metrics.totalCost = costBasis + miningMaintenanceCosts;
+        metrics.netProfit = miningRewards - miningMaintenanceCosts;
+        metrics.roi = costBasis > 0 ? (metrics.netProfit / costBasis) * 100 : 0;
+        break;
+        
+      case 'bond':
+        // Obligation: Total invested, interest payments
+        const interests = investment.operations?.filter(op => op.type === 'dividend').reduce((sum, op) => sum + (op.total || 0), 0) || 0;
+        metrics.interests = interests;
+        metrics.totalReturn = interests;
+        metrics.yieldPercent = costBasis > 0 ? (interests / costBasis) * 100 : 0;
+        break;
+        
+      case 'trading_account':
+        // Trading Account: Balance evolution
+        metrics.initialValue = investment.initial_value || 0;
+        metrics.currentBalance = investment.current_price || 0;
+        metrics.tradingGain = metrics.currentBalance - metrics.initialValue;
+        metrics.tradingGainPercent = metrics.initialValue > 0 ? (metrics.tradingGain / metrics.initialValue) * 100 : 0;
+        break;
+        
+      default:
+        // Default: standard stock-like calculation
+        break;
+    }
+    
+    return metrics;
   };
+
+  const gains = calculateGains();
+  const metrics = calculateMetrics();
 
   const handleOperationSubmit = async (e) => {
     e.preventDefault();
