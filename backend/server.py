@@ -217,6 +217,12 @@ class GoalCreate(BaseModel):
 # ============================================================================
 # MODELS - DEBTS (DETTES)
 # ============================================================================
+class DebtPayment(BaseModel):
+    date: datetime
+    amount: float
+    notes: Optional[str] = None
+    linked_transaction_id: Optional[str] = None
+
 class Debt(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
@@ -227,6 +233,8 @@ class Debt(BaseModel):
     interest_rate: float = 0.0
     creditor: str
     due_date: Optional[datetime] = None
+    payments: List[DebtPayment] = []
+    account_id: Optional[str] = None  # Link to account
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class DebtCreate(BaseModel):
@@ -236,6 +244,12 @@ class DebtCreate(BaseModel):
     interest_rate: float = 0.0
     creditor: str
     due_date: Optional[datetime] = None
+    account_id: Optional[str] = None
+
+class DebtPaymentCreate(BaseModel):
+    date: datetime
+    amount: float
+    notes: Optional[str] = None
 
 
 # ============================================================================
