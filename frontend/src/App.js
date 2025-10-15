@@ -292,8 +292,8 @@ function App() {
               {currentView === 'transactions' && <TransactionsView transactions={transactions} accounts={accounts} openModal={openModal} setTransactions={setTransactions} />}
               {currentView === 'investments' && <InvestmentsView investments={investments} openModal={openModal} setInvestments={setInvestments} onViewDetail={(inv) => { setSelectedInvestment(inv); setShowInvestmentDetail(true); }} />}
               {currentView === 'goals' && <GoalsView goals={goals} openModal={openModal} setGoals={setGoals} />}
-              {currentView === 'debts' && <DebtsView debts={debts} openModal={openModal} setDebts={setDebts} />}
-              {currentView === 'receivables' && <ReceivablesView receivables={receivables} openModal={openModal} setReceivables={setReceivables} />}
+              {currentView === 'debts' && <DebtsView debts={debts} openModal={openModal} setDebts={setDebts} onViewDetail={(debt) => { setSelectedDebt(debt); setShowDebtDetail(true); }} />}
+              {currentView === 'receivables' && <ReceivablesView receivables={receivables} openModal={openModal} setReceivables={setReceivables} onViewDetail={(rec) => { setSelectedReceivable(rec); setShowReceivableDetail(true); }} />}
               {currentView === 'shopping' && <ShoppingView products={products} shoppingLists={shoppingLists} openModal={openModal} setProducts={setProducts} setShoppingLists={setShoppingLists} />}
               {currentView === 'banks' && <BanksView bankConnections={bankConnections} accounts={accounts} openModal={openModal} setBankConnections={setBankConnections} />}
               {currentView === 'tasks' && <EisenhowerMatrix />}
