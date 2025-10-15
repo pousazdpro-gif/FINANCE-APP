@@ -151,12 +151,18 @@ class Investment(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     symbol: str
-    type: str = "stock"  # stock, crypto, etf, bond
+    type: InvestmentTypeEnum = InvestmentTypeEnum.stock
     quantity: float = 0.0
     average_price: float = 0.0
     current_price: float = 0.0
-    currency: str = "EUR"
+    currency: CurrencyEnum = CurrencyEnum.EUR
     operations: List[InvestmentOperation] = []
+    # Additional fields for specific types
+    purchase_date: Optional[datetime] = None  # For real estate, mining rigs
+    initial_value: Optional[float] = None  # For trading accounts, real estate
+    depreciation_rate: Optional[float] = None  # For mining rigs (annual %)
+    monthly_costs: Optional[float] = None  # For real estate, mining rigs
+    linked_transaction_id: Optional[str] = None  # Link to transaction
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class InvestmentCreate(BaseModel):
