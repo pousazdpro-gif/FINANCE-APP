@@ -194,13 +194,13 @@ class InvestmentOperationCreate(BaseModel):
 # MODELS - GOALS (OBJECTIFS)
 # ============================================================================
 class Goal(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
-    target_amount: float
-    current_amount: float = 0.0
-    deadline: Optional[datetime] = None
+    target_amount: float = Field(alias='targetAmount')
+    current_amount: float = Field(default=0.0, alias='currentAmount')
+    deadline: Optional[datetime] = Field(default=None, alias='targetDate')
     category: str = "savings"
     color: Optional[str] = "#10b981"
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
