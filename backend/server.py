@@ -89,7 +89,7 @@ class Account(BaseModel):
 class AccountCreate(BaseModel):
     name: str
     type: str = "checking"
-    currency: CurrencyEnum = CurrencyEnum.EUR
+    currency: str = "EUR"  # Changed back to str for backward compatibility
     initial_balance: float = 0.0
     icon: Optional[str] = "wallet"
     color: Optional[str] = "#4f46e5"
