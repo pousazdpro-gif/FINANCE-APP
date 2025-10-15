@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Upload, FileText, Camera, CheckCircle, XCircle } from 'lucide-react';
+import { createWorker } from 'tesseract.js';
 
 const OCRScanner = ({ onTransactionsExtracted }) => {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [extractedData, setExtractedData] = useState([]);
+  const [ocrProgress, setOcrProgress] = useState(0);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -19,36 +21,117 @@ const OCRScanner = ({ onTransactionsExtracted }) => {
     }
   };
 
-  const processOCR = async () => {
-    setProcessing(true);
+  const extractTransactionsFromText = (text) => {
+    // Patterns communs pour extraire des transactions de reçus/relevés
+    const lines = text.split('\n').filter(line => line.trim());
+    const transactions = [];
     
-    // Simulation OCR pour l'instant (Tesseract.js sera intégré après)
-    setTimeout(() => {
-      // Données simulées extraites
-      const mockTransactions = [
-        {
-          description: 'Supermarché Casino',
-          amount: 45.80,
-          category: 'Alimentation',
-          date: new Date().toISOString()
-        },
-        {
-          description: 'Station Service',
-          amount: 65.00,
-          category: 'Transport',
-          date: new Date().toISOString()
-        },
-        {
-          description: 'Restaurant',
-          amount: 32.50,
-          category: 'Restaurants',
-          date: new Date().toISOString()
-        }
-      ];
+    // Patterns pour montants: 12.50 € ou €12.50 ou 12,50€
+    const amountPattern = /(\d+[.,]\d{2})\s*€|€\s*(\d+[.,]\d{2})/g;
+    
+    // Patterns pour dates: DD/MM/YYYY ou DD-MM-YYYY
+    const datePattern = /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/;
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const amounts = [...line.matchAll(amountPattern)];
       
-      setExtractedData(mockTransactions);
+      if (amounts.length > 0) {
+        // Extraire le montant
+        let amountStr = amounts[0][1] || amounts[0][2];
+        const amount = parseFloat(amountStr.replace(',', '.'));
+        
+        if (amount > 0) {
+          // Chercher une date dans la ligne ou les lignes adjacentes
+          let date = new Date();
+          const dateMatch = line.match(datePattern) || 
+                          (i > 0 ? lines[i-1].match(datePattern) : null);
+          
+          if (dateMatch) {
+            const [, day, month, year] = dateMatch;
+            const fullYear = year.length === 2 ? `20${year}` : year;
+            date = new Date(`${fullYear}-${month}-${day}`);
+          }
+          
+          // Description: prendre le texte avant le montant
+          let description = line.replace(amountPattern, '').trim();
+          if (!description && i > 0) {
+            description = lines[i-1].trim();
+          }
+          description = description.substring(0, 50) || 'Transaction';
+          
+          // Catégorisation basique par mots-clés
+          let category = 'Divers';
+          const lowerDesc = description.toLowerCase();
+          
+          if (lowerDesc.match(/super|carrefour|lidl|aldi|casino|leclerc|auchan/)) {
+            category = 'Alimentation';
+          } else if (lowerDesc.match(/restaurant|cafe|bar|mcdo|burger|pizza/)) {
+            category = 'Restaurants';
+          } else if (lowerDesc.match(/essence|carburant|station|total|esso|bp/)) {
+            category = 'Transport';
+          } else if (lowerDesc.match(/pharmacie|medecin|docteur|hopital/)) {
+            category = 'Santé';
+          } else if (lowerDesc.match(/loyer|edf|gdf|eau|electricite|internet|mobile/)) {
+            category = 'Logement';
+          }
+          
+          transactions.push({
+            description,
+            amount,
+            category,
+            date: date.toISOString()
+          });
+        }
+      }
+    }
+    
+    return transactions;
+  };
+
+  const processOCR = async () => {
+    if (!file) return;
+    
+    setProcessing(true);
+    setOcrProgress(0);
+    
+    try {
+      // Créer un worker Tesseract
+      const worker = await createWorker('fra', 1, {
+        logger: (m) => {
+          if (m.status === 'recognizing text') {
+            setOcrProgress(Math.round(m.progress * 100));
+          }
+        }
+      });
+      
+      // Faire l'OCR
+      const { data: { text } } = await worker.recognize(preview);
+      
+      // Terminer le worker
+      await worker.terminate();
+      
+      // Extraire les transactions du texte
+      const transactions = extractTransactionsFromText(text);
+      
+      if (transactions.length === 0) {
+        // Si aucune transaction trouvée, créer une transaction manuelle
+        transactions.push({
+          description: 'Transaction (OCR)',
+          amount: 0,
+          category: 'Divers',
+          date: new Date().toISOString()
+        });
+      }
+      
+      setExtractedData(transactions);
+    } catch (error) {
+      console.error('Erreur OCR:', error);
+      alert('Erreur lors de l\'OCR. Vérifiez la qualité de l\'image.');
+    } finally {
       setProcessing(false);
-    }, 2000);
+      setOcrProgress(0);
+    }
   };
 
   const createTransactions = () => {
