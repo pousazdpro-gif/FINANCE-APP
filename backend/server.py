@@ -89,11 +89,13 @@ class Account(BaseModel):
 class AccountCreate(BaseModel):
     name: str
     type: str = "checking"
-    currency: str = "EUR"
+    currency: CurrencyEnum = CurrencyEnum.EUR
     initial_balance: float = 0.0
     icon: Optional[str] = "wallet"
     color: Optional[str] = "#4f46e5"
     is_excluded_from_total: bool = False
+    bank_connected: bool = False
+    bank_connection_id: Optional[str] = None
 
 
 # ============================================================================
