@@ -539,29 +539,59 @@ const InvestmentsView = ({ investments, openModal, setInvestments }) => (
 );
 
 const GoalsView = ({ goals, openModal, setGoals }) => (
-  <SimpleListView 
-    items={goals}
-    title="Objectifs"
-    onAdd={() => openModal('goal')}
-    onDelete={async (id) => {
-      await goalsAPI.delete(id);
-      setGoals(goals.filter(g => g.id !== id));
-    }}
-    renderItem={(goal) => (
-      <>
-        <div className="font-semibold">{goal.name}</div>
-        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-          <div 
-            className="bg-green-500 h-2 rounded-full" 
-            style={{ width: `${(goal.current_amount / goal.target_amount) * 100}%` }}
-          />
+  <div data-testid="goals-view">
+    <div className="mb-4">
+      <button
+        onClick={() => openModal('goal')}
+        className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center space-x-2"
+      >
+        <Plus size={18} />
+        <span>Nouvel Objectif</span>
+      </button>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {goals.map((goal) => (
+        <div key={goal.id} className="bg-white p-6 rounded-lg shadow">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex-1">
+              <div className="font-semibold text-lg">{goal.name}</div>
+              <div className="w-full bg-gray-200 rounded-full h-3 mt-3 mb-2">
+                <div 
+                  className="bg-green-500 h-3 rounded-full transition-all" 
+                  style={{ width: `${Math.min((goal.current_amount / goal.target_amount) * 100, 100)}%` }}
+                />
+              </div>
+              <div className="text-sm text-gray-600">
+                {goal.current_amount.toFixed(2)} € / {goal.target_amount.toFixed(2)} €
+              </div>
+              <div className="text-sm font-semibold text-green-600 mt-1">
+                {((goal.current_amount / goal.target_amount) * 100).toFixed(1)}% atteint
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <button 
+                onClick={() => openModal('goal', goal)} 
+                className="text-gray-400 hover:text-indigo-600"
+              >
+                <Edit size={18} />
+              </button>
+              <button 
+                onClick={async () => {
+                  if (window.confirm('Supprimer cet objectif ?')) {
+                    await goalsAPI.delete(goal.id);
+                    setGoals(goals.filter(g => g.id !== goal.id));
+                  }
+                }} 
+                className="text-gray-400 hover:text-red-600"
+              >
+                <Trash2 size={18} />
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="text-sm text-gray-500 mt-1">
-          {goal.current_amount.toFixed(2)} / {goal.target_amount.toFixed(2)} €
-        </div>
-      </>
-    )}
-  />
+      ))}
+    </div>
+  </div>
 );
 
 const DebtsView = ({ debts, openModal, setDebts }) => (
