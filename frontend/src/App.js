@@ -987,6 +987,14 @@ const Modal = ({ type, data, onClose, onSave, accounts }) => {
                 <p className="text-sm text-red-600">⚠️ Créez d'abord un compte dans la section Comptes</p>
               )}
               <input
+                type="date"
+                placeholder="Date"
+                value={formData.date ? new Date(formData.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
+                onChange={(e) => setFormData({ ...formData, date: new Date(e.target.value).toISOString() })}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+              />
+              <input
                 type="text"
                 placeholder="Description"
                 value={formData.description || ''}
