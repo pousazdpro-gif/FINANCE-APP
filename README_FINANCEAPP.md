@@ -61,7 +61,7 @@
 ## 🚀 Démarrage Rapide
 
 ### En Ligne (Déjà Déployé)
-1. Allez sur : https://budget-master-311.preview.emergentagent.com
+1. Allez sur : https://budgetbrain.preview.emergentagent.com
 2. Utilisez l'application !
 
 ### En Local (Sur Votre Ordinateur)
