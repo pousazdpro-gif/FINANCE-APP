@@ -349,21 +349,28 @@ async def delete_account(account_id: str):
 # API ROUTES - TRANSACTIONS
 # ============================================================================
 @api_router.post("/transactions", response_model=Transaction)
-async def create_transaction(input: TransactionCreate):
+async def create_transaction(input: TransactionCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
     transaction = Transaction(**input.model_dump())
     doc = transaction.model_dump()
     doc['date'] = doc['date'].isoformat()
     doc['created_at'] = doc['created_at'].isoformat()
+    doc['user_email'] = user_email  # Add user ownership
     await db.transactions.insert_one(doc)
     return transaction
 
 @api_router.get("/transactions", response_model=List[Transaction])
 async def get_transactions(
+    request: Request,
     account_id: Optional[str] = None,
     type: Optional[TransactionType] = None,
     limit: int = Query(default=100, le=1000)
 ):
-    query = {}
+    user = await get_current_user(request, db)
+    query = {"user_email": user['email']} if user else {"user_email": "anonymous"}
+    
     if account_id:
         query["account_id"] = account_id
     if type:
