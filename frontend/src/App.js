@@ -519,7 +519,7 @@ const StatCard = ({ title, value, color }) => {
 };
 
 // Accounts View Component
-const AccountsView = ({ accounts, openModal, setAccounts }) => {
+const AccountsView = ({ accounts, openModal, setAccounts, onTransferClick }) => {
   const handleDelete = async (id) => {
     if (window.confirm('Supprimer ce compte ?')) {
       try {
@@ -533,7 +533,7 @@ const AccountsView = ({ accounts, openModal, setAccounts }) => {
 
   return (
     <div data-testid="accounts-view">
-      <div className="mb-4">
+      <div className="mb-4 flex space-x-2">
         <button
           onClick={() => openModal('account')}
           className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center space-x-2"
@@ -541,6 +541,13 @@ const AccountsView = ({ accounts, openModal, setAccounts }) => {
         >
           <Plus size={18} />
           <span>Nouveau Compte</span>
+        </button>
+        <button
+          onClick={onTransferClick}
+          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2"
+        >
+          <ArrowRightLeft size={18} />
+          <span>Transfert Interne</span>
         </button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
