@@ -35,6 +35,8 @@ export const investmentsAPI = {
   create: (data) => api.post('/investments', data),
   update: (id, data) => api.put(`/investments/${id}`, data),
   addOperation: (id, operation) => api.post(`/investments/${id}/operations`, operation),
+  updateOperation: (id, operationIndex, operation) => api.put(`/investments/${id}/operations/${operationIndex}`, operation),
+  deleteOperation: (id, operationIndex) => api.delete(`/investments/${id}/operations/${operationIndex}`),
   delete: (id) => api.delete(`/investments/${id}`),
 };
 
