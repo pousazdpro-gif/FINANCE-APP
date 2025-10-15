@@ -284,7 +284,10 @@ function App() {
               {currentView === 'shopping' && <ShoppingView products={products} shoppingLists={shoppingLists} openModal={openModal} setProducts={setProducts} setShoppingLists={setShoppingLists} />}
               {currentView === 'banks' && <BanksView bankConnections={bankConnections} accounts={accounts} openModal={openModal} setBankConnections={setBankConnections} />}
               {currentView === 'tasks' && <EisenhowerMatrix />}
-              {currentView === 'settings' && <SettingsPanel onClose={() => setCurrentView('dashboard')} />}
+              {currentView === 'settings' && <SettingsPanel onClose={() => setCurrentView('dashboard')} onSave={(prefs) => {
+                console.log('Preferences saved:', prefs);
+                loadAllData();
+              }} />}
             </>
           )}
         </div>
