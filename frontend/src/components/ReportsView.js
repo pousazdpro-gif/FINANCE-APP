@@ -93,7 +93,7 @@ const ReportsView = ({ transactions = [] }) => {
   }, [filteredTransactions]);
 
   const categories = useMemo(() => {
-    const cats = new Set(transactions.map(t => t.category));
+    const cats = new Set(transactions.map(t => t.category).filter(Boolean));
     return ['all', ...Array.from(cats)];
   }, [transactions]);
 
