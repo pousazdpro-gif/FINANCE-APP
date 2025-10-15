@@ -168,7 +168,7 @@ function App() {
     { id: 'goals', label: 'Objectifs', icon: Target },
     { id: 'debts', label: 'Dettes', icon: CreditCard },
     { id: 'receivables', label: 'Créances', icon: FileText },
-    { id: 'shopping', label: 'Courses', icon: ShoppingCart },
+    { id: 'shopping', label: 'Achats', icon: ShoppingCart },
     { id: 'banks', label: 'Banques', icon: Building2 },
   ];
 
