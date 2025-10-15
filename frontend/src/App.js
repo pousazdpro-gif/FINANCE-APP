@@ -865,10 +865,14 @@ const Modal = ({ type, data, onClose, onSave, accounts }) => {
           }
           break;
         case 'transaction':
+          const transactionData = {
+            ...formData,
+            date: formData.date || new Date().toISOString()
+          };
           if (data.id) {
-            await transactionsAPI.update(data.id, formData);
+            await transactionsAPI.update(data.id, transactionData);
           } else {
-            await transactionsAPI.create({ ...formData, date: new Date().toISOString() });
+            await transactionsAPI.create(transactionData);
           }
           break;
         case 'investment':
