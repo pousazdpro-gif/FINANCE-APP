@@ -1244,6 +1244,24 @@ async def get_debts(request: Request):
     
     debts = await db.debts.find(query, {"_id": 0}).to_list(1000)
     for debt in debts:
+        # Handle old camelCase fields
+        if 'totalAmount' in debt and 'total_amount' not in debt:
+            debt['total_amount'] = debt['totalAmount']
+        if 'remainingAmount' in debt and 'remaining_amount' not in debt:
+            debt['remaining_amount'] = debt.get('remainingAmount', debt.get('totalAmount', 0))
+        if 'interestRate' in debt and 'interest_rate' not in debt:
+            debt['interest_rate'] = debt.get('interestRate', 0)
+        if 'dueDate' in debt and 'due_date' not in debt:
+            debt['due_date'] = debt.get('dueDate')
+        
+        # Handle old history format to new payments format
+        if 'history' in debt and not debt.get('payments'):
+            debt['payments'] = []
+        
+        # Ensure creditor exists
+        if 'creditor' not in debt:
+            debt['creditor'] = 'Unknown'
+        
         if isinstance(debt.get('created_at'), str):
             debt['created_at'] = datetime.fromisoformat(debt['created_at'])
         if debt.get('due_date') and isinstance(debt.get('due_date'), str):
