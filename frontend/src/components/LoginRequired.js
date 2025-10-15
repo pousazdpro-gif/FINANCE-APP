@@ -75,10 +75,6 @@ export default function LoginRequired({ children }) {
   }
 
   if (!user) {
-    // TEMPORARY: Allow anonymous access for testing
-    console.log('Using anonymous mode for testing');
-    return children;
-    
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
