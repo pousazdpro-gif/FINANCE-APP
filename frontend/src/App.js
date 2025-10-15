@@ -19,6 +19,9 @@ import GlobalSearch from './components/GlobalSearch';
 import CategoryManager from './components/CategoryManager';
 import EisenhowerMatrix from './components/EisenhowerMatrix';
 import SettingsPanel from './components/SettingsPanel';
+import TransferModal from './components/TransferModal';
+import OCRScanner from './components/OCRScanner';
+import InvestmentProjection from './components/InvestmentProjection';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
