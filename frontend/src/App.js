@@ -957,15 +957,17 @@ const Modal = ({ type, data, onClose, onSave, accounts }) => {
           <div className="flex space-x-2">
             <button
               type="submit"
-              className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 flex items-center justify-center space-x-2"
+              disabled={loading}
+              className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 flex items-center justify-center space-x-2 disabled:opacity-50"
             >
               <Save size={18} />
-              <span>Enregistrer</span>
+              <span>{loading ? 'Enregistrement...' : 'Enregistrer'}</span>
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300"
+              disabled={loading}
+              className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 disabled:opacity-50"
             >
               Annuler
             </button>
