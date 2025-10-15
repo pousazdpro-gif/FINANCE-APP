@@ -98,7 +98,100 @@ const ReportsView = ({ transactions = [] }) => {
   }, [transactions]);
 
   const exportToPDF = () => {
-    // Simple text export for now
+    const doc = new jsPDF();
+    
+    // Title
+    doc.setFontSize(20);
+    doc.text('RAPPORT FINANCIER', 105, 20, { align: 'center' });
+    
+    // Period info
+    doc.setFontSize(12);
+    const periodText = period === 'custom' 
+      ? `Période: ${startDate} à ${endDate}` 
+      : `Période: ${period}`;
+    doc.text(periodText, 20, 35);
+    doc.text(`Date du rapport: ${new Date().toLocaleDateString('fr-FR')}`, 20, 42);
+    
+    // Summary Stats
+    doc.setFontSize(14);
+    doc.text('RÉSUMÉ', 20, 55);
+    
+    doc.autoTable({
+      startY: 60,
+      head: [['Métrique', 'Valeur']],
+      body: [
+        ['Nombre de transactions', stats.count.toString()],
+        ['Revenus totaux', `+${stats.income.toFixed(2)} €`],
+        ['Dépenses totales', `-${stats.expenses.toFixed(2)} €`],
+        ['Solde', `${stats.balance >= 0 ? '+' : ''}${stats.balance.toFixed(2)} €`]
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [99, 102, 241] }
+    });
+    
+    // By Category
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(14);
+    doc.text('ANALYSE PAR CATÉGORIE', 20, finalY);
+    
+    const categoryData = Object.entries(stats.byCategory).map(([cat, data]) => [
+      cat,
+      data.count.toString(),
+      `+${data.income.toFixed(2)} €`,
+      `-${data.expense.toFixed(2)} €`
+    ]);
+    
+    doc.autoTable({
+      startY: finalY + 5,
+      head: [['Catégorie', 'Transactions', 'Revenus', 'Dépenses']],
+      body: categoryData,
+      theme: 'striped',
+      headStyles: { fillColor: [99, 102, 241] }
+    });
+    
+    // Transactions (first 50 for space)
+    const transactionsY = doc.lastAutoTable.finalY + 10;
+    
+    // Check if we need a new page
+    if (transactionsY > 250) {
+      doc.addPage();
+      doc.setFontSize(14);
+      doc.text('TRANSACTIONS', 20, 20);
+      var startY = 25;
+    } else {
+      doc.setFontSize(14);
+      doc.text('TRANSACTIONS', 20, transactionsY);
+      var startY = transactionsY + 5;
+    }
+    
+    const transactionData = filteredTransactions.slice(0, 50).map(txn => [
+      new Date(txn.date).toLocaleDateString('fr-FR'),
+      txn.description,
+      txn.category,
+      `${txn.type === 'income' ? '+' : '-'}${txn.amount.toFixed(2)} €`
+    ]);
+    
+    doc.autoTable({
+      startY: startY,
+      head: [['Date', 'Description', 'Catégorie', 'Montant']],
+      body: transactionData,
+      theme: 'striped',
+      headStyles: { fillColor: [99, 102, 241] },
+      styles: { fontSize: 8 }
+    });
+    
+    if (filteredTransactions.length > 50) {
+      const noteY = doc.lastAutoTable.finalY + 5;
+      doc.setFontSize(10);
+      doc.text(`Note: Affichage des 50 premières transactions sur ${filteredTransactions.length} totales`, 20, noteY);
+    }
+    
+    // Save PDF
+    doc.save(`rapport-${period}-${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
+  const exportToText = () => {
+    // Simple text export
     let content = `RAPPORT FINANCIER\n`;
     content += `Période: ${period === 'custom' ? `${startDate} à ${endDate}` : period}\n`;
     content += `\n=== RÉSUMÉ ===\n`;
