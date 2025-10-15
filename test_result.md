@@ -324,10 +324,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "OCR with Tesseract.js"
     - "PDF Export for Reports"
-    - "CSV Importer Component"
-  stuck_tasks: []
+  stuck_tasks:
+    - "PDF Export for Reports"
   test_all: false
   test_priority: "high_first"
 
