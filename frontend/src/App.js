@@ -1343,6 +1343,28 @@ const Modal = ({ type, data, onClose, onSave, accounts }) => {
             await transactionsAPI.update(data.id, transactionData);
           } else {
             await transactionsAPI.create(transactionData);
+            
+            // Auto-add new category if it doesn't exist
+            if (transactionData.category) {
+              const categoryExists = categories.some(cat => 
+                cat.name.toLowerCase() === transactionData.category.toLowerCase()
+              );
+              
+              if (!categoryExists) {
+                try {
+                  await categoriesAPI.create({
+                    name: transactionData.category,
+                    type: transactionData.type || 'expense',
+                    subcategories: []
+                  });
+                  // Reload categories
+                  const updatedCategories = await categoriesAPI.getAll();
+                  setCategories(updatedCategories.data);
+                } catch (error) {
+                  console.log('Category already exists or error creating:', error);
+                }
+              }
+            }
           }
           break;
         case 'investment':
