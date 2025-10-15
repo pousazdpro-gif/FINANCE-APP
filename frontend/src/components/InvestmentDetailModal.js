@@ -168,8 +168,6 @@ const InvestmentDetailModal = ({ investment, onClose, onUpdate, onAddOperation, 
     }
   };
 
-  const gains = calculateGains();
-
   // Prepare chart data
   const chartData = {
     labels: investment.operations?.map((op, idx) => `Op ${idx + 1}`) || [],
