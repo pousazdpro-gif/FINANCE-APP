@@ -886,6 +886,166 @@ async def delete_category(category_id: str, request: Request):
 
 
 # ============================================================================
+# API ROUTES - TASKS (EISENHOWER MATRIX)
+# ============================================================================
+@api_router.post("/tasks", response_model=Task)
+async def create_task(input: TaskCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    task = Task(**input.model_dump())
+    doc = task.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    if doc.get('due_date'):
+        doc['due_date'] = doc['due_date'].isoformat()
+    doc['user_email'] = user_email
+    await db.tasks.insert_one(doc)
+    return task
+
+@api_router.get("/tasks", response_model=List[Task])
+async def get_tasks(request: Request, quadrant: Optional[str] = None, completed: Optional[bool] = None):
+    user = await get_current_user(request, db)
+    query = {"user_email": user['email']} if user else {"user_email": "anonymous"}
+    
+    if quadrant:
+        query["quadrant"] = quadrant
+    if completed is not None:
+        query["completed"] = completed
+    
+    tasks = await db.tasks.find(query, {"_id": 0}).to_list(1000)
+    for task in tasks:
+        if isinstance(task.get('created_at'), str):
+            task['created_at'] = datetime.fromisoformat(task['created_at'])
+        if task.get('due_date') and isinstance(task.get('due_date'), str):
+            task['due_date'] = datetime.fromisoformat(task['due_date'])
+    return tasks
+
+@api_router.put("/tasks/{task_id}", response_model=Task)
+async def update_task(task_id: str, input: TaskCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    task = await db.tasks.find_one({"id": task_id, "user_email": user_email}, {"_id": 0})
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    update_data = input.model_dump()
+    if update_data.get('due_date'):
+        update_data['due_date'] = update_data['due_date'].isoformat()
+    
+    result = await db.tasks.update_one(
+        {"id": task_id, "user_email": user_email}, 
+        {"$set": update_data}
+    )
+    
+    updated = await db.tasks.find_one({"id": task_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    if updated.get('due_date') and isinstance(updated.get('due_date'), str):
+        updated['due_date'] = datetime.fromisoformat(updated['due_date'])
+    return updated
+
+@api_router.patch("/tasks/{task_id}/complete")
+async def toggle_task_completion(task_id: str, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    task = await db.tasks.find_one({"id": task_id, "user_email": user_email}, {"_id": 0})
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    new_status = not task.get('completed', False)
+    await db.tasks.update_one(
+        {"id": task_id, "user_email": user_email},
+        {"$set": {"completed": new_status}}
+    )
+    
+    return {"message": "Task status updated", "completed": new_status}
+
+@api_router.patch("/tasks/{task_id}/move")
+async def move_task_quadrant(task_id: str, quadrant: EisenhowerQuadrant, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    task = await db.tasks.find_one({"id": task_id, "user_email": user_email}, {"_id": 0})
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    await db.tasks.update_one(
+        {"id": task_id, "user_email": user_email},
+        {"$set": {"quadrant": quadrant}}
+    )
+    
+    return {"message": "Task moved", "new_quadrant": quadrant}
+
+@api_router.delete("/tasks/{task_id}")
+async def delete_task(task_id: str, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    result = await db.tasks.delete_one({"id": task_id, "user_email": user_email})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return {"message": "Task deleted successfully"}
+
+
+# ============================================================================
+# API ROUTES - USER PREFERENCES
+# ============================================================================
+@api_router.get("/preferences", response_model=UserPreferences)
+async def get_preferences(request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    prefs = await db.preferences.find_one({"user_email": user_email}, {"_id": 0})
+    if not prefs:
+        # Return default preferences
+        default_prefs = UserPreferences()
+        doc = default_prefs.model_dump()
+        doc['user_email'] = user_email
+        doc['created_at'] = doc['created_at'].isoformat()
+        doc['updated_at'] = doc['updated_at'].isoformat()
+        await db.preferences.insert_one(doc)
+        return default_prefs
+    
+    if isinstance(prefs.get('created_at'), str):
+        prefs['created_at'] = datetime.fromisoformat(prefs['created_at'])
+    if isinstance(prefs.get('updated_at'), str):
+        prefs['updated_at'] = datetime.fromisoformat(prefs['updated_at'])
+    return UserPreferences(**prefs)
+
+@api_router.put("/preferences", response_model=UserPreferences)
+async def update_preferences(input: UserPreferencesUpdate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    # Get existing preferences or create defaults
+    prefs = await db.preferences.find_one({"user_email": user_email}, {"_id": 0})
+    if not prefs:
+        default_prefs = UserPreferences()
+        prefs = default_prefs.model_dump()
+        prefs['user_email'] = user_email
+        prefs['created_at'] = datetime.now(timezone.utc).isoformat()
+    
+    # Update with new values
+    update_data = {k: v for k, v in input.model_dump().items() if v is not None}
+    update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+    
+    await db.preferences.update_one(
+        {"user_email": user_email},
+        {"$set": update_data},
+        upsert=True
+    )
+    
+    updated = await db.preferences.find_one({"user_email": user_email}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    if isinstance(updated.get('updated_at'), str):
+        updated['updated_at'] = datetime.fromisoformat(updated['updated_at'])
+    return UserPreferences(**updated)
+
+
+# ============================================================================
 # API ROUTES - GOALS
 # ============================================================================
 @api_router.post("/goals", response_model=Goal)
