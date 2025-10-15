@@ -177,6 +177,8 @@ function App() {
     { id: 'shopping', label: 'Achats', icon: ShoppingCart },
     { id: 'banks', label: 'Banques', icon: Building2 },
     { id: 'tasks', label: 'Tâches', icon: CheckSquare },
+    { id: 'ocr', label: 'Scanner OCR', icon: Camera },
+    { id: 'projection', label: 'Projection', icon: BarChart3 },
     { id: 'settings', label: 'Paramètres', icon: Settings },
   ];
 
