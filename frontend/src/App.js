@@ -278,6 +278,7 @@ function App() {
         />
       )}
     </div>
+    </LoginRequired>
   );
 }
 
