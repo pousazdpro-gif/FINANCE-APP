@@ -160,9 +160,9 @@ backend:
     implemented: true
     working: true
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "user"
@@ -173,6 +173,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Created PUT /api/investments/{id} endpoint with Request parameter and user_email verification"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: PUT /api/investments/{id} THE NEW ENDPOINT working perfectly. Successfully updated investment name from 'Apple Inc.' to 'Apple Inc. (Updated)'. User verification enforced. Response: 200 OK. Also tested 404 for non-existent investments. Stuck count reset to 0 as issue is fully resolved."
 
 frontend:
   - task: "Transaction Form with Date Field"
