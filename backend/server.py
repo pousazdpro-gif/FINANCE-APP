@@ -353,7 +353,7 @@ class Task(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     title: str
     description: Optional[str] = None
-    quadrant: EisenhowerQuadrant
+    quadrant: Optional[EisenhowerQuadrant] = None  # Null = uncategorized
     estimated_cost: Optional[float] = None
     priority: int = 0  # 0-5
     due_date: Optional[datetime] = None
