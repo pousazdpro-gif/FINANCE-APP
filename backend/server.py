@@ -405,14 +405,20 @@ async def get_transaction(transaction_id: str):
     return transaction
 
 @api_router.put("/transactions/{transaction_id}", response_model=Transaction)
-async def update_transaction(transaction_id: str, input: TransactionCreate):
-    transaction = await db.transactions.find_one({"id": transaction_id}, {"_id": 0})
+async def update_transaction(transaction_id: str, input: TransactionCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    transaction = await db.transactions.find_one({"id": transaction_id, "user_email": user_email}, {"_id": 0})
     if not transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
     
     update_data = input.model_dump()
     update_data['date'] = update_data['date'].isoformat()
-    result = await db.transactions.update_one({"id": transaction_id}, {"$set": update_data})
+    result = await db.transactions.update_one(
+        {"id": transaction_id, "user_email": user_email}, 
+        {"$set": update_data}
+    )
     
     updated = await db.transactions.find_one({"id": transaction_id}, {"_id": 0})
     if isinstance(updated.get('date'), str):
