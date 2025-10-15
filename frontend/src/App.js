@@ -187,6 +187,7 @@ function App() {
     { id: 'tasks', label: 'Tâches', icon: CheckSquare },
     { id: 'ocr', label: 'Scanner OCR', icon: Camera },
     { id: 'projection', label: 'Projection', icon: BarChart3 },
+    { id: 'reports', label: 'Rapports', icon: FileBarChart },
     { id: 'settings', label: 'Paramètres', icon: Settings },
   ];
 
