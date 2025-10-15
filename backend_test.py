@@ -417,20 +417,44 @@ class FinanceAppTester:
         """Test CSV Bank Import endpoint"""
         self.log("=== Testing CSV Bank Import ===")
         
-        # First create a bank connection (we'll use a mock ID)
-        bank_connection_id = "test-bank-connection-123"
+        if not self.test_account_id:
+            self.log("❌ No test account available for CSV import testing", "ERROR")
+            return False
+        
+        # First create a bank connection
+        bank_connection_data = {
+            "bank_name": "Test Bank",
+            "account_id": self.test_account_id
+        }
+        
+        self.log("Creating bank connection for CSV import test")
+        try:
+            response = self.session.post(f"{API_BASE}/bank-connections", json=bank_connection_data)
+            self.log(f"Bank connection creation response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                bank_connection = response.json()
+                bank_connection_id = bank_connection['id']
+                self.log(f"✅ Bank connection created: {bank_connection_id}")
+            else:
+                self.log(f"❌ Bank connection creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Bank connection creation error: {str(e)}", "ERROR")
+            return False
         
         # Test CSV import data
         csv_import_data = {
             "transactions": [
                 {
-                    "date": "2024-01-15",
+                    "date": "2024-01-15T10:00:00Z",
                     "description": "Test import transaction",
                     "amount": -50.00,
                     "category": "Divers"
                 },
                 {
-                    "date": "2024-01-16", 
+                    "date": "2024-01-16T14:00:00Z", 
                     "description": "Salaire test import",
                     "amount": 2000.00,
                     "category": "Revenus"
@@ -449,13 +473,20 @@ class FinanceAppTester:
             if response.status_code in [200, 201]:
                 result = response.json()
                 self.log(f"✅ CSV import successful: {result}")
+                
+                # Cleanup - delete the bank connection
+                self.session.delete(f"{API_BASE}/bank-connections/{bank_connection_id}")
                 return True
             else:
                 self.log(f"❌ CSV import failed: {response.status_code} - {response.text}", "ERROR")
+                # Cleanup - delete the bank connection
+                self.session.delete(f"{API_BASE}/bank-connections/{bank_connection_id}")
                 return False
                 
         except Exception as e:
             self.log(f"❌ CSV import error: {str(e)}", "ERROR")
+            # Cleanup - delete the bank connection
+            self.session.delete(f"{API_BASE}/bank-connections/{bank_connection_id}")
             return False
     
     def test_existing_endpoints(self):
