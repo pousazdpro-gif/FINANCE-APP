@@ -1417,6 +1417,107 @@ async def delete_receivable(receivable_id: str):
         raise HTTPException(status_code=404, detail="Receivable not found")
     return {"message": "Receivable deleted successfully"}
 
+@api_router.post("/receivables/{receivable_id}/payments", response_model=Receivable)
+async def add_receivable_payment(receivable_id: str, input: ReceivablePaymentCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    receivable = await db.receivables.find_one({"id": receivable_id, "user_email": user_email}, {"_id": 0})
+    if not receivable:
+        raise HTTPException(status_code=404, detail="Receivable not found")
+    
+    payment = ReceivablePayment(date=input.date, amount=input.amount, notes=input.notes)
+    payment_dict = payment.model_dump()
+    payment_dict['date'] = payment_dict['date'].isoformat()
+    
+    # Update remaining amount
+    new_remaining = receivable['remaining_amount'] - input.amount
+    
+    await db.receivables.update_one(
+        {"id": receivable_id, "user_email": user_email},
+        {
+            "$push": {"payments": payment_dict},
+            "$set": {"remaining_amount": new_remaining}
+        }
+    )
+    
+    # Create linked transaction if account_id exists
+    if receivable.get('account_id'):
+        await db.transactions.insert_one({
+            "id": str(uuid.uuid4()),
+            "account_id": receivable['account_id'],
+            "type": "income",
+            "amount": input.amount,
+            "category": "Receivable Payment",
+            "description": f"Payment for {receivable['name']}",
+            "date": input.date.isoformat(),
+            "user_email": user_email,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+    
+    updated = await db.receivables.find_one({"id": receivable_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    if updated.get('due_date') and isinstance(updated.get('due_date'), str):
+        updated['due_date'] = datetime.fromisoformat(updated['due_date'])
+    for payment in updated.get('payments', []):
+        if isinstance(payment.get('date'), str):
+            payment['date'] = datetime.fromisoformat(payment['date'])
+    return updated
+
+@api_router.put("/receivables/{receivable_id}/payments/{payment_index}", response_model=Receivable)
+async def update_receivable_payment(receivable_id: str, payment_index: int, input: ReceivablePaymentCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    receivable = await db.receivables.find_one({"id": receivable_id, "user_email": user_email}, {"_id": 0})
+    if not receivable:
+        raise HTTPException(status_code=404, detail="Receivable not found")
+    
+    if payment_index < 0 or payment_index >= len(receivable.get('payments', [])):
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    payment = ReceivablePayment(date=input.date, amount=input.amount, notes=input.notes)
+    payment_dict = payment.model_dump()
+    payment_dict['date'] = payment_dict['date'].isoformat()
+    
+    await db.receivables.update_one(
+        {"id": receivable_id, "user_email": user_email},
+        {"$set": {f"payments.{payment_index}": payment_dict}}
+    )
+    
+    updated = await db.receivables.find_one({"id": receivable_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    if updated.get('due_date') and isinstance(updated.get('due_date'), str):
+        updated['due_date'] = datetime.fromisoformat(updated['due_date'])
+    for payment in updated.get('payments', []):
+        if isinstance(payment.get('date'), str):
+            payment['date'] = datetime.fromisoformat(payment['date'])
+    return updated
+
+@api_router.delete("/receivables/{receivable_id}/payments/{payment_index}")
+async def delete_receivable_payment(receivable_id: str, payment_index: int, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    receivable = await db.receivables.find_one({"id": receivable_id, "user_email": user_email}, {"_id": 0})
+    if not receivable:
+        raise HTTPException(status_code=404, detail="Receivable not found")
+    
+    payments = receivable.get('payments', [])
+    if payment_index < 0 or payment_index >= len(payments):
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    payments.pop(payment_index)
+    
+    await db.receivables.update_one(
+        {"id": receivable_id, "user_email": user_email},
+        {"$set": {"payments": payments}}
+    )
+    
+    return {"message": "Payment deleted successfully"}
+
 
 # ============================================================================
 # API ROUTES - SHOPPING/PRODUCTS
