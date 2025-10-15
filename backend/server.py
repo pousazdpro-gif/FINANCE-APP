@@ -433,16 +433,23 @@ async def delete_transaction(transaction_id: str):
 # API ROUTES - INVESTMENTS
 # ============================================================================
 @api_router.post("/investments", response_model=Investment)
-async def create_investment(input: InvestmentCreate):
+async def create_investment(input: InvestmentCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
     investment = Investment(**input.model_dump())
     doc = investment.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
+    doc['user_email'] = user_email
     await db.investments.insert_one(doc)
     return investment
 
 @api_router.get("/investments", response_model=List[Investment])
-async def get_investments():
-    investments = await db.investments.find({}, {"_id": 0}).to_list(1000)
+async def get_investments(request: Request):
+    user = await get_current_user(request, db)
+    query = {"user_email": user['email']} if user else {"user_email": "anonymous"}
+    
+    investments = await db.investments.find(query, {"_id": 0}).to_list(1000)
     for inv in investments:
         if isinstance(inv.get('created_at'), str):
             inv['created_at'] = datetime.fromisoformat(inv['created_at'])
