@@ -1376,32 +1376,46 @@ async def delete_debt_payment(debt_id: str, payment_index: int, request: Request
 # API ROUTES - RECEIVABLES
 # ============================================================================
 @api_router.post("/receivables", response_model=Receivable)
-async def create_receivable(input: ReceivableCreate):
+async def create_receivable(input: ReceivableCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
     receivable = Receivable(**input.model_dump())
     doc = receivable.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     if doc.get('due_date'):
         doc['due_date'] = doc['due_date'].isoformat()
+    doc['user_email'] = user_email
     await db.receivables.insert_one(doc)
     return receivable
 
 @api_router.get("/receivables", response_model=List[Receivable])
-async def get_receivables():
-    receivables = await db.receivables.find({}, {"_id": 0}).to_list(1000)
+async def get_receivables(request: Request):
+    user = await get_current_user(request, db)
+    query = {"user_email": user['email']} if user else {"user_email": "anonymous"}
+    
+    receivables = await db.receivables.find(query, {"_id": 0}).to_list(1000)
     for rec in receivables:
         if isinstance(rec.get('created_at'), str):
             rec['created_at'] = datetime.fromisoformat(rec['created_at'])
         if rec.get('due_date') and isinstance(rec.get('due_date'), str):
             rec['due_date'] = datetime.fromisoformat(rec['due_date'])
+        # Handle payments dates
+        for payment in rec.get('payments', []):
+            if isinstance(payment.get('date'), str):
+                payment['date'] = datetime.fromisoformat(payment['date'])
     return receivables
 
 @api_router.put("/receivables/{receivable_id}", response_model=Receivable)
-async def update_receivable(receivable_id: str, input: ReceivableCreate):
+async def update_receivable(receivable_id: str, input: ReceivableCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
     update_data = input.model_dump()
     if update_data.get('due_date'):
         update_data['due_date'] = update_data['due_date'].isoformat()
     
-    result = await db.receivables.update_one({"id": receivable_id}, {"$set": update_data})
+    result = await db.receivables.update_one({"id": receivable_id, "user_email": user_email}, {"$set": update_data})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Receivable not found")
     
@@ -1409,7 +1423,11 @@ async def update_receivable(receivable_id: str, input: ReceivableCreate):
     if isinstance(updated.get('created_at'), str):
         updated['created_at'] = datetime.fromisoformat(updated['created_at'])
     if updated.get('due_date') and isinstance(updated.get('due_date'), str):
-        updated['deadline'] = datetime.fromisoformat(updated['due_date'])
+        updated['due_date'] = datetime.fromisoformat(updated['due_date'])
+    # Handle payments dates
+    for payment in updated.get('payments', []):
+        if isinstance(payment.get('date'), str):
+            payment['date'] = datetime.fromisoformat(payment['date'])
     return updated
 
 @api_router.delete("/receivables/{receivable_id}")
