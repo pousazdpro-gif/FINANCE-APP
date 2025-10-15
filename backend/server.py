@@ -292,16 +292,23 @@ class BankConnectionCreate(BaseModel):
 # API ROUTES - ACCOUNTS
 # ============================================================================
 @api_router.post("/accounts", response_model=Account)
-async def create_account(input: AccountCreate):
+async def create_account(input: AccountCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
     account = Account(**input.model_dump(), current_balance=input.initial_balance)
     doc = account.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
+    doc['user_email'] = user_email  # Add user ownership
     await db.accounts.insert_one(doc)
     return account
 
 @api_router.get("/accounts", response_model=List[Account])
-async def get_accounts():
-    accounts = await db.accounts.find({}, {"_id": 0}).to_list(1000)
+async def get_accounts(request: Request):
+    user = await get_current_user(request, db)
+    query = {"user_email": user['email']} if user else {"user_email": "anonymous"}
+    
+    accounts = await db.accounts.find(query, {"_id": 0}).to_list(1000)
     for acc in accounts:
         if isinstance(acc.get('created_at'), str):
             acc['created_at'] = datetime.fromisoformat(acc['created_at'])
