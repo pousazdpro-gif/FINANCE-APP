@@ -236,7 +236,7 @@ class Investment(BaseModel):
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
-    symbol: str
+    symbol: str = ""  # Made optional with default empty string for backward compatibility
     type: str = "stock"  # Changed back to str for backward compatibility
     quantity: float = 0.0
     average_price: float = 0.0
