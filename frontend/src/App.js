@@ -17,6 +17,8 @@ import LoginRequired from './components/LoginRequired';
 import InvestmentDetailModal from './components/InvestmentDetailModal';
 import GlobalSearch from './components/GlobalSearch';
 import CategoryManager from './components/CategoryManager';
+import EisenhowerMatrix from './components/EisenhowerMatrix';
+import SettingsPanel from './components/SettingsPanel';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
