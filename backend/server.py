@@ -832,11 +832,14 @@ async def get_investments(request: Request):
     
     investments = await db.investments.find(query, {"_id": 0}).to_list(1000)
     for inv in investments:
-        if isinstance(inv.get('created_at'), str):
-            inv['created_at'] = datetime.fromisoformat(inv['created_at'])
+        # Convert camelCase to snake_case for backward compatibility
+        inv = convert_camel_to_snake(inv, INVESTMENT_FIELD_MAP)
+        
+        # Handle dates
+        inv = convert_dates_from_string(inv, ['created_at', 'purchase_date'])
+        
         for op in inv.get('operations', []):
-            if isinstance(op.get('date'), str):
-                op['date'] = datetime.fromisoformat(op['date'])
+            op = convert_dates_from_string(op, ['date'])
     return investments
 
 @api_router.post("/investments/{investment_id}/operations", response_model=Investment)
