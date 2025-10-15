@@ -528,12 +528,15 @@ async def get_goals(request: Request):
     return goals
 
 @api_router.put("/goals/{goal_id}", response_model=Goal)
-async def update_goal(goal_id: str, input: GoalCreate):
+async def update_goal(goal_id: str, input: GoalCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
     update_data = input.model_dump()
     if update_data.get('deadline'):
         update_data['deadline'] = update_data['deadline'].isoformat()
     
-    result = await db.goals.update_one({"id": goal_id}, {"$set": update_data})
+    result = await db.goals.update_one({"id": goal_id, "user_email": user_email}, {"$set": update_data})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Goal not found")
     
