@@ -548,12 +548,133 @@ async def update_investment(investment_id: str, input: InvestmentCreate, request
             op['date'] = datetime.fromisoformat(op['date'])
     return updated
 
+@api_router.put("/investments/{investment_id}/operations/{operation_index}", response_model=Investment)
+async def update_investment_operation(investment_id: str, operation_index: int, input: InvestmentOperationCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    investment = await db.investments.find_one({"id": investment_id, "user_email": user_email}, {"_id": 0})
+    if not investment:
+        raise HTTPException(status_code=404, detail="Investment not found")
+    
+    if operation_index < 0 or operation_index >= len(investment.get('operations', [])):
+        raise HTTPException(status_code=404, detail="Operation not found")
+    
+    operation = InvestmentOperation(
+        date=input.date,
+        type=input.type,
+        quantity=input.quantity,
+        price=input.price,
+        fees=input.fees,
+        total=(input.quantity * input.price) + input.fees
+    )
+    
+    operation_dict = operation.model_dump()
+    operation_dict['date'] = operation_dict['date'].isoformat()
+    
+    # Update the specific operation
+    await db.investments.update_one(
+        {"id": investment_id, "user_email": user_email},
+        {"$set": {f"operations.{operation_index}": operation_dict}}
+    )
+    
+    updated = await db.investments.find_one({"id": investment_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    for op in updated.get('operations', []):
+        if isinstance(op.get('date'), str):
+            op['date'] = datetime.fromisoformat(op['date'])
+    return updated
+
+@api_router.delete("/investments/{investment_id}/operations/{operation_index}")
+async def delete_investment_operation(investment_id: str, operation_index: int, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    investment = await db.investments.find_one({"id": investment_id, "user_email": user_email}, {"_id": 0})
+    if not investment:
+        raise HTTPException(status_code=404, detail="Investment not found")
+    
+    operations = investment.get('operations', [])
+    if operation_index < 0 or operation_index >= len(operations):
+        raise HTTPException(status_code=404, detail="Operation not found")
+    
+    # Remove the operation at the specified index
+    operations.pop(operation_index)
+    
+    await db.investments.update_one(
+        {"id": investment_id, "user_email": user_email},
+        {"$set": {"operations": operations}}
+    )
+    
+    return {"message": "Operation deleted successfully"}
+
 @api_router.delete("/investments/{investment_id}")
 async def delete_investment(investment_id: str):
     result = await db.investments.delete_one({"id": investment_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Investment not found")
     return {"message": "Investment deleted successfully"}
+
+
+# ============================================================================
+# API ROUTES - CATEGORIES
+# ============================================================================
+@api_router.post("/categories", response_model=Category)
+async def create_category(input: CategoryCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    category = Category(**input.model_dump())
+    doc = category.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    doc['user_email'] = user_email
+    await db.categories.insert_one(doc)
+    return category
+
+@api_router.get("/categories", response_model=List[Category])
+async def get_categories(request: Request, type: Optional[str] = None):
+    user = await get_current_user(request, db)
+    query = {"user_email": user['email']} if user else {"user_email": "anonymous"}
+    
+    if type:
+        query["type"] = type
+    
+    categories = await db.categories.find(query, {"_id": 0}).to_list(1000)
+    for cat in categories:
+        if isinstance(cat.get('created_at'), str):
+            cat['created_at'] = datetime.fromisoformat(cat['created_at'])
+    return categories
+
+@api_router.put("/categories/{category_id}", response_model=Category)
+async def update_category(category_id: str, input: CategoryCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    category = await db.categories.find_one({"id": category_id, "user_email": user_email}, {"_id": 0})
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    update_data = input.model_dump()
+    result = await db.categories.update_one(
+        {"id": category_id, "user_email": user_email}, 
+        {"$set": update_data}
+    )
+    
+    updated = await db.categories.find_one({"id": category_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    return updated
+
+@api_router.delete("/categories/{category_id}")
+async def delete_category(category_id: str, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    result = await db.categories.delete_one({"id": category_id, "user_email": user_email})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Category not found")
+    return {"message": "Category deleted successfully"}
 
 
 # ============================================================================
