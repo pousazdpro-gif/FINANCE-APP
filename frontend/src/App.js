@@ -162,6 +162,7 @@ function App() {
   ];
 
   return (
+    <LoginRequired>
     <div className="flex h-screen overflow-hidden bg-gray-100">
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
