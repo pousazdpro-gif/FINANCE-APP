@@ -12,6 +12,7 @@ import {
   receivablesAPI, productsAPI, shoppingListsAPI, bankConnectionsAPI, 
   dashboardAPI, dataAPI 
 } from './services/api';
+import AuthButton from './components/AuthButton';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
