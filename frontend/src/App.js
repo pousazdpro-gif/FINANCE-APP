@@ -720,9 +720,40 @@ const TransactionsView = ({ transactions, accounts, openModal, setTransactions }
       }
     }
   };
+  
+  // Calculate mini-dashboard stats
+  const thisMonth = transactions.filter(t => {
+    const txnDate = new Date(t.date);
+    const now = new Date();
+    return txnDate.getMonth() === now.getMonth() && txnDate.getFullYear() === now.getFullYear();
+  });
+  
+  const income = thisMonth.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+  const expenses = thisMonth.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+  const balance = income - expenses;
 
   return (
     <div data-testid="transactions-view">
+      {/* Mini Dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg shadow">
+          <div className="text-xs opacity-90">Total Transactions</div>
+          <div className="text-2xl font-bold">{transactions.length}</div>
+        </div>
+        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg shadow">
+          <div className="text-xs opacity-90">Revenus (ce mois)</div>
+          <div className="text-2xl font-bold">+{income.toFixed(2)} €</div>
+        </div>
+        <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-4 rounded-lg shadow">
+          <div className="text-xs opacity-90">Dépenses (ce mois)</div>
+          <div className="text-2xl font-bold">-{expenses.toFixed(2)} €</div>
+        </div>
+        <div className={`bg-gradient-to-r ${balance >= 0 ? 'from-indigo-500 to-indigo-600' : 'from-orange-500 to-orange-600'} text-white p-4 rounded-lg shadow`}>
+          <div className="text-xs opacity-90">Solde (ce mois)</div>
+          <div className="text-2xl font-bold">{balance.toFixed(2)} €</div>
+        </div>
+      </div>
+      
       <div className="mb-4">
         <button
           onClick={() => openModal('transaction')}
