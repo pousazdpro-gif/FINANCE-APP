@@ -854,19 +854,30 @@ async def delete_bank_connection(connection_id: str):
 # API ROUTES - DASHBOARD & STATISTICS
 # ============================================================================
 @api_router.get("/dashboard/summary")
-async def get_dashboard_summary():
+async def get_dashboard_summary(request: Request):
     """Get dashboard summary with key metrics"""
-    accounts = await db.accounts.find({}, {"_id": 0}).to_list(1000)
-    transactions = await db.transactions.find({}, {"_id": 0}).to_list(10000)
-    investments = await db.investments.find({}, {"_id": 0}).to_list(1000)
-    goals = await db.goals.find({}, {"_id": 0}).to_list(1000)
-    debts = await db.debts.find({}, {"_id": 0}).to_list(1000)
+    user = await get_current_user(request, db)
+    query = {"user_email": user['email']} if user else {"user_email": "anonymous"}
     
-    # Calculate totals
+    accounts = await db.accounts.find(query, {"_id": 0}).to_list(1000)
+    transactions = await db.transactions.find(query, {"_id": 0}).to_list(10000)
+    investments = await db.investments.find(query, {"_id": 0}).to_list(1000)
+    goals = await db.goals.find(query, {"_id": 0}).to_list(1000)
+    debts = await db.debts.find(query, {"_id": 0}).to_list(1000)
+    
+    # Calculate totals from ACCOUNTS
     total_balance = sum(acc.get('current_balance', 0) for acc in accounts if not acc.get('is_excluded_from_total'))
-    total_investments = sum(inv.get('quantity', 0) * inv.get('current_price', 0) for inv in investments)
+    
+    # Calculate total from INVESTMENTS (quantity * current_price)
+    total_investments = sum(
+        inv.get('quantity', 0) * inv.get('current_price', 0) 
+        for inv in investments
+    )
+    
+    # Calculate total DEBTS
     total_debts = sum(debt.get('remaining_amount', 0) for debt in debts)
     
+    # NET WORTH = Comptes + Investissements - Dettes
     net_worth = total_balance + total_investments - total_debts
     
     # Calculate monthly income and expenses
