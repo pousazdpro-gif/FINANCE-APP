@@ -123,23 +123,29 @@ backend:
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Added helper functions convert_camel_to_snake and convert_dates_from_string. Applied to all GET endpoints (transactions, investments, goals, debts, receivables, accounts) to fix 500 errors from old camelCase data in MongoDB."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: All GET endpoints working correctly with camelCase/snake_case conversion. Tested /api/transactions (4 items), /api/investments (2 items), /api/goals (0 items), /api/debts (0 items), /api/receivables (0 items), /api/accounts (3 items). All return 200 OK and properly convert fields like account_id, created_at, average_price, current_price."
         
   - task: "Bank CSV Import endpoint"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Added POST /bank-connections/{id}/import-csv endpoint to import transactions from CSV bank statements. Includes duplicate detection."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: CSV Bank Import working correctly. Created bank connection, imported 2 test transactions successfully. Response: '2 transactions imported successfully', imported_count: 2, total_rows: 2. Duplicate detection and proper transaction creation confirmed."
         
   - task: "Create Transaction API"
     implemented: true
