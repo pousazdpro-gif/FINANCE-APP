@@ -319,8 +319,9 @@ class Receivable(BaseModel):
 
 class ReceivableCreate(BaseModel):
     name: str
-    total_amount: float
-    remaining_amount: float
+    total_amount: Optional[float] = 0
+    remaining_amount: Optional[float] = 0
+    amount: Optional[float] = 0  # For backward compatibility
     debtor: str
     due_date: Optional[datetime] = None
     account_id: Optional[str] = None
