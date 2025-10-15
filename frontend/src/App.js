@@ -857,7 +857,12 @@ const GoalsView = ({ goals, openModal, setGoals }) => (
       </button>
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {goals.map((goal) => (
+      {goals.map((goal) => {
+        const currentAmount = goal.current_amount || 0;
+        const targetAmount = goal.target_amount || 1; // Avoid division by zero
+        const percentage = Math.min((currentAmount / targetAmount) * 100, 100);
+        
+        return (
         <div key={goal.id} className="bg-white p-6 rounded-lg shadow">
           <div className="flex justify-between items-start mb-4">
             <div className="flex-1">
@@ -865,14 +870,14 @@ const GoalsView = ({ goals, openModal, setGoals }) => (
               <div className="w-full bg-gray-200 rounded-full h-3 mt-3 mb-2">
                 <div 
                   className="bg-green-500 h-3 rounded-full transition-all" 
-                  style={{ width: `${Math.min((goal.current_amount / goal.target_amount) * 100, 100)}%` }}
+                  style={{ width: `${percentage}%` }}
                 />
               </div>
               <div className="text-sm text-gray-600">
-                {goal.current_amount.toFixed(2)} € / {goal.target_amount.toFixed(2)} €
+                {currentAmount.toFixed(2)} € / {targetAmount.toFixed(2)} €
               </div>
               <div className="text-sm font-semibold text-green-600 mt-1">
-                {((goal.current_amount / goal.target_amount) * 100).toFixed(1)}% atteint
+                {percentage.toFixed(1)}% atteint
               </div>
             </div>
             <div className="flex space-x-2">
@@ -896,7 +901,8 @@ const GoalsView = ({ goals, openModal, setGoals }) => (
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   </div>
 );
