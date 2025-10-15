@@ -838,10 +838,17 @@ const Modal = ({ type, data, onClose, onSave, accounts }) => {
                 required
               >
                 <option value="">Sélectionner un compte</option>
-                {accounts.map(acc => (
-                  <option key={acc.id} value={acc.id}>{acc.name}</option>
-                ))}
+                {accounts && accounts.length > 0 ? (
+                  accounts.map(acc => (
+                    <option key={acc.id} value={acc.id}>{acc.name} ({acc.currency})</option>
+                  ))
+                ) : (
+                  <option disabled>Aucun compte disponible</option>
+                )}
               </select>
+              {accounts && accounts.length === 0 && (
+                <p className="text-sm text-red-600">⚠️ Créez d'abord un compte dans la section Comptes</p>
+              )}
               <input
                 type="text"
                 placeholder="Description"
