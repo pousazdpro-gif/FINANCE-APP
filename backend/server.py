@@ -1906,6 +1906,65 @@ async def sync_bank_connection(connection_id: str):
     
     return {"message": "Bank sync initiated", "status": "success"}
 
+@api_router.post("/bank-connections/{connection_id}/import-csv")
+async def import_bank_csv(connection_id: str, csv_data: Dict[str, Any], request: Request):
+    """Import transactions from CSV bank statement"""
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    connection = await db.bank_connections.find_one({"id": connection_id}, {"_id": 0})
+    if not connection:
+        raise HTTPException(status_code=404, detail="Bank connection not found")
+    
+    account_id = connection.get('account_id')
+    if not account_id:
+        raise HTTPException(status_code=400, detail="No account linked to this connection")
+    
+    # Parse CSV data (expecting list of rows)
+    imported_count = 0
+    transactions_data = csv_data.get('transactions', [])
+    
+    for row in transactions_data:
+        # Create transaction from CSV row
+        transaction = Transaction(
+            account_id=account_id,
+            type=TransactionType.expense if row.get('amount', 0) < 0 else TransactionType.income,
+            amount=abs(float(row.get('amount', 0))),
+            category=row.get('category', 'Divers'),
+            description=row.get('description', 'Import bancaire'),
+            date=datetime.fromisoformat(row.get('date', datetime.now(timezone.utc).isoformat()))
+        )
+        
+        doc = transaction.model_dump()
+        doc['user_email'] = user_email
+        doc['date'] = doc['date'].isoformat()
+        doc['created_at'] = doc['created_at'].isoformat()
+        
+        # Check if transaction already exists (avoid duplicates)
+        existing = await db.transactions.find_one({
+            "user_email": user_email,
+            "account_id": account_id,
+            "date": doc['date'],
+            "amount": doc['amount'],
+            "description": doc['description']
+        })
+        
+        if not existing:
+            await db.transactions.insert_one(doc)
+            imported_count += 1
+    
+    # Update last sync
+    await db.bank_connections.update_one(
+        {"id": connection_id},
+        {"$set": {"last_sync": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {
+        "message": f"{imported_count} transactions imported successfully",
+        "imported_count": imported_count,
+        "total_rows": len(transactions_data)
+    }
+
 @api_router.delete("/bank-connections/{connection_id}")
 async def delete_bank_connection(connection_id: str):
     result = await db.bank_connections.delete_one({"id": connection_id})
