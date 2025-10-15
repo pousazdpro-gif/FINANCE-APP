@@ -110,6 +110,35 @@ export const searchAPI = {
   search: (query) => api.get('/search', { params: { q: query } }),
 };
 
+// Tasks (Eisenhower Matrix)
+export const tasksAPI = {
+  getAll: (params) => api.get('/tasks', { params }),
+  create: (data) => api.post('/tasks', data),
+  update: (id, data) => api.put(`/tasks/${id}`, data),
+  toggleComplete: (id) => api.patch(`/tasks/${id}/complete`),
+  moveQuadrant: (id, quadrant) => api.patch(`/tasks/${id}/move`, null, { params: { quadrant } }),
+  delete: (id) => api.delete(`/tasks/${id}`),
+};
+
+// Preferences
+export const preferencesAPI = {
+  get: () => api.get('/preferences'),
+  update: (data) => api.put('/preferences', data),
+};
+
+// Currency
+export const currencyAPI = {
+  getRates: (base) => api.get('/currency/rates', { params: { base } }),
+};
+
+// Transfers
+export const transfersAPI = {
+  transfer: (fromId, toId, amount, description) =>
+    api.post('/accounts/transfer', null, {
+      params: { from_account_id: fromId, to_account_id: toId, amount, description }
+    }),
+};
+
 // Data Export/Import
 export const dataAPI = {
   exportAll: () => api.get('/export/all'),
