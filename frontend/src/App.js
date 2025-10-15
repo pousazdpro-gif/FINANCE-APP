@@ -282,7 +282,7 @@ function App() {
           ) : (
             <>
               {currentView === 'dashboard' && <DashboardView data={dashboardData} accounts={accounts} transactions={transactions} />}
-              {currentView === 'accounts' && <AccountsView accounts={accounts} openModal={openModal} setAccounts={setAccounts} />}
+              {currentView === 'accounts' && <AccountsView accounts={accounts} openModal={openModal} setAccounts={setAccounts} onTransferClick={() => setShowTransferModal(true)} />}
               {currentView === 'transactions' && <TransactionsView transactions={transactions} accounts={accounts} openModal={openModal} setTransactions={setTransactions} />}
               {currentView === 'investments' && <InvestmentsView investments={investments} openModal={openModal} setInvestments={setInvestments} onViewDetail={(inv) => { setSelectedInvestment(inv); setShowInvestmentDetail(true); }} />}
               {currentView === 'goals' && <GoalsView goals={goals} openModal={openModal} setGoals={setGoals} />}
