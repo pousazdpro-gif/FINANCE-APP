@@ -284,7 +284,7 @@ function App() {
         </div>
       </main>
 
-      {/* Modal */}
+      {/* Modals */}
       {showModal && (
         <Modal
           type={modalType}
@@ -292,6 +292,60 @@ function App() {
           onClose={closeModal}
           onSave={loadAllData}
           accounts={accounts}
+        />
+      )}
+      
+      {showInvestmentDetail && selectedInvestment && (
+        <InvestmentDetailModal
+          investment={selectedInvestment}
+          onClose={() => {
+            setShowInvestmentDetail(false);
+            setSelectedInvestment(null);
+          }}
+          onUpdate={async (id, data) => {
+            await investmentsAPI.update(id, data);
+            await loadAllData();
+          }}
+          onAddOperation={async (id, operation) => {
+            await investmentsAPI.addOperation(id, operation);
+            await loadAllData();
+            const updated = await investmentsAPI.getAll();
+            setSelectedInvestment(updated.data.find(inv => inv.id === id));
+          }}
+          onUpdateOperation={async (id, index, operation) => {
+            await investmentsAPI.updateOperation(id, index, operation);
+            await loadAllData();
+            const updated = await investmentsAPI.getAll();
+            setSelectedInvestment(updated.data.find(inv => inv.id === id));
+          }}
+          onDeleteOperation={async (id, index) => {
+            await investmentsAPI.deleteOperation(id, index);
+            await loadAllData();
+            const updated = await investmentsAPI.getAll();
+            setSelectedInvestment(updated.data.find(inv => inv.id === id));
+          }}
+        />
+      )}
+      
+      {showGlobalSearch && (
+        <GlobalSearch
+          onClose={() => setShowGlobalSearch(false)}
+          onResultClick={(type, item) => {
+            // Handle navigation to the result
+            console.log('Result clicked:', type, item);
+          }}
+        />
+      )}
+      
+      {showCategoryManager && (
+        <CategoryManager
+          onClose={() => {
+            setShowCategoryManager(false);
+            loadAllData();
+          }}
+          onCategorySelect={(category) => {
+            console.log('Category selected:', category);
+          }}
         />
       )}
     </div>
