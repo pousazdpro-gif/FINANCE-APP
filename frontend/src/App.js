@@ -6,7 +6,7 @@ import {
   Upload, Plus, Search, Bell, X, Edit, Trash2, Save, Tag, Settings, CheckSquare,
   Camera, BarChart3, FileBarChart
 } from "lucide-react";
-import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { Pie, Bar, Line } from 'react-chartjs-2';
 import { 
   accountsAPI, transactionsAPI, investmentsAPI, goalsAPI, debtsAPI, 
@@ -28,8 +28,8 @@ import ReceivableDetailModal from './components/ReceivableDetailModal';
 import ReportsView from './components/ReportsView';
 import CSVImporter from './components/CSVImporter';
 
-// Register ChartJS components
-ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
+// Register ChartJS components including Filler for fill option
+ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, Filler);
 
 function App() {
   // State management
