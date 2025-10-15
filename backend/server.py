@@ -224,17 +224,18 @@ class DebtPayment(BaseModel):
     linked_transaction_id: Optional[str] = None
 
 class Debt(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
-    total_amount: float
-    remaining_amount: float
-    interest_rate: float = 0.0
-    creditor: str
-    due_date: Optional[datetime] = None
-    payments: List[DebtPayment] = []
-    account_id: Optional[str] = None  # Link to account
+    total_amount: Optional[float] = Field(default=0, alias='totalAmount')
+    remaining_amount: Optional[float] = Field(default=0, alias='remainingAmount')
+    interest_rate: float = Field(default=0.0, alias='interestRate')
+    creditor: Optional[str] = None
+    due_date: Optional[datetime] = Field(default=None, alias='dueDate')
+    payments: List[DebtPayment] = Field(default_factory=list)
+    history: Optional[List[dict]] = None  # Old format compatibility
+    account_id: Optional[str] = Field(default=None, alias='accountId')
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class DebtCreate(BaseModel):
