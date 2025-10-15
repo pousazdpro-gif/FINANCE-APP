@@ -423,6 +423,115 @@ async def delete_account(account_id: str, request: Request):
         raise HTTPException(status_code=404, detail="Account not found")
     return {"message": "Account deleted successfully"}
 
+@api_router.post("/accounts/transfer")
+async def transfer_between_accounts(
+    from_account_id: str,
+    to_account_id: str,
+    amount: float,
+    description: str = "Transfer",
+    request: Request = None
+):
+    """Transfer money between accounts with currency conversion if needed"""
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    # Get both accounts
+    from_account = await db.accounts.find_one({"id": from_account_id, "user_email": user_email}, {"_id": 0})
+    to_account = await db.accounts.find_one({"id": to_account_id, "user_email": user_email}, {"_id": 0})
+    
+    if not from_account or not to_account:
+        raise HTTPException(status_code=404, detail="Account not found")
+    
+    # Update balances
+    new_from_balance = from_account['current_balance'] - amount
+    await db.accounts.update_one(
+        {"id": from_account_id, "user_email": user_email},
+        {"$set": {"current_balance": new_from_balance}}
+    )
+    
+    # If currencies are different, convert
+    converted_amount = amount
+    if from_account['currency'] != to_account['currency']:
+        # Simple conversion for now - in production, use real API
+        conversion_rates = {
+            "EUR_USD": 1.10, "USD_EUR": 0.91,
+            "EUR_CHF": 0.95, "CHF_EUR": 1.05,
+            "USD_CHF": 0.86, "CHF_USD": 1.16,
+            "BTC_USD": 45000, "USD_BTC": 1/45000,
+            "BTC_EUR": 41000, "EUR_BTC": 1/41000,
+        }
+        pair = f"{from_account['currency']}_{to_account['currency']}"
+        rate = conversion_rates.get(pair, 1.0)
+        converted_amount = amount * rate
+    
+    new_to_balance = to_account['current_balance'] + converted_amount
+    await db.accounts.update_one(
+        {"id": to_account_id, "user_email": user_email},
+        {"$set": {"current_balance": new_to_balance}}
+    )
+    
+    # Create transaction records
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc).isoformat()
+    
+    # Outgoing transaction
+    await db.transactions.insert_one({
+        "id": str(uuid.uuid4()),
+        "account_id": from_account_id,
+        "type": "transfer",
+        "amount": amount,
+        "category": "Transfer",
+        "description": f"{description} (to {to_account['name']})",
+        "date": now,
+        "to_account_id": to_account_id,
+        "user_email": user_email,
+        "created_at": now
+    })
+    
+    # Incoming transaction
+    await db.transactions.insert_one({
+        "id": str(uuid.uuid4()),
+        "account_id": to_account_id,
+        "type": "transfer",
+        "amount": converted_amount,
+        "category": "Transfer",
+        "description": f"{description} (from {from_account['name']})",
+        "date": now,
+        "to_account_id": from_account_id,
+        "user_email": user_email,
+        "created_at": now
+    })
+    
+    return {
+        "message": "Transfer successful",
+        "from_account": from_account['name'],
+        "to_account": to_account['name'],
+        "amount": amount,
+        "converted_amount": converted_amount,
+        "from_currency": from_account['currency'],
+        "to_currency": to_account['currency']
+    }
+
+@api_router.get("/currency/rates")
+async def get_currency_rates(base: str = "EUR"):
+    """Get current exchange rates"""
+    # In production, use a real API like frankfurter or exchangerate-api
+    rates = {
+        "EUR": 1.0,
+        "USD": 1.10,
+        "CHF": 0.95,
+        "GBP": 0.86,
+        "BTC": 0.000024,  # 1 EUR = 0.000024 BTC
+        "ETH": 0.00044
+    }
+    
+    if base != "EUR":
+        # Convert all rates to the new base
+        base_rate = rates.get(base, 1.0)
+        rates = {k: v / base_rate for k, v in rates.items()}
+    
+    return {"base": base, "rates": rates, "timestamp": datetime.now(timezone.utc).isoformat()}
+
 
 # ============================================================================
 # API ROUTES - TRANSACTIONS
