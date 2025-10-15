@@ -245,6 +245,12 @@ class ReceivableCreate(BaseModel):
 # ============================================================================
 # MODELS - SHOPPING (COURSES)
 # ============================================================================
+class PurchaseHistory(BaseModel):
+    date: datetime
+    location: str
+    price: float
+    quantity: int = 1
+
 class Product(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
@@ -257,6 +263,8 @@ class Product(BaseModel):
     last_purchased_date: Optional[datetime] = None
     last_purchased_location: Optional[str] = None
     locations: List[str] = []  # List of stores where available
+    purchase_history: List[PurchaseHistory] = []  # Full purchase history
+    price_alert_threshold: Optional[float] = None  # Alert when price drops below this
     notes: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
