@@ -480,22 +480,62 @@ const TransactionsView = ({ transactions, accounts, openModal, setTransactions }
 
 // Investments, Goals, Debts, Receivables Views (Similar structure)
 const InvestmentsView = ({ investments, openModal, setInvestments }) => (
-  <SimpleListView 
-    items={investments}
-    title="Investissements"
-    onAdd={() => openModal('investment')}
-    onDelete={async (id) => {
-      await investmentsAPI.delete(id);
-      setInvestments(investments.filter(inv => inv.id !== id));
-    }}
-    renderItem={(inv) => (
-      <>
-        <div className="font-semibold">{inv.name} ({inv.symbol})</div>
-        <div className="text-sm text-gray-500">{inv.quantity} @ {inv.current_price.toFixed(2)} €</div>
-        <div className="text-lg font-bold text-indigo-600">{(inv.quantity * inv.current_price).toFixed(2)} €</div>
-      </>
-    )}
-  />
+  <div data-testid="investments-view">
+    <div className="mb-4">
+      <button
+        onClick={() => openModal('investment')}
+        className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center space-x-2"
+        data-testid="add-investment-button"
+      >
+        <Plus size={18} />
+        <span>Nouvel Investissement</span>
+      </button>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {investments.map((inv) => (
+        <div key={inv.id} className="bg-white p-6 rounded-lg shadow">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex-1">
+              <div className="font-semibold text-lg">{inv.name}</div>
+              <div className="text-sm text-gray-500">{inv.symbol} - {inv.type}</div>
+              <div className="text-sm text-gray-600 mt-2">
+                Quantité: {inv.quantity} @ {inv.current_price.toFixed(2)} €
+              </div>
+              <div className="text-lg font-bold text-indigo-600 mt-2">
+                Total: {(inv.quantity * inv.current_price).toFixed(2)} €
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <button 
+                onClick={() => openModal('investment', inv)} 
+                className="text-gray-400 hover:text-indigo-600"
+                title="Modifier"
+              >
+                <Edit size={18} />
+              </button>
+              <button 
+                onClick={async () => {
+                  if (window.confirm('Supprimer cet investissement ?')) {
+                    await investmentsAPI.delete(inv.id);
+                    setInvestments(investments.filter(i => i.id !== inv.id));
+                  }
+                }} 
+                className="text-gray-400 hover:text-red-600"
+                title="Supprimer"
+              >
+                <Trash2 size={18} />
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+      {investments.length === 0 && (
+        <div className="col-span-full text-center py-12 text-gray-500">
+          Aucun investissement. Cliquez sur "Nouvel Investissement" pour commencer.
+        </div>
+      )}
+    </div>
+  </div>
 );
 
 const GoalsView = ({ goals, openModal, setGoals }) => (
