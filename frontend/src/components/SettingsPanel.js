@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, Globe, DollarSign, Calendar, Bell, Palette } from 'lucide-react';
 import { preferencesAPI, categoriesAPI } from '../services/api';
 import CategoryManager from './CategoryManager';
+import api from '../services/api';
 
 const SettingsPanel = ({ onClose, onSave }) => {
   const [preferences, setPreferences] = useState(null);
