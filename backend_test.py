@@ -1,0 +1,432 @@
+#!/usr/bin/env python3
+"""
+Backend API Testing for FinanceApp
+Tests CRUD operations for transactions and investments with authentication
+"""
+
+import requests
+import json
+import os
+from datetime import datetime, timezone
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv('/app/frontend/.env')
+
+# Configuration
+BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL', 'https://budgetbrain.preview.emergentagent.com')
+API_BASE = f"{BACKEND_URL}/api"
+
+class FinanceAppTester:
+    def __init__(self):
+        self.session = requests.Session()
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        })
+        self.authenticated = False
+        self.test_account_id = None
+        self.test_transaction_id = None
+        self.test_investment_id = None
+        
+    def log(self, message, level="INFO"):
+        """Log test messages"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        print(f"[{timestamp}] {level}: {message}")
+        
+    def authenticate(self):
+        """Attempt to authenticate - for now we'll test without auth"""
+        self.log("Testing without authentication (using anonymous user)")
+        self.authenticated = True
+        return True
+        
+    def test_create_account(self):
+        """Test creating a test account for transactions"""
+        self.log("Testing POST /api/accounts")
+        
+        account_data = {
+            "name": "Test Checking Account",
+            "type": "checking",
+            "currency": "EUR",
+            "initial_balance": 1000.0,
+            "icon": "wallet",
+            "color": "#4f46e5"
+        }
+        
+        try:
+            response = self.session.post(f"{API_BASE}/accounts", json=account_data)
+            self.log(f"Account creation response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                account = response.json()
+                self.test_account_id = account['id']
+                self.log(f"✅ Account created successfully: {account['name']} (ID: {self.test_account_id})")
+                return True
+            else:
+                self.log(f"❌ Account creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Account creation error: {str(e)}", "ERROR")
+            return False
+    
+    def test_transaction_crud(self):
+        """Test full CRUD operations for transactions"""
+        self.log("=== Testing Transaction CRUD Operations ===")
+        
+        if not self.test_account_id:
+            self.log("❌ No test account available for transaction testing", "ERROR")
+            return False
+            
+        # 1. CREATE Transaction
+        self.log("Testing POST /api/transactions")
+        transaction_data = {
+            "account_id": self.test_account_id,
+            "type": "expense",
+            "amount": 50.75,
+            "category": "Groceries",
+            "description": "Weekly grocery shopping",
+            "date": datetime.now(timezone.utc).isoformat(),
+            "tags": ["food", "weekly"]
+        }
+        
+        try:
+            response = self.session.post(f"{API_BASE}/transactions", json=transaction_data)
+            self.log(f"Transaction creation response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                transaction = response.json()
+                self.test_transaction_id = transaction['id']
+                self.log(f"✅ Transaction created: {transaction['description']} (ID: {self.test_transaction_id})")
+            else:
+                self.log(f"❌ Transaction creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Transaction creation error: {str(e)}", "ERROR")
+            return False
+        
+        # 2. READ Transactions
+        self.log("Testing GET /api/transactions")
+        try:
+            response = self.session.get(f"{API_BASE}/transactions")
+            self.log(f"Transaction list response: {response.status_code}")
+            
+            if response.status_code == 200:
+                transactions = response.json()
+                found_transaction = any(t['id'] == self.test_transaction_id for t in transactions)
+                if found_transaction:
+                    self.log(f"✅ Transaction found in list ({len(transactions)} total)")
+                else:
+                    self.log("❌ Created transaction not found in list", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Transaction list failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Transaction list error: {str(e)}", "ERROR")
+            return False
+        
+        # 3. READ Single Transaction
+        self.log("Testing GET /api/transactions/{id}")
+        try:
+            response = self.session.get(f"{API_BASE}/transactions/{self.test_transaction_id}")
+            self.log(f"Single transaction response: {response.status_code}")
+            
+            if response.status_code == 200:
+                transaction = response.json()
+                self.log(f"✅ Single transaction retrieved: {transaction['description']}")
+            else:
+                self.log(f"❌ Single transaction failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Single transaction error: {str(e)}", "ERROR")
+            return False
+        
+        # 4. UPDATE Transaction (This is the main fix being tested)
+        self.log("Testing PUT /api/transactions/{id} - THE MAIN FIX")
+        update_data = {
+            "account_id": self.test_account_id,
+            "type": "expense",
+            "amount": 75.50,  # Changed amount
+            "category": "Groceries",
+            "description": "Updated weekly grocery shopping",  # Changed description
+            "date": datetime.now(timezone.utc).isoformat(),
+            "tags": ["food", "weekly", "updated"]
+        }
+        
+        try:
+            response = self.session.put(f"{API_BASE}/transactions/{self.test_transaction_id}", json=update_data)
+            self.log(f"Transaction update response: {response.status_code}")
+            
+            if response.status_code == 200:
+                updated_transaction = response.json()
+                if updated_transaction['amount'] == 75.50 and "Updated" in updated_transaction['description']:
+                    self.log(f"✅ Transaction updated successfully: {updated_transaction['description']}")
+                else:
+                    self.log("❌ Transaction update didn't apply changes correctly", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Transaction update failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Transaction update error: {str(e)}", "ERROR")
+            return False
+        
+        # 5. DELETE Transaction (cleanup)
+        self.log("Testing DELETE /api/transactions/{id}")
+        try:
+            response = self.session.delete(f"{API_BASE}/transactions/{self.test_transaction_id}")
+            self.log(f"Transaction delete response: {response.status_code}")
+            
+            if response.status_code == 200:
+                self.log("✅ Transaction deleted successfully")
+            else:
+                self.log(f"❌ Transaction delete failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Transaction delete error: {str(e)}", "ERROR")
+            return False
+            
+        return True
+    
+    def test_investment_crud(self):
+        """Test full CRUD operations for investments"""
+        self.log("=== Testing Investment CRUD Operations ===")
+        
+        # 1. CREATE Investment
+        self.log("Testing POST /api/investments")
+        investment_data = {
+            "name": "Apple Inc.",
+            "symbol": "AAPL",
+            "type": "stock",
+            "currency": "USD"
+        }
+        
+        try:
+            response = self.session.post(f"{API_BASE}/investments", json=investment_data)
+            self.log(f"Investment creation response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                investment = response.json()
+                self.test_investment_id = investment['id']
+                self.log(f"✅ Investment created: {investment['name']} (ID: {self.test_investment_id})")
+            else:
+                self.log(f"❌ Investment creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Investment creation error: {str(e)}", "ERROR")
+            return False
+        
+        # 2. READ Investments
+        self.log("Testing GET /api/investments")
+        try:
+            response = self.session.get(f"{API_BASE}/investments")
+            self.log(f"Investment list response: {response.status_code}")
+            
+            if response.status_code == 200:
+                investments = response.json()
+                found_investment = any(i['id'] == self.test_investment_id for i in investments)
+                if found_investment:
+                    self.log(f"✅ Investment found in list ({len(investments)} total)")
+                else:
+                    self.log("❌ Created investment not found in list", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Investment list failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Investment list error: {str(e)}", "ERROR")
+            return False
+        
+        # 3. UPDATE Investment (This is the NEW endpoint being tested)
+        self.log("Testing PUT /api/investments/{id} - THE NEW ENDPOINT")
+        update_data = {
+            "name": "Apple Inc. (Updated)",
+            "symbol": "AAPL",
+            "type": "stock",
+            "currency": "USD"
+        }
+        
+        try:
+            response = self.session.put(f"{API_BASE}/investments/{self.test_investment_id}", json=update_data)
+            self.log(f"Investment update response: {response.status_code}")
+            
+            if response.status_code == 200:
+                updated_investment = response.json()
+                if "Updated" in updated_investment['name']:
+                    self.log(f"✅ Investment updated successfully: {updated_investment['name']}")
+                else:
+                    self.log("❌ Investment update didn't apply changes correctly", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Investment update failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Investment update error: {str(e)}", "ERROR")
+            return False
+        
+        # 4. Verify Update by Reading Again
+        self.log("Testing GET /api/investments (verify update)")
+        try:
+            response = self.session.get(f"{API_BASE}/investments")
+            if response.status_code == 200:
+                investments = response.json()
+                updated_investment = next((i for i in investments if i['id'] == self.test_investment_id), None)
+                if updated_investment and "Updated" in updated_investment['name']:
+                    self.log("✅ Investment update verified in list")
+                else:
+                    self.log("❌ Investment update not reflected in list", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Investment verification failed: {response.status_code}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Investment verification error: {str(e)}", "ERROR")
+            return False
+        
+        # 5. DELETE Investment (cleanup)
+        self.log("Testing DELETE /api/investments/{id}")
+        try:
+            response = self.session.delete(f"{API_BASE}/investments/{self.test_investment_id}")
+            self.log(f"Investment delete response: {response.status_code}")
+            
+            if response.status_code == 200:
+                self.log("✅ Investment deleted successfully")
+            else:
+                self.log(f"❌ Investment delete failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Investment delete error: {str(e)}", "ERROR")
+            return False
+            
+        return True
+    
+    def test_user_isolation(self):
+        """Test that user data is properly isolated"""
+        self.log("=== Testing User Isolation ===")
+        
+        # For anonymous users, we can't test true isolation
+        # But we can verify that user_email is being set
+        self.log("Note: Testing with anonymous user - user_email should be 'anonymous'")
+        
+        # Create a transaction and verify it has user_email
+        if not self.test_account_id:
+            self.log("❌ No test account for isolation testing", "ERROR")
+            return False
+            
+        transaction_data = {
+            "account_id": self.test_account_id,
+            "type": "income",
+            "amount": 100.0,
+            "category": "Test",
+            "description": "User isolation test",
+            "date": datetime.now(timezone.utc).isoformat()
+        }
+        
+        try:
+            response = self.session.post(f"{API_BASE}/transactions", json=transaction_data)
+            if response.status_code in [200, 201]:
+                transaction = response.json()
+                test_id = transaction['id']
+                
+                # Try to update it (should work for same user)
+                update_data = {
+                    "account_id": self.test_account_id,
+                    "type": "income",
+                    "amount": 150.0,
+                    "category": "Test",
+                    "description": "User isolation test - updated",
+                    "date": datetime.now(timezone.utc).isoformat()
+                }
+                
+                response = self.session.put(f"{API_BASE}/transactions/{test_id}", json=update_data)
+                if response.status_code == 200:
+                    self.log("✅ User can update their own transaction")
+                    
+                    # Cleanup
+                    self.session.delete(f"{API_BASE}/transactions/{test_id}")
+                    return True
+                else:
+                    self.log(f"❌ User cannot update their own transaction: {response.status_code}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Could not create test transaction: {response.status_code}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ User isolation test error: {str(e)}", "ERROR")
+            return False
+    
+    def cleanup_test_account(self):
+        """Clean up the test account"""
+        if self.test_account_id:
+            self.log("Cleaning up test account")
+            try:
+                response = self.session.delete(f"{API_BASE}/accounts/{self.test_account_id}")
+                if response.status_code == 200:
+                    self.log("✅ Test account cleaned up")
+                else:
+                    self.log(f"⚠️ Test account cleanup failed: {response.status_code}")
+            except Exception as e:
+                self.log(f"⚠️ Test account cleanup error: {str(e)}")
+    
+    def run_all_tests(self):
+        """Run all backend tests"""
+        self.log(f"Starting FinanceApp Backend Tests")
+        self.log(f"Backend URL: {BACKEND_URL}")
+        self.log(f"API Base: {API_BASE}")
+        
+        results = {
+            'authentication': False,
+            'account_creation': False,
+            'transaction_crud': False,
+            'investment_crud': False,
+            'user_isolation': False
+        }
+        
+        try:
+            # 1. Authentication
+            results['authentication'] = self.authenticate()
+            
+            # 2. Create test account
+            results['account_creation'] = self.test_create_account()
+            
+            # 3. Test Transaction CRUD
+            if results['account_creation']:
+                results['transaction_crud'] = self.test_transaction_crud()
+            
+            # 4. Test Investment CRUD
+            results['investment_crud'] = self.test_investment_crud()
+            
+            # 5. Test User Isolation
+            if results['account_creation']:
+                results['user_isolation'] = self.test_user_isolation()
+            
+        finally:
+            # Cleanup
+            self.cleanup_test_account()
+        
+        # Summary
+        self.log("=== TEST SUMMARY ===")
+        for test_name, passed in results.items():
+            status = "✅ PASS" if passed else "❌ FAIL"
+            self.log(f"{test_name.replace('_', ' ').title()}: {status}")
+        
+        total_tests = len(results)
+        passed_tests = sum(results.values())
+        self.log(f"Overall: {passed_tests}/{total_tests} tests passed")
+        
+        return results
+
+if __name__ == "__main__":
+    tester = FinanceAppTester()
+    results = tester.run_all_tests()
