@@ -787,7 +787,7 @@ const GoalsView = ({ goals, openModal, setGoals }) => (
   </div>
 );
 
-const DebtsView = ({ debts, openModal, setDebts }) => (
+const DebtsView = ({ debts, openModal, setDebts, onViewDetail }) => (
   <div data-testid="debts-view">
     <div className="mb-4">
       <button
@@ -799,41 +799,54 @@ const DebtsView = ({ debts, openModal, setDebts }) => (
       </button>
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {debts.map((debt) => (
-        <div key={debt.id} className="bg-white p-6 rounded-lg shadow">
-          <div className="flex justify-between items-start mb-4">
-            <div className="flex-1">
-              <div className="font-semibold text-lg">{debt.name}</div>
-              <div className="text-sm text-gray-500">Créancier: {debt.creditor}</div>
-              <div className="text-sm text-gray-600 mt-2">
-                Restant: <span className="font-bold text-red-600">{debt.remaining_amount.toFixed(2)} €</span>
+      {debts.map((debt) => {
+        const progressPercent = (debt.total_amount - debt.remaining_amount) / debt.total_amount * 100;
+        return (
+          <div 
+            key={debt.id} 
+            className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => onViewDetail(debt)}
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex-1">
+                <div className="font-semibold text-lg">{debt.name}</div>
+                <div className="text-sm text-gray-500">Créancier: {debt.creditor}</div>
+                <div className="text-sm text-gray-600 mt-2">
+                  Restant: <span className="font-bold text-red-600">{debt.remaining_amount.toFixed(2)} €</span>
+                </div>
+                <div className="text-sm text-gray-500">
+                  Total: {debt.total_amount.toFixed(2)} € | Taux: {debt.interest_rate}%
+                </div>
+                <div className="mt-2">
+                  <div className="bg-gray-200 rounded-full h-2">
+                    <div className="bg-red-600 rounded-full h-2" style={{ width: `${progressPercent}%` }}></div>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">{progressPercent.toFixed(1)}% payé</div>
+                </div>
               </div>
-              <div className="text-sm text-gray-500">
-                Total: {debt.total_amount.toFixed(2)} € | Taux: {debt.interest_rate}%
+              <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
+                <button 
+                  onClick={() => openModal('debt', debt)} 
+                  className="text-gray-400 hover:text-indigo-600"
+                >
+                  <Edit size={18} />
+                </button>
+                <button 
+                  onClick={async () => {
+                    if (window.confirm('Supprimer cette dette ?')) {
+                      await debtsAPI.delete(debt.id);
+                      setDebts(debts.filter(d => d.id !== debt.id));
+                    }
+                  }} 
+                  className="text-gray-400 hover:text-red-600"
+                >
+                  <Trash2 size={18} />
+                </button>
               </div>
-            </div>
-            <div className="flex space-x-2">
-              <button 
-                onClick={() => openModal('debt', debt)} 
-                className="text-gray-400 hover:text-indigo-600"
-              >
-                <Edit size={18} />
-              </button>
-              <button 
-                onClick={async () => {
-                  if (window.confirm('Supprimer cette dette ?')) {
-                    await debtsAPI.delete(debt.id);
-                    setDebts(debts.filter(d => d.id !== debt.id));
-                  }
-                }} 
-                className="text-gray-400 hover:text-red-600"
-              >
-                <Trash2 size={18} />
-              </button>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   </div>
 );
