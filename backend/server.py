@@ -905,6 +905,63 @@ async def delete_category(category_id: str, request: Request):
 
 
 # ============================================================================
+# API ROUTES - PAYEES/LOCATIONS
+# ============================================================================
+@api_router.post("/payees", response_model=Payee)
+async def create_payee(input: PayeeCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    payee = Payee(**input.model_dump())
+    doc = payee.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    doc['user_email'] = user_email
+    await db.payees.insert_one(doc)
+    return payee
+
+@api_router.get("/payees", response_model=List[Payee])
+async def get_payees(request: Request):
+    user = await get_current_user(request, db)
+    query = {"user_email": user['email']} if user else {"user_email": "anonymous"}
+    
+    payees = await db.payees.find(query, {"_id": 0}).to_list(1000)
+    for payee in payees:
+        if isinstance(payee.get('created_at'), str):
+            payee['created_at'] = datetime.fromisoformat(payee['created_at'])
+    return payees
+
+@api_router.put("/payees/{payee_id}", response_model=Payee)
+async def update_payee(payee_id: str, input: PayeeCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    payee = await db.payees.find_one({"id": payee_id, "user_email": user_email}, {"_id": 0})
+    if not payee:
+        raise HTTPException(status_code=404, detail="Payee not found")
+    
+    update_data = input.model_dump()
+    result = await db.payees.update_one(
+        {"id": payee_id, "user_email": user_email}, 
+        {"$set": update_data}
+    )
+    
+    updated = await db.payees.find_one({"id": payee_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    return updated
+
+@api_router.delete("/payees/{payee_id}")
+async def delete_payee(payee_id: str, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    result = await db.payees.delete_one({"id": payee_id, "user_email": user_email})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Payee not found")
+    return {"message": "Payee deleted successfully"}
+
+
+# ============================================================================
 # API ROUTES - TASKS (EISENHOWER MATRIX)
 # ============================================================================
 @api_router.post("/tasks", response_model=Task)
