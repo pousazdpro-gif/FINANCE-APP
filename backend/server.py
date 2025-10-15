@@ -174,8 +174,8 @@ class Investment(BaseModel):
 class InvestmentCreate(BaseModel):
     name: str
     symbol: str
-    type: InvestmentTypeEnum = InvestmentTypeEnum.stock
-    currency: CurrencyEnum = CurrencyEnum.EUR
+    type: str = "stock"  # Changed back to str for backward compatibility
+    currency: str = "EUR"  # Changed back to str for backward compatibility
     purchase_date: Optional[datetime] = None
     initial_value: Optional[float] = None
     depreciation_rate: Optional[float] = None
