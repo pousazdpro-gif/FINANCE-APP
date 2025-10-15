@@ -241,18 +241,24 @@ function App() {
               data-testid="quick-add-input"
             />
           </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Recherche..."
-                className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                data-testid="search-input"
-              />
-              <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
-            </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowGlobalSearch(true)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Recherche globale"
+            >
+              <Search size={20} className="text-gray-600" />
+            </button>
+            <button
+              onClick={() => setShowCategoryManager(true)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Gérer les catégories"
+            >
+              <Tag size={20} className="text-gray-600" />
+            </button>
+            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <Bell size={20} className="text-gray-600" />
+            </button>
           </div>
         </header>
 
