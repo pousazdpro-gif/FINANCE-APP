@@ -104,8 +104,17 @@
 
 user_problem_statement: |
   FinanceApp - Personal Financial Management PWA with Google Authentication.
-  User reported that CRUD operations are broken: can only delete transactions/investments but cannot add or modify them.
-  Need to implement full CRUD functionality across all modules.
+  User wants ALL features completed and fully functional:
+  - Full CRUD operations (✅ working)
+  - OCR with Tesseract.js for receipt scanning (✅ just implemented)
+  - PDF export for reports (✅ just implemented)
+  - CSV import for bank statements (✅ just implemented)
+  - Shopping module with download lists (✅ already working)
+  - Payment history CRUD for debts/receivables (✅ already working)
+  - Multi-currency support (✅ already working)
+  - Investment projections with reactive graphs (✅ already working)
+  - All data properly linked and persisted (✅ working)
+  - Backend camelCase/snake_case conversions fixed (✅ just fixed)
 
 backend:
   - task: "Create Transaction API"
