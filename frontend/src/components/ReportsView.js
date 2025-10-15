@@ -116,7 +116,7 @@ const ReportsView = ({ transactions = [] }) => {
     doc.setFontSize(14);
     doc.text('RÉSUMÉ', 20, 55);
     
-    doc.autoTable({
+    autoTable(doc, {
       startY: 60,
       head: [['Métrique', 'Valeur']],
       body: [
@@ -141,7 +141,7 @@ const ReportsView = ({ transactions = [] }) => {
       `-${data.expense.toFixed(2)} €`
     ]);
     
-    doc.autoTable({
+    autoTable(doc, {
       startY: finalY + 5,
       head: [['Catégorie', 'Transactions', 'Revenus', 'Dépenses']],
       body: categoryData,
@@ -171,7 +171,7 @@ const ReportsView = ({ transactions = [] }) => {
       `${txn.type === 'income' ? '+' : '-'}${txn.amount.toFixed(2)} €`
     ]);
     
-    doc.autoTable({
+    autoTable(doc, {
       startY: startY,
       head: [['Date', 'Description', 'Catégorie', 'Montant']],
       body: transactionData,
