@@ -185,7 +185,8 @@ const EisenhowerMatrix = () => {
                       </div>
                       <div className="flex space-x-1 ml-2">
                         <button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setEditingTask(task);
                             setFormData({
                               title: task.title,
@@ -203,7 +204,10 @@ const EisenhowerMatrix = () => {
                           <Edit size={14} />
                         </button>
                         <button
-                          onClick={() => deleteTask(task.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteTask(task.id);
+                          }}
                           className="text-gray-400 hover:text-red-600"
                         >
                           <Trash2 size={14} />
