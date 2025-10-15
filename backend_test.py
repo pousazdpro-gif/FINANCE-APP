@@ -441,7 +441,7 @@ class FinanceAppTester:
         self.log(f"Testing POST /api/bank-connections/{bank_connection_id}/import-csv")
         try:
             response = self.session.post(
-                f"{API_BASE}/bank-connections/{bank_connection_id}/import-csv",
+                f"{BACKEND_URL}/api/bank-connections/{bank_connection_id}/import-csv",
                 json=csv_import_data
             )
             self.log(f"CSV import response: {response.status_code}")
