@@ -120,6 +120,14 @@ export const tasksAPI = {
   delete: (id) => api.delete(`/tasks/${id}`),
 };
 
+// Payees/Locations
+export const payeesAPI = {
+  getAll: () => api.get('/payees'),
+  create: (data) => api.post('/payees', data),
+  update: (id, data) => api.put(`/payees/${id}`, data),
+  delete: (id) => api.delete(`/payees/${id}`),
+};
+
 // Preferences
 export const preferencesAPI = {
   get: () => api.get('/preferences'),
