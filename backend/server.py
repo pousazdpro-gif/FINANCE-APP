@@ -315,8 +315,11 @@ async def get_accounts(request: Request):
     return accounts
 
 @api_router.get("/accounts/{account_id}", response_model=Account)
-async def get_account(account_id: str):
-    account = await db.accounts.find_one({"id": account_id}, {"_id": 0})
+async def get_account(account_id: str, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    account = await db.accounts.find_one({"id": account_id, "user_email": user_email}, {"_id": 0})
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
     if isinstance(account.get('created_at'), str):
@@ -324,13 +327,16 @@ async def get_account(account_id: str):
     return account
 
 @api_router.put("/accounts/{account_id}", response_model=Account)
-async def update_account(account_id: str, input: AccountCreate):
-    account = await db.accounts.find_one({"id": account_id}, {"_id": 0})
+async def update_account(account_id: str, input: AccountCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    account = await db.accounts.find_one({"id": account_id, "user_email": user_email}, {"_id": 0})
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
     
     update_data = input.model_dump()
-    result = await db.accounts.update_one({"id": account_id}, {"$set": update_data})
+    result = await db.accounts.update_one({"id": account_id, "user_email": user_email}, {"$set": update_data})
     
     updated = await db.accounts.find_one({"id": account_id}, {"_id": 0})
     if isinstance(updated.get('created_at'), str):
@@ -338,8 +344,11 @@ async def update_account(account_id: str, input: AccountCreate):
     return updated
 
 @api_router.delete("/accounts/{account_id}")
-async def delete_account(account_id: str):
-    result = await db.accounts.delete_one({"id": account_id})
+async def delete_account(account_id: str, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    result = await db.accounts.delete_one({"id": account_id, "user_email": user_email})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Account not found")
     return {"message": "Account deleted successfully"}
