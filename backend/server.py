@@ -1431,8 +1431,11 @@ async def update_receivable(receivable_id: str, input: ReceivableCreate, request
     return updated
 
 @api_router.delete("/receivables/{receivable_id}")
-async def delete_receivable(receivable_id: str):
-    result = await db.receivables.delete_one({"id": receivable_id})
+async def delete_receivable(receivable_id: str, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    result = await db.receivables.delete_one({"id": receivable_id, "user_email": user_email})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Receivable not found")
     return {"message": "Receivable deleted successfully"}
