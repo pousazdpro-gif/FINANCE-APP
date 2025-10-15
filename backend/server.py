@@ -157,11 +157,11 @@ class Investment(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     symbol: str
-    type: InvestmentTypeEnum = InvestmentTypeEnum.stock
+    type: str = "stock"  # Changed back to str for backward compatibility
     quantity: float = 0.0
     average_price: float = 0.0
     current_price: float = 0.0
-    currency: CurrencyEnum = CurrencyEnum.EUR
+    currency: str = "EUR"  # Changed back to str for backward compatibility
     operations: List[InvestmentOperation] = []
     # Additional fields for specific types
     purchase_date: Optional[datetime] = None  # For real estate, mining rigs
