@@ -53,6 +53,10 @@ function App() {
   const [showGlobalSearch, setShowGlobalSearch] = useState(false);
   const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
+  const [showDebtDetail, setShowDebtDetail] = useState(false);
+  const [selectedDebt, setSelectedDebt] = useState(null);
+  const [showReceivableDetail, setShowReceivableDetail] = useState(false);
+  const [selectedReceivable, setSelectedReceivable] = useState(null);
   const [categories, setCategories] = useState([]);
 
   // Load all data
