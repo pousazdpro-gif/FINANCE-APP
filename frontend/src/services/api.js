@@ -33,6 +33,7 @@ export const transactionsAPI = {
 export const investmentsAPI = {
   getAll: () => api.get('/investments'),
   create: (data) => api.post('/investments', data),
+  update: (id, data) => api.put(`/investments/${id}`, data),
   addOperation: (id, operation) => api.post(`/investments/${id}/operations`, operation),
   delete: (id) => api.delete(`/investments/${id}`),
 };
