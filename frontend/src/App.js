@@ -56,7 +56,8 @@ function App() {
     try {
       const [
         accountsRes, transactionsRes, investmentsRes, goalsRes, debtsRes,
-        receivablesRes, productsRes, shoppingListsRes, bankConnectionsRes, dashboardRes
+        receivablesRes, productsRes, shoppingListsRes, bankConnectionsRes, 
+        dashboardRes, categoriesRes
       ] = await Promise.all([
         accountsAPI.getAll(),
         transactionsAPI.getAll({ limit: 100 }),
@@ -67,7 +68,8 @@ function App() {
         productsAPI.getAll(),
         shoppingListsAPI.getAll(),
         bankConnectionsAPI.getAll(),
-        dashboardAPI.getSummary()
+        dashboardAPI.getSummary(),
+        categoriesAPI.getAll()
       ]);
 
       setAccounts(accountsRes.data);
@@ -80,6 +82,7 @@ function App() {
       setShoppingLists(shoppingListsRes.data);
       setBankConnections(bankConnectionsRes.data);
       setDashboardData(dashboardRes.data);
+      setCategories(categoriesRes.data);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
