@@ -296,22 +296,38 @@ class PayeeCreate(BaseModel):
 # ============================================================================
 # MODELS - RECEIVABLES (CRÉANCES)
 # ============================================================================
+class ReceivablePayment(BaseModel):
+    date: datetime
+    amount: float
+    notes: Optional[str] = None
+    linked_transaction_id: Optional[str] = None
+
 class Receivable(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
-    amount: float
+    total_amount: float
+    remaining_amount: float
     debtor: str
     due_date: Optional[datetime] = None
+    payments: List[ReceivablePayment] = []
+    account_id: Optional[str] = None  # Link to account
     is_paid: bool = False
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ReceivableCreate(BaseModel):
     name: str
-    amount: float
+    total_amount: float
+    remaining_amount: float
     debtor: str
     due_date: Optional[datetime] = None
+    account_id: Optional[str] = None
+
+class ReceivablePaymentCreate(BaseModel):
+    date: datetime
+    amount: float
+    notes: Optional[str] = None
     is_paid: bool = False
 
 
