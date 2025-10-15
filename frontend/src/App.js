@@ -264,6 +264,13 @@ function App() {
           </div>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setShowCSVImporter(true)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Importer CSV"
+            >
+              <Upload size={20} className="text-gray-600" />
+            </button>
+            <button
               onClick={() => setShowGlobalSearch(true)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               title="Recherche globale"
