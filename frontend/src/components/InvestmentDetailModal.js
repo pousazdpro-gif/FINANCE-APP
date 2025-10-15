@@ -222,29 +222,177 @@ const InvestmentDetailModal = ({ investment, onClose, onUpdate, onAddOperation, 
             </button>
           </div>
           
-          {/* Key Metrics */}
+          {/* Key Metrics - Type Specific */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-            <div className="bg-white bg-opacity-20 rounded-lg p-3">
-              <div className="text-xs text-indigo-100">Valeur Actuelle</div>
-              <div className="text-xl font-bold">{gains.currentValue.toFixed(2)} €</div>
-            </div>
-            <div className="bg-white bg-opacity-20 rounded-lg p-3">
-              <div className="text-xs text-indigo-100">PRU</div>
-              <div className="text-xl font-bold">{gains.pru.toFixed(2)} €</div>
-            </div>
-            <div className="bg-white bg-opacity-20 rounded-lg p-3">
-              <div className="text-xs text-indigo-100">Plus/Moins-Value</div>
-              <div className={`text-xl font-bold flex items-center ${gains.gain >= 0 ? 'text-green-200' : 'text-red-200'}`}>
-                {gains.gain >= 0 ? <TrendingUp size={16} className="mr-1" /> : <TrendingDown size={16} className="mr-1" />}
-                {gains.gain.toFixed(2)} €
-              </div>
-            </div>
-            <div className="bg-white bg-opacity-20 rounded-lg p-3">
-              <div className="text-xs text-indigo-100">Rendement</div>
-              <div className={`text-xl font-bold ${gains.gainPercent >= 0 ? 'text-green-200' : 'text-red-200'}`}>
-                {gains.gainPercent.toFixed(2)}%
-              </div>
-            </div>
+            {/* Crypto */}
+            {investment.type === 'crypto' && (
+              <>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Valeur Actuelle</div>
+                  <div className="text-xl font-bold">{metrics.currentValue.toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">PRU</div>
+                  <div className="text-xl font-bold">{metrics.pru.toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Plus-Value</div>
+                  <div className={`text-xl font-bold ${metrics.gain >= 0 ? 'text-green-200' : 'text-red-200'}`}>
+                    {metrics.gain.toFixed(2)} €
+                  </div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">DeFi Yields</div>
+                  <div className="text-xl font-bold text-green-200">{(metrics.defiYields || 0).toFixed(2)} €</div>
+                </div>
+              </>
+            )}
+            
+            {/* Stock */}
+            {investment.type === 'stock' && (
+              <>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Valeur Actuelle</div>
+                  <div className="text-xl font-bold">{metrics.currentValue.toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">PRU</div>
+                  <div className="text-xl font-bold">{metrics.pru.toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Plus-Value</div>
+                  <div className={`text-xl font-bold ${metrics.gain >= 0 ? 'text-green-200' : 'text-red-200'}`}>
+                    {metrics.gain.toFixed(2)} €
+                  </div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Dividendes</div>
+                  <div className="text-xl font-bold text-green-200">{(metrics.dividends || 0).toFixed(2)} €</div>
+                </div>
+              </>
+            )}
+            
+            {/* Real Estate / Commodity (Matériel Passif) */}
+            {(investment.type === 'real_estate' || investment.type === 'commodity') && (
+              <>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Coût Total</div>
+                  <div className="text-xl font-bold">{metrics.totalCost.toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Valeur Actuelle</div>
+                  <div className="text-xl font-bold">{metrics.currentValue.toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Frais Entretien</div>
+                  <div className="text-xl font-bold text-red-200">{(metrics.maintenanceCosts || 0).toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">{investment.type === 'commodity' ? 'Dépréciation' : 'Plus-Value'}</div>
+                  <div className={`text-xl font-bold ${metrics.gain >= 0 ? 'text-green-200' : 'text-red-200'}`}>
+                    {metrics.gain.toFixed(2)} €
+                  </div>
+                </div>
+              </>
+            )}
+            
+            {/* Mining Rig (Matériel Actif) */}
+            {investment.type === 'mining_rig' && (
+              <>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Coût Total</div>
+                  <div className="text-xl font-bold">{metrics.totalCost.toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Récompenses</div>
+                  <div className="text-xl font-bold text-green-200">{(metrics.miningRewards || 0).toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Frais Entretien</div>
+                  <div className="text-xl font-bold text-red-200">{(metrics.maintenanceCosts || 0).toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">ROI</div>
+                  <div className={`text-xl font-bold ${(metrics.roi || 0) >= 0 ? 'text-green-200' : 'text-red-200'}`}>
+                    {(metrics.roi || 0).toFixed(2)}%
+                  </div>
+                </div>
+              </>
+            )}
+            
+            {/* Bond (Obligation) */}
+            {investment.type === 'bond' && (
+              <>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Montant Investi</div>
+                  <div className="text-xl font-bold">{metrics.costBasis.toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Intérêts Reçus</div>
+                  <div className="text-xl font-bold text-green-200">{(metrics.interests || 0).toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Rendement</div>
+                  <div className="text-xl font-bold text-green-200">{(metrics.yieldPercent || 0).toFixed(2)}%</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Valeur Totale</div>
+                  <div className="text-xl font-bold">{(metrics.costBasis + (metrics.interests || 0)).toFixed(2)} €</div>
+                </div>
+              </>
+            )}
+            
+            {/* Trading Account */}
+            {investment.type === 'trading_account' && (
+              <>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Capital Initial</div>
+                  <div className="text-xl font-bold">{(metrics.initialValue || 0).toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Solde Actuel</div>
+                  <div className="text-xl font-bold">{(metrics.currentBalance || 0).toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Gain/Perte</div>
+                  <div className={`text-xl font-bold ${(metrics.tradingGain || 0) >= 0 ? 'text-green-200' : 'text-red-200'}`}>
+                    {(metrics.tradingGain || 0).toFixed(2)} €
+                  </div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Performance</div>
+                  <div className={`text-xl font-bold ${(metrics.tradingGainPercent || 0) >= 0 ? 'text-green-200' : 'text-red-200'}`}>
+                    {(metrics.tradingGainPercent || 0).toFixed(2)}%
+                  </div>
+                </div>
+              </>
+            )}
+            
+            {/* Default: ETF or other */}
+            {!['crypto', 'stock', 'real_estate', 'commodity', 'mining_rig', 'bond', 'trading_account'].includes(investment.type) && (
+              <>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Valeur Actuelle</div>
+                  <div className="text-xl font-bold">{metrics.currentValue.toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">PRU</div>
+                  <div className="text-xl font-bold">{metrics.pru.toFixed(2)} €</div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Plus-Value</div>
+                  <div className={`text-xl font-bold ${metrics.gain >= 0 ? 'text-green-200' : 'text-red-200'}`}>
+                    {metrics.gain.toFixed(2)} €
+                  </div>
+                </div>
+                <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                  <div className="text-xs text-indigo-100">Rendement</div>
+                  <div className={`text-xl font-bold ${metrics.gainPercent >= 0 ? 'text-green-200' : 'text-red-200'}`}>
+                    {metrics.gainPercent.toFixed(2)}%
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
