@@ -307,8 +307,9 @@ class Receivable(BaseModel):
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
-    total_amount: float
-    remaining_amount: float
+    total_amount: Optional[float] = None  # For backward compatibility
+    remaining_amount: Optional[float] = None  # For backward compatibility
+    amount: Optional[float] = None  # Old field - for backward compatibility
     debtor: str
     due_date: Optional[datetime] = None
     payments: List[ReceivablePayment] = []
