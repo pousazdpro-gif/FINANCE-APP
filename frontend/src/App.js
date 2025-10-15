@@ -236,7 +236,7 @@ function App() {
               value={quickAddText}
               onChange={(e) => setQuickAddText(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleQuickAdd()}
-              placeholder="Ajout rapide: Courses 54.25..."
+              placeholder="Ajout rapide: Achats 54.25..."
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               data-testid="quick-add-input"
             />
