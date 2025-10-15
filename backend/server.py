@@ -168,8 +168,12 @@ class Investment(BaseModel):
 class InvestmentCreate(BaseModel):
     name: str
     symbol: str
-    type: str = "stock"
-    currency: str = "EUR"
+    type: InvestmentTypeEnum = InvestmentTypeEnum.stock
+    currency: CurrencyEnum = CurrencyEnum.EUR
+    purchase_date: Optional[datetime] = None
+    initial_value: Optional[float] = None
+    depreciation_rate: Optional[float] = None
+    monthly_costs: Optional[float] = None
 
 class InvestmentOperationCreate(BaseModel):
     investment_id: str
