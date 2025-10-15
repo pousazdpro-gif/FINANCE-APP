@@ -75,13 +75,15 @@ class Account(BaseModel):
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
-    type: str = "checking"  # checking, savings, investment, cash
-    currency: str = "EUR"
+    type: str = "checking"  # checking, savings, investment, cash, crypto
+    currency: CurrencyEnum = CurrencyEnum.EUR
     initial_balance: float = 0.0
     current_balance: float = 0.0
     icon: Optional[str] = "wallet"
     color: Optional[str] = "#4f46e5"
     is_excluded_from_total: bool = False
+    bank_connected: bool = False  # For automatic sync
+    bank_connection_id: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class AccountCreate(BaseModel):
