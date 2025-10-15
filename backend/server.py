@@ -556,18 +556,25 @@ async def delete_goal(goal_id: str):
 # API ROUTES - DEBTS
 # ============================================================================
 @api_router.post("/debts", response_model=Debt)
-async def create_debt(input: DebtCreate):
+async def create_debt(input: DebtCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
     debt = Debt(**input.model_dump())
     doc = debt.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     if doc.get('due_date'):
         doc['due_date'] = doc['due_date'].isoformat()
+    doc['user_email'] = user_email
     await db.debts.insert_one(doc)
     return debt
 
 @api_router.get("/debts", response_model=List[Debt])
-async def get_debts():
-    debts = await db.debts.find({}, {"_id": 0}).to_list(1000)
+async def get_debts(request: Request):
+    user = await get_current_user(request, db)
+    query = {"user_email": user['email']} if user else {"user_email": "anonymous"}
+    
+    debts = await db.debts.find(query, {"_id": 0}).to_list(1000)
     for debt in debts:
         if isinstance(debt.get('created_at'), str):
             debt['created_at'] = datetime.fromisoformat(debt['created_at'])
