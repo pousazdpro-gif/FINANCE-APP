@@ -314,6 +314,43 @@ const DashboardView = ({ data, accounts, transactions }) => {
     }],
   };
 
+  // Trends data
+  const trendsData = data.trends ? {
+    labels: data.trends.map(t => t.month),
+    datasets: [
+      {
+        label: 'Revenus',
+        data: data.trends.map(t => t.income),
+        borderColor: 'rgb(16, 185, 129)',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        tension: 0.4
+      },
+      {
+        label: 'Dépenses',
+        data: data.trends.map(t => t.expenses),
+        borderColor: 'rgb(239, 68, 68)',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        tension: 0.4
+      },
+      {
+        label: 'Épargne',
+        data: data.trends.map(t => t.savings),
+        borderColor: 'rgb(99, 102, 241)',
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        tension: 0.4
+      }
+    ]
+  } : null;
+
+  // Top categories
+  const categoriesData = data.top_categories && data.top_categories.length > 0 ? {
+    labels: data.top_categories.map(c => c.name),
+    datasets: [{
+      data: data.top_categories.map(c => c.amount),
+      backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#6366f1'],
+    }],
+  } : null;
+
   return (
     <div className="space-y-6" data-testid="dashboard-view">
       {/* Stats Cards */}
@@ -324,6 +361,32 @@ const DashboardView = ({ data, accounts, transactions }) => {
         <StatCard title="Dettes" value={`${data.total_debts.toFixed(2)} €`} color="red" />
       </div>
 
+      {/* Investment Performance */}
+      {data.total_invested > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 rounded-lg shadow-lg">
+            <div className="text-sm opacity-90">Capital Investi</div>
+            <div className="text-2xl font-bold mt-1">{data.total_invested.toFixed(2)} €</div>
+          </div>
+          <div className={`bg-gradient-to-r ${data.investment_gains >= 0 ? 'from-green-500 to-emerald-600' : 'from-red-500 to-rose-600'} text-white p-6 rounded-lg shadow-lg`}>
+            <div className="text-sm opacity-90">Plus/Moins-Value</div>
+            <div className="text-2xl font-bold mt-1">{data.investment_gains.toFixed(2)} €</div>
+          </div>
+          <div className={`bg-gradient-to-r ${data.investment_gains_percent >= 0 ? 'from-green-500 to-emerald-600' : 'from-red-500 to-rose-600'} text-white p-6 rounded-lg shadow-lg`}>
+            <div className="text-sm opacity-90">Rendement</div>
+            <div className="text-2xl font-bold mt-1">{data.investment_gains_percent.toFixed(2)} %</div>
+          </div>
+        </div>
+      )}
+
+      {/* Trends Line Chart */}
+      {trendsData && (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h3 className="text-lg font-semibold mb-4">Tendances sur 6 Mois</h3>
+          <Line data={trendsData} options={{ responsive: true, plugins: { legend: { position: 'top' } } }} />
+        </div>
+      )}
+
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow">
@@ -331,8 +394,8 @@ const DashboardView = ({ data, accounts, transactions }) => {
           {accounts.length > 0 ? <Pie data={pieData} /> : <p className="text-gray-500">Aucune donnée</p>}
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Revenus vs Dépenses (30 jours)</h3>
-          <Bar data={barData} />
+          <h3 className="text-lg font-semibold mb-4">Top Catégories de Dépenses</h3>
+          {categoriesData ? <Pie data={categoriesData} /> : <p className="text-gray-500">Aucune donnée</p>}
         </div>
       </div>
 
