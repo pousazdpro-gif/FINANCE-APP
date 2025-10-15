@@ -571,8 +571,11 @@ async def get_accounts(request: Request):
     
     accounts = await db.accounts.find(query, {"_id": 0}).to_list(1000)
     for acc in accounts:
-        if isinstance(acc.get('created_at'), str):
-            acc['created_at'] = datetime.fromisoformat(acc['created_at'])
+        # Convert camelCase to snake_case
+        acc = convert_camel_to_snake(acc, ACCOUNT_FIELD_MAP)
+        
+        # Handle dates
+        acc = convert_dates_from_string(acc, ['created_at'])
     return accounts
 
 @api_router.get("/accounts/{account_id}", response_model=Account)
