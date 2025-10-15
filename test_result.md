@@ -239,11 +239,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Update Transaction API"
-    - "Update Investment API"
-    - "Transaction Form with Date Field"
-    - "Investment Update API Call"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
