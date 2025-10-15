@@ -39,6 +39,7 @@ const SettingsPanel = ({ onClose, onSave }) => {
     try {
       await preferencesAPI.update(preferences);
       alert('Paramètres enregistrés avec succès !');
+      if (onSave) onSave(preferences);
     } catch (error) {
       console.error('Error saving preferences:', error);
       alert('Erreur lors de la sauvegarde');
