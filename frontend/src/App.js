@@ -387,6 +387,70 @@ function App() {
           }}
         />
       )}
+      
+      {showDebtDetail && selectedDebt && (
+        <DebtDetailModal
+          debt={selectedDebt}
+          onClose={() => {
+            setShowDebtDetail(false);
+            setSelectedDebt(null);
+          }}
+          onUpdate={async (id, data) => {
+            await debtsAPI.update(id, data);
+            await loadAllData();
+          }}
+          onAddPayment={async (id, payment) => {
+            await debtsAPI.addPayment(id, payment);
+            await loadAllData();
+            const updated = await debtsAPI.getAll();
+            setSelectedDebt(updated.data.find(d => d.id === id));
+          }}
+          onUpdatePayment={async (id, index, payment) => {
+            await debtsAPI.updatePayment(id, index, payment);
+            await loadAllData();
+            const updated = await debtsAPI.getAll();
+            setSelectedDebt(updated.data.find(d => d.id === id));
+          }}
+          onDeletePayment={async (id, index) => {
+            await debtsAPI.deletePayment(id, index);
+            await loadAllData();
+            const updated = await debtsAPI.getAll();
+            setSelectedDebt(updated.data.find(d => d.id === id));
+          }}
+        />
+      )}
+      
+      {showReceivableDetail && selectedReceivable && (
+        <ReceivableDetailModal
+          receivable={selectedReceivable}
+          onClose={() => {
+            setShowReceivableDetail(false);
+            setSelectedReceivable(null);
+          }}
+          onUpdate={async (id, data) => {
+            await receivablesAPI.update(id, data);
+            await loadAllData();
+          }}
+          onAddPayment={async (id, payment) => {
+            await receivablesAPI.addPayment(id, payment);
+            await loadAllData();
+            const updated = await receivablesAPI.getAll();
+            setSelectedReceivable(updated.data.find(r => r.id === id));
+          }}
+          onUpdatePayment={async (id, index, payment) => {
+            await receivablesAPI.updatePayment(id, index, payment);
+            await loadAllData();
+            const updated = await receivablesAPI.getAll();
+            setSelectedReceivable(updated.data.find(r => r.id === id));
+          }}
+          onDeletePayment={async (id, index) => {
+            await receivablesAPI.deletePayment(id, index);
+            await loadAllData();
+            const updated = await receivablesAPI.getAll();
+            setSelectedReceivable(updated.data.find(r => r.id === id));
+          }}
+        />
+      )}
     </div>
     </LoginRequired>
   );
