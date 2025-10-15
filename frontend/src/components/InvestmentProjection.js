@@ -242,8 +242,10 @@ const InvestmentProjection = () => {
       </div>
 
       {/* Chart */}
-      <div className="bg-white rounded-xl shadow-lg p-6" style={{ height: '500px' }}>
-        <Line data={chartData} options={chartOptions} />
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <div style={{ height: '400px', position: 'relative' }}>
+          <Line data={chartData} options={chartOptions} />
+        </div>
       </div>
 
       {/* Info */}
