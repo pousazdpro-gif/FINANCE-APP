@@ -234,11 +234,11 @@ frontend:
         
   - task: "PDF Export for Reports"
     implemented: true
-    working: false
+    working: true
     file: "/app/frontend/src/components/ReportsView.js"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
@@ -246,6 +246,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "❌ CRITICAL ISSUE: PDF export failing with error 'doc.autoTable is not a function'. Reports view loads correctly with PDF/TXT buttons, period filters (1 month, 3 months, year, custom dates), category filters, and statistics cards all working. TXT export blocked by overlay issue. jspdf-autotable dependency issue needs fixing."
+      - working: true
+        agent: "main"
+        comment: "✅ FIXED: Changed import from 'import jspdf-autotable' to 'import autoTable from jspdf-autotable' and updated all doc.autoTable() calls to autoTable(doc, {...}). This is the correct way to use jspdf-autotable in React. Frontend restarted successfully."
         
   - task: "CSV Importer Component"
     implemented: true
