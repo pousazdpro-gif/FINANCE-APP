@@ -205,6 +205,9 @@ function App() {
             <input type="file" accept=".json" onChange={handleImport} className="hidden" />
           </label>
         </div>
+        
+        {/* Auth Button */}
+        <AuthButton />
       </aside>
 
       {/* Main Content */}
