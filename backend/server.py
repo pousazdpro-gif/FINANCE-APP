@@ -199,6 +199,28 @@ class DebtCreate(BaseModel):
 
 
 # ============================================================================
+# MODELS - CATEGORIES
+# ============================================================================
+class Category(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    type: str = "expense"  # expense, income
+    icon: Optional[str] = "tag"
+    color: Optional[str] = "#6366f1"
+    budget: Optional[float] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class CategoryCreate(BaseModel):
+    name: str
+    type: str = "expense"
+    icon: Optional[str] = "tag"
+    color: Optional[str] = "#6366f1"
+    budget: Optional[float] = None
+
+
+# ============================================================================
 # MODELS - RECEIVABLES (CRÉANCES)
 # ============================================================================
 class Receivable(BaseModel):
