@@ -904,7 +904,8 @@ const InvestmentsView = ({ investments, openModal, setInvestments, onViewDetail 
       )}
     </div>
   </div>
-);
+  );
+};
 
 const GoalsView = ({ goals, openModal, setGoals }) => (
   <div data-testid="goals-view">
