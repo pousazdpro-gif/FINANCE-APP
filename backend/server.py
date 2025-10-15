@@ -113,8 +113,10 @@ class Transaction(BaseModel):
     description: str
     date: datetime
     to_account_id: Optional[str] = None  # For transfers
+    linked_investment_id: Optional[str] = None  # Link to investment
     is_recurring: bool = False
     recurring_frequency: Optional[str] = None  # daily, weekly, monthly, yearly
+    recurring_next_date: Optional[datetime] = None  # When next transaction should be created
     splits: Optional[List[SplitItem]] = None  # For split transactions
     tags: List[str] = []
     receipt_url: Optional[str] = None
