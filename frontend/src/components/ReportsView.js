@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Download, Calendar, Filter, FileText } from 'lucide-react';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 const ReportsView = ({ transactions = [] }) => {
   const [period, setPeriod] = useState('month');
