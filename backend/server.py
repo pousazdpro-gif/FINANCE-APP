@@ -250,6 +250,7 @@ class Category(BaseModel):
     icon: Optional[str] = "tag"
     color: Optional[str] = "#6366f1"
     budget: Optional[float] = None
+    parent_id: Optional[str] = None  # For subcategories
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class CategoryCreate(BaseModel):
@@ -258,6 +259,24 @@ class CategoryCreate(BaseModel):
     icon: Optional[str] = "tag"
     color: Optional[str] = "#6366f1"
     budget: Optional[float] = None
+    parent_id: Optional[str] = None
+
+# Payee/Location model
+class Payee(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    type: str = "merchant"  # merchant, company, person
+    default_category_id: Optional[str] = None
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class PayeeCreate(BaseModel):
+    name: str
+    type: str = "merchant"
+    default_category_id: Optional[str] = None
+    notes: Optional[str] = None
 
 
 # ============================================================================
