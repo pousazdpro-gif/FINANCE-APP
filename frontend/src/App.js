@@ -283,6 +283,8 @@ function App() {
               {currentView === 'receivables' && <ReceivablesView receivables={receivables} openModal={openModal} setReceivables={setReceivables} />}
               {currentView === 'shopping' && <ShoppingView products={products} shoppingLists={shoppingLists} openModal={openModal} setProducts={setProducts} setShoppingLists={setShoppingLists} />}
               {currentView === 'banks' && <BanksView bankConnections={bankConnections} accounts={accounts} openModal={openModal} setBankConnections={setBankConnections} />}
+              {currentView === 'tasks' && <EisenhowerMatrix />}
+              {currentView === 'settings' && <SettingsPanel onClose={() => setCurrentView('dashboard')} />}
             </>
           )}
         </div>
