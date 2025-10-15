@@ -41,6 +41,30 @@ class InvestmentOperationType(str, Enum):
     buy = "buy"
     sell = "sell"
     dividend = "dividend"
+    deposit = "deposit"  # For trading accounts
+    withdrawal = "withdrawal"  # For trading accounts
+    interest = "interest"  # For bonds
+    rental_income = "rental_income"  # For real estate
+    mining_reward = "mining_reward"  # For mining rigs
+    maintenance = "maintenance"  # For mining rigs, real estate
+
+class InvestmentTypeEnum(str, Enum):
+    stock = "stock"  # Valeur par unité
+    crypto = "crypto"  # Valeur par unité
+    trading_account = "trading_account"  # Valeur totale
+    bond = "bond"  # Intérêts sans unités
+    real_estate = "real_estate"  # Plus-value + revenus locatifs
+    mining_rig = "mining_rig"  # Dépréciation + revenus mining
+    etf = "etf"  # Valeur par unité
+    commodity = "commodity"  # Valeur par unité
+
+class CurrencyEnum(str, Enum):
+    EUR = "EUR"
+    USD = "USD"
+    CHF = "CHF"
+    BTC = "BTC"
+    ETH = "ETH"
+    GBP = "GBP"
 
 
 # ============================================================================
