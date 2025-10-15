@@ -13,6 +13,7 @@ import {
   dashboardAPI, dataAPI 
 } from './services/api';
 import AuthButton from './components/AuthButton';
+import LoginRequired from './components/LoginRequired';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
