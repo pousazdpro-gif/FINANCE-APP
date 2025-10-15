@@ -982,7 +982,11 @@ const DebtsView = ({ debts, openModal, setDebts, onViewDetail }) => (
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {debts.map((debt) => {
-        const progressPercent = (debt.total_amount - debt.remaining_amount) / debt.total_amount * 100;
+        const totalAmount = debt.total_amount || 0;
+        const remainingAmount = debt.remaining_amount || totalAmount;
+        const interestRate = debt.interest_rate || 0;
+        const progressPercent = totalAmount > 0 ? ((totalAmount - remainingAmount) / totalAmount * 100) : 0;
+        
         return (
           <div 
             key={debt.id} 
@@ -994,10 +998,10 @@ const DebtsView = ({ debts, openModal, setDebts, onViewDetail }) => (
                 <div className="font-semibold text-lg">{debt.name}</div>
                 <div className="text-sm text-gray-500">Créancier: {debt.creditor}</div>
                 <div className="text-sm text-gray-600 mt-2">
-                  Restant: <span className="font-bold text-red-600">{debt.remaining_amount.toFixed(2)} €</span>
+                  Restant: <span className="font-bold text-red-600">{remainingAmount.toFixed(2)} €</span>
                 </div>
                 <div className="text-sm text-gray-500">
-                  Total: {debt.total_amount.toFixed(2)} € | Taux: {debt.interest_rate}%
+                  Total: {totalAmount.toFixed(2)} € | Taux: {interestRate}%
                 </div>
                 <div className="mt-2">
                   <div className="bg-gray-200 rounded-full h-2">
