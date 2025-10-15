@@ -1325,15 +1325,8 @@ async def get_debts(request: Request):
     
     debts = await db.debts.find(query, {"_id": 0}).to_list(1000)
     for debt in debts:
-        # Handle old camelCase fields
-        if 'totalAmount' in debt and 'total_amount' not in debt:
-            debt['total_amount'] = debt['totalAmount']
-        if 'remainingAmount' in debt and 'remaining_amount' not in debt:
-            debt['remaining_amount'] = debt.get('remainingAmount', debt.get('totalAmount', 0))
-        if 'interestRate' in debt and 'interest_rate' not in debt:
-            debt['interest_rate'] = debt.get('interestRate', 0)
-        if 'dueDate' in debt and 'due_date' not in debt:
-            debt['due_date'] = debt.get('dueDate')
+        # Convert camelCase to snake_case
+        debt = convert_camel_to_snake(debt, DEBT_FIELD_MAP)
         
         # Handle old history format to new payments format
         if 'history' in debt and not debt.get('payments'):
@@ -1343,10 +1336,20 @@ async def get_debts(request: Request):
         if 'creditor' not in debt:
             debt['creditor'] = 'Unknown'
         
-        if isinstance(debt.get('created_at'), str):
-            debt['created_at'] = datetime.fromisoformat(debt['created_at'])
-        if debt.get('due_date') and isinstance(debt.get('due_date'), str):
-            debt['due_date'] = datetime.fromisoformat(debt['due_date'])
+        # Ensure amounts have defaults
+        if 'total_amount' not in debt:
+            debt['total_amount'] = 0
+        if 'remaining_amount' not in debt:
+            debt['remaining_amount'] = debt.get('total_amount', 0)
+        if 'interest_rate' not in debt:
+            debt['interest_rate'] = 0
+        
+        # Handle dates
+        debt = convert_dates_from_string(debt, ['created_at', 'due_date'])
+        
+        # Convert dates in payments
+        for payment in debt.get('payments', []):
+            payment = convert_dates_from_string(payment, ['date'])
     return debts
 
 @api_router.put("/debts/{debt_id}", response_model=Debt)
