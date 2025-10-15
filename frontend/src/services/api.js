@@ -53,14 +53,20 @@ export const debtsAPI = {
   getAll: () => api.get('/debts'),
   create: (data) => api.post('/debts', data),
   update: (id, data) => api.put(`/debts/${id}`, data),
+  addPayment: (id, payment) => api.post(`/debts/${id}/payments`, payment),
+  updatePayment: (id, paymentIndex, payment) => api.put(`/debts/${id}/payments/${paymentIndex}`, payment),
+  deletePayment: (id, paymentIndex) => api.delete(`/debts/${id}/payments/${paymentIndex}`),
   delete: (id) => api.delete(`/debts/${id}`),
 };
 
-// Receivables
+// Receivables (Créances)
 export const receivablesAPI = {
   getAll: () => api.get('/receivables'),
   create: (data) => api.post('/receivables', data),
   update: (id, data) => api.put(`/receivables/${id}`, data),
+  addPayment: (id, payment) => api.post(`/receivables/${id}/payments`, payment),
+  updatePayment: (id, paymentIndex, payment) => api.put(`/receivables/${id}/payments/${paymentIndex}`, payment),
+  deletePayment: (id, paymentIndex) => api.delete(`/receivables/${id}/payments/${paymentIndex}`),
   delete: (id) => api.delete(`/receivables/${id}`),
 };
 
