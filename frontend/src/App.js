@@ -305,6 +305,7 @@ function App() {
                 loadAllData();
               }} />}
               {currentView === 'projection' && <InvestmentProjection />}
+              {currentView === 'reports' && <ReportsView transactions={transactions} />}
               {currentView === 'settings' && <SettingsPanel onClose={() => setCurrentView('dashboard')} onSave={(prefs) => {
                 console.log('Preferences saved:', prefs);
                 loadAllData();
