@@ -3,7 +3,7 @@ import "@/App.css";
 import { 
   PiggyBank, LayoutDashboard, Wallet, ArrowRightLeft, TrendingUp, 
   Target, CreditCard, FileText, ShoppingCart, Building2, Download, 
-  Upload, Plus, Search, Bell, X, Edit, Trash2, Save, Tag
+  Upload, Plus, Search, Bell, X, Edit, Trash2, Save, Tag, Settings, CheckSquare
 } from "lucide-react";
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
 import { Pie, Bar, Line } from 'react-chartjs-2';
