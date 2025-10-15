@@ -104,6 +104,16 @@ const SettingsPanel = ({ onClose, onSave }) => {
           >
             Notifications
           </button>
+          <button
+            onClick={() => setActiveTab('danger')}
+            className={`py-3 px-4 font-medium border-b-2 transition-colors ${
+              activeTab === 'danger'
+                ? 'border-red-600 text-red-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Zone Dangereuse
+          </button>
         </div>
       </div>
 
