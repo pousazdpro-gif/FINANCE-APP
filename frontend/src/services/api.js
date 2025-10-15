@@ -86,6 +86,8 @@ export const shoppingListsAPI = {
   getOne: (id) => api.get(`/shopping-lists/${id}`),
   create: (data) => api.post('/shopping-lists', data),
   update: (id, data) => api.put(`/shopping-lists/${id}`, data),
+  addItem: (listId, productId, quantity = 1) => api.post(`/shopping-lists/${listId}/items`, null, { params: { product_id: productId, quantity } }),
+  removeItem: (listId, productId) => api.delete(`/shopping-lists/${listId}/items/${productId}`),
   delete: (id) => api.delete(`/shopping-lists/${id}`),
   download: (id) => api.get(`/shopping-lists/${id}/download`),
 };
