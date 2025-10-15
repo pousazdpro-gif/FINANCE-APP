@@ -365,7 +365,7 @@ class Task(BaseModel):
 class TaskCreate(BaseModel):
     title: str
     description: Optional[str] = None
-    quadrant: EisenhowerQuadrant = EisenhowerQuadrant.not_urgent_not_important
+    quadrant: Optional[EisenhowerQuadrant] = None  # Null = uncategorized
     estimated_cost: Optional[float] = None
     priority: int = 0
     due_date: Optional[datetime] = None
