@@ -50,6 +50,7 @@ function App() {
   const [selectedInvestment, setSelectedInvestment] = useState(null);
   const [showGlobalSearch, setShowGlobalSearch] = useState(false);
   const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
   const [categories, setCategories] = useState([]);
 
   // Load all data
