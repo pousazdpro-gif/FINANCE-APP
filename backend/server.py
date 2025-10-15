@@ -894,8 +894,11 @@ async def export_all_data():
     return data
 
 @api_router.post("/import/all")
-async def import_all_data(data: Dict[str, Any]):
+async def import_all_data(data: Dict[str, Any], request: Request):
     """Import all data from JSON"""
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
     collections_map = {
         "accounts": db.accounts,
         "transactions": db.transactions,
@@ -913,9 +916,12 @@ async def import_all_data(data: Dict[str, Any]):
     for collection_name, items in data.items():
         if collection_name in collections_map and items:
             collection = collections_map[collection_name]
-            # Clear existing data
-            await collection.delete_many({})
-            # Insert new data
+            
+            # Add user_email to each item
+            for item in items:
+                item['user_email'] = user_email
+            
+            # Insert new data (don't delete existing - just add)
             if items:
                 await collection.insert_many(items)
             imported_counts[collection_name] = len(items)
