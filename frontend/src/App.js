@@ -490,7 +490,7 @@ const TransactionsView = ({ transactions, accounts, openModal, setTransactions }
 };
 
 // Investments, Goals, Debts, Receivables Views (Similar structure)
-const InvestmentsView = ({ investments, openModal, setInvestments }) => (
+const InvestmentsView = ({ investments, openModal, setInvestments, onViewDetail }) => (
   <div data-testid="investments-view">
     <div className="mb-4">
       <button
@@ -503,43 +503,56 @@ const InvestmentsView = ({ investments, openModal, setInvestments }) => (
       </button>
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {investments.map((inv) => (
-        <div key={inv.id} className="bg-white p-6 rounded-lg shadow">
-          <div className="flex justify-between items-start mb-4">
-            <div className="flex-1">
-              <div className="font-semibold text-lg">{inv.name}</div>
-              <div className="text-sm text-gray-500">{inv.symbol} - {inv.type}</div>
-              <div className="text-sm text-gray-600 mt-2">
-                Quantité: {inv.quantity} @ {inv.current_price.toFixed(2)} €
+      {investments.map((inv) => {
+        // Calculate simple metrics
+        const totalValue = inv.quantity * inv.current_price;
+        const operationsCount = inv.operations?.length || 0;
+        
+        return (
+          <div 
+            key={inv.id} 
+            className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => onViewDetail(inv)}
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex-1">
+                <div className="font-semibold text-lg">{inv.name}</div>
+                <div className="text-sm text-gray-500">{inv.symbol} • {inv.type}</div>
+                <div className="text-sm text-gray-600 mt-2">
+                  Quantité: {inv.quantity} @ {inv.current_price.toFixed(2)} €
+                </div>
+                <div className="text-lg font-bold text-indigo-600 mt-2">
+                  Valeur: {totalValue.toFixed(2)} €
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  {operationsCount} opération(s)
+                </div>
               </div>
-              <div className="text-lg font-bold text-indigo-600 mt-2">
-                Total: {(inv.quantity * inv.current_price).toFixed(2)} €
+              <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
+                <button 
+                  onClick={() => openModal('investment', inv)} 
+                  className="text-gray-400 hover:text-indigo-600"
+                  title="Modifier"
+                >
+                  <Edit size={18} />
+                </button>
+                <button 
+                  onClick={async () => {
+                    if (window.confirm('Supprimer cet investissement ?')) {
+                      await investmentsAPI.delete(inv.id);
+                      setInvestments(investments.filter(i => i.id !== inv.id));
+                    }
+                  }} 
+                  className="text-gray-400 hover:text-red-600"
+                  title="Supprimer"
+                >
+                  <Trash2 size={18} />
+                </button>
               </div>
-            </div>
-            <div className="flex space-x-2">
-              <button 
-                onClick={() => openModal('investment', inv)} 
-                className="text-gray-400 hover:text-indigo-600"
-                title="Modifier"
-              >
-                <Edit size={18} />
-              </button>
-              <button 
-                onClick={async () => {
-                  if (window.confirm('Supprimer cet investissement ?')) {
-                    await investmentsAPI.delete(inv.id);
-                    setInvestments(investments.filter(i => i.id !== inv.id));
-                  }
-                }} 
-                className="text-gray-400 hover:text-red-600"
-                title="Supprimer"
-              >
-                <Trash2 size={18} />
-              </button>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
       {investments.length === 0 && (
         <div className="col-span-full text-center py-12 text-gray-500">
           Aucun investissement. Cliquez sur "Nouvel Investissement" pour commencer.
