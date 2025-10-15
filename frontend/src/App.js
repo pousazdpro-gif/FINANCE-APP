@@ -370,6 +370,17 @@ function App() {
           }}
         />
       )}
+      
+      {showTransferModal && (
+        <TransferModal
+          accounts={accounts}
+          onClose={() => setShowTransferModal(false)}
+          onSuccess={() => {
+            loadAllData();
+            setShowTransferModal(false);
+          }}
+        />
+      )}
     </div>
     </LoginRequired>
   );
