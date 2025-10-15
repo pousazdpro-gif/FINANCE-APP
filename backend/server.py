@@ -677,6 +677,13 @@ async def get_transactions(
     
     transactions = await db.transactions.find(query, {"_id": 0}).sort("date", -1).limit(limit).to_list(limit)
     for txn in transactions:
+        # Convert camelCase to snake_case for backward compatibility
+        if 'accountId' in txn and 'account_id' not in txn:
+            txn['account_id'] = txn['accountId']
+        if 'linkedTo' in txn and 'linked_investment_id' not in txn:
+            txn['linked_investment_id'] = txn.get('linkedTo')
+        
+        # Handle dates
         if isinstance(txn.get('date'), str):
             txn['date'] = datetime.fromisoformat(txn['date'])
         if isinstance(txn.get('created_at'), str):
