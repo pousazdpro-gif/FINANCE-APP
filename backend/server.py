@@ -2067,6 +2067,35 @@ async def global_search(q: str, request: Request):
     
     return results
 
+@api_router.delete("/user/data/all")
+async def delete_all_user_data(request: Request):
+    """Delete ALL user data - use with caution!"""
+    user = await get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    user_email = user['email']
+    
+    # Delete from all collections
+    await db.accounts.delete_many({"user_email": user_email})
+    await db.transactions.delete_many({"user_email": user_email})
+    await db.investments.delete_many({"user_email": user_email})
+    await db.goals.delete_many({"user_email": user_email})
+    await db.debts.delete_many({"user_email": user_email})
+    await db.receivables.delete_many({"user_email": user_email})
+    await db.categories.delete_many({"user_email": user_email})
+    await db.products.delete_many({"user_email": user_email})
+    await db.shopping_lists.delete_many({"user_email": user_email})
+    await db.bank_connections.delete_many({"user_email": user_email})
+    await db.tasks.delete_many({"user_email": user_email})
+    await db.payees.delete_many({"user_email": user_email})
+    await db.preferences.delete_many({"user_email": user_email})
+    
+    return {
+        "message": "All user data deleted successfully",
+        "user_email": user_email
+    }
+
 @api_router.get("/")
 async def root():
     return {
@@ -2077,7 +2106,8 @@ async def root():
             "/accounts", "/transactions", "/investments",
             "/goals", "/debts", "/receivables", "/categories",
             "/products", "/shopping-lists", "/bank-connections",
-            "/dashboard/summary", "/search", "/export/all", "/import/all"
+            "/dashboard/summary", "/search", "/export/all", "/import/all",
+            "/user/data/all (DELETE)"
         ]
     }
 
