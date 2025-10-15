@@ -1475,6 +1475,10 @@ const Modal = ({ type, data, onClose, onSave, accounts }) => {
                 <option value="crypto">Crypto</option>
                 <option value="etf">ETF</option>
                 <option value="bond">Obligation</option>
+                <option value="trading_account">Trading Account</option>
+                <option value="real_estate">Immobilier</option>
+                <option value="mining_rig">Matériel Actif (Mining)</option>
+                <option value="commodity">Matériel Passif</option>
               </select>
               <select
                 value={formData.currency || 'EUR'}
