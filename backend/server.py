@@ -2124,11 +2124,14 @@ async def import_all_data(data: Dict[str, Any], request: Request):
         if collection_name in collections_map and items:
             collection = collections_map[collection_name]
             
+            # CRITICAL FIX: Delete existing data for this user before importing to avoid duplicates
+            await collection.delete_many({"user_email": user_email})
+            
             # Add user_email to each item
             for item in items:
                 item['user_email'] = user_email
             
-            # Insert new data (don't delete existing - just add)
+            # Insert new data
             if items:
                 await collection.insert_many(items)
             imported_counts[collection_name] = len(items)
