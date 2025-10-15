@@ -76,7 +76,7 @@ class Account(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     type: str = "checking"  # checking, savings, investment, cash, crypto
-    currency: CurrencyEnum = CurrencyEnum.EUR
+    currency: str = "EUR"  # Changed back to str for backward compatibility
     initial_balance: float = 0.0
     current_balance: float = 0.0
     icon: Optional[str] = "wallet"
