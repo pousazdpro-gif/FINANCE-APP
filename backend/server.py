@@ -30,6 +30,86 @@ api_router = APIRouter(prefix="/api")
 
 
 # ============================================================================
+# HELPER FUNCTIONS FOR DATA CONVERSION
+# ============================================================================
+def convert_camel_to_snake(data: dict, field_mappings: dict) -> dict:
+    """Convert camelCase fields to snake_case for backward compatibility"""
+    for camel, snake in field_mappings.items():
+        if camel in data and snake not in data:
+            data[snake] = data[camel]
+    return data
+
+def convert_dates_from_string(data: dict, date_fields: list) -> dict:
+    """Convert ISO string dates to datetime objects"""
+    for field in date_fields:
+        if field in data and isinstance(data.get(field), str):
+            try:
+                data[field] = datetime.fromisoformat(data[field])
+            except:
+                pass
+    return data
+
+# Common field mappings for different models
+TRANSACTION_FIELD_MAP = {
+    'accountId': 'account_id',
+    'toAccountId': 'to_account_id',
+    'linkedTo': 'linked_investment_id',
+    'linkedInvestmentId': 'linked_investment_id',
+    'isRecurring': 'is_recurring',
+    'recurringFrequency': 'recurring_frequency',
+    'recurringNextDate': 'recurring_next_date',
+    'receiptUrl': 'receipt_url',
+    'createdAt': 'created_at'
+}
+
+INVESTMENT_FIELD_MAP = {
+    'averagePrice': 'average_price',
+    'currentPrice': 'current_price',
+    'purchaseDate': 'purchase_date',
+    'initialValue': 'initial_value',
+    'depreciationRate': 'depreciation_rate',
+    'monthlyCosts': 'monthly_costs',
+    'linkedTransactionId': 'linked_transaction_id',
+    'createdAt': 'created_at'
+}
+
+GOAL_FIELD_MAP = {
+    'targetAmount': 'target_amount',
+    'currentAmount': 'current_amount',
+    'targetDate': 'deadline',
+    'createdAt': 'created_at'
+}
+
+DEBT_FIELD_MAP = {
+    'totalAmount': 'total_amount',
+    'remainingAmount': 'remaining_amount',
+    'interestRate': 'interest_rate',
+    'dueDate': 'due_date',
+    'accountId': 'account_id',
+    'createdAt': 'created_at',
+    'linkedTransactionId': 'linked_transaction_id'
+}
+
+RECEIVABLE_FIELD_MAP = {
+    'totalAmount': 'total_amount',
+    'remainingAmount': 'remaining_amount',
+    'dueDate': 'due_date',
+    'accountId': 'account_id',
+    'createdAt': 'created_at',
+    'linkedTransactionId': 'linked_transaction_id'
+}
+
+ACCOUNT_FIELD_MAP = {
+    'initialBalance': 'initial_balance',
+    'currentBalance': 'current_balance',
+    'isExcludedFromTotal': 'is_excluded_from_total',
+    'bankConnected': 'bank_connected',
+    'bankConnectionId': 'bank_connection_id',
+    'createdAt': 'created_at'
+}
+
+
+# ============================================================================
 # ENUMS
 # ============================================================================
 class TransactionType(str, Enum):
