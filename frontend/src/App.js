@@ -463,6 +463,44 @@ function App() {
           }}
         />
       )}
+      
+      {/* CSV Importer Modal */}
+      {showCSVImporter && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+            <button
+              onClick={() => setShowCSVImporter(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <X size={24} />
+            </button>
+            <div className="p-6">
+              <CSVImporter
+                onImportComplete={async (transactions) => {
+                  // Import transactions to default account
+                  const defaultAccount = accounts[0];
+                  if (defaultAccount) {
+                    for (const txn of transactions) {
+                      await transactionsAPI.create({
+                        account_id: defaultAccount.id,
+                        type: txn.amount < 0 ? 'expense' : 'income',
+                        amount: Math.abs(txn.amount),
+                        category: txn.category,
+                        description: txn.description,
+                        date: new Date(txn.date).toISOString(),
+                        tags: [],
+                        is_recurring: false
+                      });
+                    }
+                    await loadAllData();
+                    setShowCSVImporter(false);
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
     </LoginRequired>
   );
