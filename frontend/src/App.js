@@ -959,6 +959,185 @@ const Modal = ({ type, data, onClose, onSave, accounts }) => {
               />
             </>
           )}
+          {type === 'investment' && (
+            <>
+              <input
+                type="text"
+                placeholder="Nom de l'investissement"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Symbol (ex: BTC, AAPL)"
+                value={formData.symbol || ''}
+                onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+              />
+              <select
+                value={formData.type || 'stock'}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg"
+              >
+                <option value="stock">Action</option>
+                <option value="crypto">Crypto</option>
+                <option value="etf">ETF</option>
+                <option value="bond">Obligation</option>
+              </select>
+              <select
+                value={formData.currency || 'EUR'}
+                onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg"
+              >
+                <option value="EUR">EUR</option>
+                <option value="USD">USD</option>
+                <option value="GBP">GBP</option>
+              </select>
+            </>
+          )}
+          {type === 'goal' && (
+            <>
+              <input
+                type="text"
+                placeholder="Nom de l'objectif"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+              />
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Montant cible"
+                value={formData.target_amount || 0}
+                onChange={(e) => setFormData({ ...formData, target_amount: parseFloat(e.target.value) })}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+              />
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Montant actuel"
+                value={formData.current_amount || 0}
+                onChange={(e) => setFormData({ ...formData, current_amount: parseFloat(e.target.value) })}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+              <input
+                type="date"
+                placeholder="Date limite"
+                value={formData.deadline ? formData.deadline.split('T')[0] : ''}
+                onChange={(e) => setFormData({ ...formData, deadline: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+              <input
+                type="text"
+                placeholder="Catégorie"
+                value={formData.category || 'savings'}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+            </>
+          )}
+          {type === 'debt' && (
+            <>
+              <input
+                type="text"
+                placeholder="Nom de la dette"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Créancier"
+                value={formData.creditor || ''}
+                onChange={(e) => setFormData({ ...formData, creditor: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+              />
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Montant total"
+                value={formData.total_amount || 0}
+                onChange={(e) => setFormData({ ...formData, total_amount: parseFloat(e.target.value) })}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+              />
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Montant restant"
+                value={formData.remaining_amount || 0}
+                onChange={(e) => setFormData({ ...formData, remaining_amount: parseFloat(e.target.value) })}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+              />
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Taux d'intérêt (%)"
+                value={formData.interest_rate || 0}
+                onChange={(e) => setFormData({ ...formData, interest_rate: parseFloat(e.target.value) })}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+              <input
+                type="date"
+                placeholder="Date d'échéance"
+                value={formData.due_date ? formData.due_date.split('T')[0] : ''}
+                onChange={(e) => setFormData({ ...formData, due_date: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+            </>
+          )}
+          {type === 'receivable' && (
+            <>
+              <input
+                type="text"
+                placeholder="Nom de la créance"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Débiteur"
+                value={formData.debtor || ''}
+                onChange={(e) => setFormData({ ...formData, debtor: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+              />
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Montant"
+                value={formData.amount || 0}
+                onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) })}
+                className="w-full px-3 py-2 border rounded-lg"
+                required
+              />
+              <input
+                type="date"
+                placeholder="Date d'échéance"
+                value={formData.due_date ? formData.due_date.split('T')[0] : ''}
+                onChange={(e) => setFormData({ ...formData, due_date: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={formData.is_paid || false}
+                  onChange={(e) => setFormData({ ...formData, is_paid: e.target.checked })}
+                />
+                <span>Payé</span>
+              </label>
+            </>
+          )}
           {type === 'bankConnection' && (
             <>
               <input
