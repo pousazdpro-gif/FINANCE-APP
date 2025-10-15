@@ -397,7 +397,7 @@ class FinanceAppTester:
         for endpoint, name in endpoints_to_test:
             self.log(f"Testing GET {endpoint} - {name} camelCase conversion")
             try:
-                response = self.session.get(f"{API_BASE}{endpoint}")
+                response = self.session.get(f"{BACKEND_URL}{endpoint}")
                 self.log(f"{name} response: {response.status_code}")
                 
                 if response.status_code == 200:
