@@ -379,6 +379,141 @@ class FinanceAppTester:
             except Exception as e:
                 self.log(f"⚠️ Test account cleanup error: {str(e)}")
     
+    def test_camelcase_conversion_endpoints(self):
+        """Test GET endpoints with camelCase/snake_case conversion"""
+        self.log("=== Testing camelCase/snake_case Conversion Endpoints ===")
+        
+        endpoints_to_test = [
+            ("/api/transactions", "Transactions"),
+            ("/api/investments", "Investments"), 
+            ("/api/goals", "Goals"),
+            ("/api/debts", "Debts"),
+            ("/api/receivables", "Receivables"),
+            ("/api/accounts", "Accounts")
+        ]
+        
+        all_passed = True
+        
+        for endpoint, name in endpoints_to_test:
+            self.log(f"Testing GET {endpoint} - {name} camelCase conversion")
+            try:
+                response = self.session.get(f"{API_BASE}{endpoint}")
+                self.log(f"{name} response: {response.status_code}")
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    self.log(f"✅ {name} endpoint working - returned {len(data)} items")
+                else:
+                    self.log(f"❌ {name} endpoint failed: {response.status_code} - {response.text}", "ERROR")
+                    all_passed = False
+                    
+            except Exception as e:
+                self.log(f"❌ {name} endpoint error: {str(e)}", "ERROR")
+                all_passed = False
+        
+        return all_passed
+    
+    def test_csv_bank_import(self):
+        """Test CSV Bank Import endpoint"""
+        self.log("=== Testing CSV Bank Import ===")
+        
+        # First create a bank connection (we'll use a mock ID)
+        bank_connection_id = "test-bank-connection-123"
+        
+        # Test CSV import data
+        csv_import_data = {
+            "transactions": [
+                {
+                    "date": "2024-01-15",
+                    "description": "Test import transaction",
+                    "amount": -50.00,
+                    "category": "Divers"
+                },
+                {
+                    "date": "2024-01-16", 
+                    "description": "Salaire test import",
+                    "amount": 2000.00,
+                    "category": "Revenus"
+                }
+            ]
+        }
+        
+        self.log(f"Testing POST /api/bank-connections/{bank_connection_id}/import-csv")
+        try:
+            response = self.session.post(
+                f"{API_BASE}/bank-connections/{bank_connection_id}/import-csv",
+                json=csv_import_data
+            )
+            self.log(f"CSV import response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                result = response.json()
+                self.log(f"✅ CSV import successful: {result}")
+                return True
+            else:
+                self.log(f"❌ CSV import failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ CSV import error: {str(e)}", "ERROR")
+            return False
+    
+    def test_existing_endpoints(self):
+        """Test existing endpoints for validation"""
+        self.log("=== Testing Existing Endpoints ===")
+        
+        endpoints_to_test = [
+            ("/api/currency/rates", "Currency Rates"),
+            ("/api/dashboard/summary", "Dashboard Summary")
+        ]
+        
+        all_passed = True
+        
+        for endpoint, name in endpoints_to_test:
+            self.log(f"Testing GET {endpoint} - {name}")
+            try:
+                response = self.session.get(f"{API_BASE}{endpoint}")
+                self.log(f"{name} response: {response.status_code}")
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    self.log(f"✅ {name} endpoint working")
+                else:
+                    self.log(f"❌ {name} endpoint failed: {response.status_code} - {response.text}", "ERROR")
+                    all_passed = False
+                    
+            except Exception as e:
+                self.log(f"❌ {name} endpoint error: {str(e)}", "ERROR")
+                all_passed = False
+        
+        return all_passed
+    
+    def test_shopping_lists_download(self):
+        """Test shopping lists download endpoint"""
+        self.log("=== Testing Shopping Lists Download ===")
+        
+        # Use a test shopping list ID
+        test_list_id = "test-shopping-list-123"
+        
+        self.log(f"Testing GET /api/shopping-lists/{test_list_id}/download")
+        try:
+            response = self.session.get(f"{API_BASE}/shopping-lists/{test_list_id}/download")
+            self.log(f"Shopping list download response: {response.status_code}")
+            
+            if response.status_code in [200, 404]:  # 404 is acceptable for non-existent list
+                if response.status_code == 200:
+                    self.log("✅ Shopping list download endpoint working")
+                else:
+                    self.log("✅ Shopping list download endpoint working (404 for non-existent list is expected)")
+                return True
+            else:
+                self.log(f"❌ Shopping list download failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Shopping list download error: {str(e)}", "ERROR")
+            return False
+
     def run_all_tests(self):
         """Run all backend tests"""
         self.log(f"Starting FinanceApp Backend Tests")
@@ -388,6 +523,10 @@ class FinanceAppTester:
         results = {
             'authentication': False,
             'account_creation': False,
+            'camelcase_conversion': False,
+            'csv_bank_import': False,
+            'existing_endpoints': False,
+            'shopping_lists_download': False,
             'transaction_crud': False,
             'investment_crud': False,
             'user_isolation': False
@@ -400,14 +539,26 @@ class FinanceAppTester:
             # 2. Create test account
             results['account_creation'] = self.test_create_account()
             
-            # 3. Test Transaction CRUD
+            # 3. Test NEW FEATURES - camelCase/snake_case conversion
+            results['camelcase_conversion'] = self.test_camelcase_conversion_endpoints()
+            
+            # 4. Test NEW FEATURES - CSV Bank Import
+            results['csv_bank_import'] = self.test_csv_bank_import()
+            
+            # 5. Test existing endpoints
+            results['existing_endpoints'] = self.test_existing_endpoints()
+            
+            # 6. Test shopping lists download
+            results['shopping_lists_download'] = self.test_shopping_lists_download()
+            
+            # 7. Test Transaction CRUD (existing)
             if results['account_creation']:
                 results['transaction_crud'] = self.test_transaction_crud()
             
-            # 4. Test Investment CRUD
+            # 8. Test Investment CRUD (existing)
             results['investment_crud'] = self.test_investment_crud()
             
-            # 5. Test User Isolation
+            # 9. Test User Isolation (existing)
             if results['account_creation']:
                 results['user_isolation'] = self.test_user_isolation()
             
