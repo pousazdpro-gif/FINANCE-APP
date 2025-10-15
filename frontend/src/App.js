@@ -804,8 +804,38 @@ const TransactionsView = ({ transactions, accounts, openModal, setTransactions }
 };
 
 // Investments, Goals, Debts, Receivables Views (Similar structure)
-const InvestmentsView = ({ investments, openModal, setInvestments, onViewDetail }) => (
+const InvestmentsView = ({ investments, openModal, setInvestments, onViewDetail }) => {
+  // Calculate portfolio stats
+  const totalValue = investments.reduce((sum, inv) => sum + (inv.quantity * inv.current_price), 0);
+  const totalInvested = investments.reduce((sum, inv) => {
+    const invested = inv.operations?.filter(op => op.type === 'buy').reduce((s, op) => s + (op.total || op.quantity * op.price), 0) || 0;
+    return sum + invested;
+  }, 0);
+  const totalGains = totalValue - totalInvested;
+  const gainsPercent = totalInvested > 0 ? (totalGains / totalInvested) * 100 : 0;
+  
+  return (
   <div data-testid="investments-view">
+    {/* Mini Dashboard */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-4 rounded-lg shadow">
+        <div className="text-xs opacity-90">Total Investissements</div>
+        <div className="text-2xl font-bold">{investments.length}</div>
+      </div>
+      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg shadow">
+        <div className="text-xs opacity-90">Valeur Portfolio</div>
+        <div className="text-2xl font-bold">{totalValue.toFixed(2)} €</div>
+      </div>
+      <div className={`bg-gradient-to-r ${totalGains >= 0 ? 'from-green-500 to-green-600' : 'from-red-500 to-red-600'} text-white p-4 rounded-lg shadow`}>
+        <div className="text-xs opacity-90">Plus/Moins-Value</div>
+        <div className="text-2xl font-bold">{totalGains >= 0 ? '+' : ''}{totalGains.toFixed(2)} €</div>
+      </div>
+      <div className={`bg-gradient-to-r ${gainsPercent >= 0 ? 'from-purple-500 to-purple-600' : 'from-orange-500 to-orange-600'} text-white p-4 rounded-lg shadow`}>
+        <div className="text-xs opacity-90">Performance</div>
+        <div className="text-2xl font-bold">{gainsPercent >= 0 ? '+' : ''}{gainsPercent.toFixed(2)} %</div>
+      </div>
+    </div>
+    
     <div className="mb-4">
       <button
         onClick={() => openModal('investment')}
