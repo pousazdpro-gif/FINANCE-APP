@@ -1263,6 +1263,112 @@ async def delete_debt(debt_id: str):
         raise HTTPException(status_code=404, detail="Debt not found")
     return {"message": "Debt deleted successfully"}
 
+@api_router.post("/debts/{debt_id}/payments", response_model=Debt)
+async def add_debt_payment(debt_id: str, input: DebtPaymentCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    debt = await db.debts.find_one({"id": debt_id, "user_email": user_email}, {"_id": 0})
+    if not debt:
+        raise HTTPException(status_code=404, detail="Debt not found")
+    
+    payment = DebtPayment(
+        date=input.date,
+        amount=input.amount,
+        notes=input.notes
+    )
+    
+    payment_dict = payment.model_dump()
+    payment_dict['date'] = payment_dict['date'].isoformat()
+    
+    # Update remaining amount
+    new_remaining = debt['remaining_amount'] - input.amount
+    
+    await db.debts.update_one(
+        {"id": debt_id, "user_email": user_email},
+        {
+            "$push": {"payments": payment_dict},
+            "$set": {"remaining_amount": new_remaining}
+        }
+    )
+    
+    # Create linked transaction if account_id exists
+    if debt.get('account_id'):
+        await db.transactions.insert_one({
+            "id": str(uuid.uuid4()),
+            "account_id": debt['account_id'],
+            "type": "expense",
+            "amount": input.amount,
+            "category": "Debt Payment",
+            "description": f"Payment for {debt['name']}",
+            "date": input.date.isoformat(),
+            "user_email": user_email,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+    
+    updated = await db.debts.find_one({"id": debt_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    if updated.get('due_date') and isinstance(updated.get('due_date'), str):
+        updated['due_date'] = datetime.fromisoformat(updated['due_date'])
+    for payment in updated.get('payments', []):
+        if isinstance(payment.get('date'), str):
+            payment['date'] = datetime.fromisoformat(payment['date'])
+    return updated
+
+@api_router.put("/debts/{debt_id}/payments/{payment_index}", response_model=Debt)
+async def update_debt_payment(debt_id: str, payment_index: int, input: DebtPaymentCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    debt = await db.debts.find_one({"id": debt_id, "user_email": user_email}, {"_id": 0})
+    if not debt:
+        raise HTTPException(status_code=404, detail="Debt not found")
+    
+    if payment_index < 0 or payment_index >= len(debt.get('payments', [])):
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    payment = DebtPayment(date=input.date, amount=input.amount, notes=input.notes)
+    payment_dict = payment.model_dump()
+    payment_dict['date'] = payment_dict['date'].isoformat()
+    
+    await db.debts.update_one(
+        {"id": debt_id, "user_email": user_email},
+        {"$set": {f"payments.{payment_index}": payment_dict}}
+    )
+    
+    updated = await db.debts.find_one({"id": debt_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    if updated.get('due_date') and isinstance(updated.get('due_date'), str):
+        updated['due_date'] = datetime.fromisoformat(updated['due_date'])
+    for payment in updated.get('payments', []):
+        if isinstance(payment.get('date'), str):
+            payment['date'] = datetime.fromisoformat(payment['date'])
+    return updated
+
+@api_router.delete("/debts/{debt_id}/payments/{payment_index}")
+async def delete_debt_payment(debt_id: str, payment_index: int, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    debt = await db.debts.find_one({"id": debt_id, "user_email": user_email}, {"_id": 0})
+    if not debt:
+        raise HTTPException(status_code=404, detail="Debt not found")
+    
+    payments = debt.get('payments', [])
+    if payment_index < 0 or payment_index >= len(payments):
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    payments.pop(payment_index)
+    
+    await db.debts.update_one(
+        {"id": debt_id, "user_email": user_email},
+        {"$set": {"payments": payments}}
+    )
+    
+    return {"message": "Payment deleted successfully"}
+
 
 # ============================================================================
 # API ROUTES - RECEIVABLES
