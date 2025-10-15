@@ -1642,6 +1642,65 @@ async def delete_shopping_list(list_id: str):
         raise HTTPException(status_code=404, detail="Shopping list not found")
     return {"message": "Shopping list deleted successfully"}
 
+@api_router.post("/shopping-lists/{list_id}/items")
+async def add_item_to_list(list_id: str, product_id: str, quantity: int = 1, request: Request = None):
+    """Add a product to shopping list"""
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    shopping_list = await db.shopping_lists.find_one({"id": list_id, "user_email": user_email}, {"_id": 0})
+    if not shopping_list:
+        raise HTTPException(status_code=404, detail="Shopping list not found")
+    
+    product = await db.products.find_one({"id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Check if item already exists
+    items = shopping_list.get('items', [])
+    existing_item = next((item for item in items if item.get('product_id') == product_id), None)
+    
+    if existing_item:
+        # Update quantity
+        for item in items:
+            if item.get('product_id') == product_id:
+                item['quantity'] = item.get('quantity', 1) + quantity
+    else:
+        # Add new item
+        items.append({
+            "product_id": product_id,
+            "product_name": product['name'],
+            "quantity": quantity,
+            "is_checked": False
+        })
+    
+    await db.shopping_lists.update_one(
+        {"id": list_id, "user_email": user_email},
+        {"$set": {"items": items}}
+    )
+    
+    return {"message": "Product added to list", "item_count": len(items)}
+
+@api_router.delete("/shopping-lists/{list_id}/items/{product_id}")
+async def remove_item_from_list(list_id: str, product_id: str, request: Request = None):
+    """Remove a product from shopping list"""
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    shopping_list = await db.shopping_lists.find_one({"id": list_id, "user_email": user_email}, {"_id": 0})
+    if not shopping_list:
+        raise HTTPException(status_code=404, detail="Shopping list not found")
+    
+    items = shopping_list.get('items', [])
+    items = [item for item in items if item.get('product_id') != product_id]
+    
+    await db.shopping_lists.update_one(
+        {"id": list_id, "user_email": user_email},
+        {"$set": {"items": items}}
+    )
+    
+    return {"message": "Product removed from list", "item_count": len(items)}
+
 @api_router.get("/shopping-lists/{list_id}/download")
 async def download_shopping_list(list_id: str):
     """Generate downloadable shopping list"""
