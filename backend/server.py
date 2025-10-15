@@ -1054,6 +1054,18 @@ async def get_dashboard_summary(request: Request):
         for inv in investments
     )
     
+    # Calculate investment cost basis and gains
+    total_invested = 0
+    for inv in investments:
+        for op in inv.get('operations', []):
+            if op.get('type') == 'buy':
+                total_invested += op.get('total', 0)
+            elif op.get('type') == 'sell':
+                total_invested -= op.get('total', 0)
+    
+    investment_gains = total_investments - total_invested if total_invested > 0 else 0
+    investment_gains_percent = (investment_gains / total_invested * 100) if total_invested > 0 else 0
+    
     # Calculate total DEBTS
     total_debts = sum(debt.get('remaining_amount', 0) for debt in debts)
     
@@ -1075,17 +1087,54 @@ async def get_dashboard_summary(request: Request):
         if txn.get('type') == 'expense' and datetime.fromisoformat(txn.get('date')).replace(tzinfo=timezone.utc) > month_ago
     )
     
+    # Calculate expenses by category (top 5)
+    from collections import defaultdict
+    category_expenses = defaultdict(float)
+    for txn in transactions:
+        if txn.get('type') == 'expense':
+            category_expenses[txn.get('category', 'Autre')] += txn.get('amount', 0)
+    
+    top_categories = sorted(category_expenses.items(), key=lambda x: x[1], reverse=True)[:5]
+    
+    # Calculate 6-month trends
+    trends = []
+    for i in range(6):
+        start_date = now - timedelta(days=30 * (i + 1))
+        end_date = now - timedelta(days=30 * i)
+        
+        period_income = sum(
+            txn.get('amount', 0) for txn in transactions 
+            if txn.get('type') == 'income' and start_date < datetime.fromisoformat(txn.get('date')).replace(tzinfo=timezone.utc) <= end_date
+        )
+        
+        period_expenses = sum(
+            txn.get('amount', 0) for txn in transactions 
+            if txn.get('type') == 'expense' and start_date < datetime.fromisoformat(txn.get('date')).replace(tzinfo=timezone.utc) <= end_date
+        )
+        
+        trends.insert(0, {
+            "month": end_date.strftime("%b %Y"),
+            "income": period_income,
+            "expenses": period_expenses,
+            "savings": period_income - period_expenses
+        })
+    
     return {
         "net_worth": net_worth,
         "total_balance": total_balance,
         "total_investments": total_investments,
+        "total_invested": total_invested,
+        "investment_gains": investment_gains,
+        "investment_gains_percent": investment_gains_percent,
         "total_debts": total_debts,
         "monthly_income": monthly_income,
         "monthly_expenses": monthly_expenses,
         "savings_rate": (monthly_income - monthly_expenses) / monthly_income if monthly_income > 0 else 0,
         "accounts_count": len(accounts),
         "goals_count": len(goals),
-        "active_investments": len(investments)
+        "active_investments": len(investments),
+        "top_categories": [{"name": cat, "amount": amt} for cat, amt in top_categories],
+        "trends": trends
     }
 
 
