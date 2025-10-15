@@ -118,7 +118,7 @@ const EisenhowerMatrix = () => {
         <p className="text-gray-600">Priorisez vos tâches et dépenses</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 flex-1">
+      <div className="grid grid-cols-3 gap-4 flex-1">
         {quadrants.map((quadrant) => {
           const quadrantTasks = getTasksByQuadrant(quadrant.id);
           
