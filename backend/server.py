@@ -501,18 +501,25 @@ async def delete_investment(investment_id: str):
 # API ROUTES - GOALS
 # ============================================================================
 @api_router.post("/goals", response_model=Goal)
-async def create_goal(input: GoalCreate):
+async def create_goal(input: GoalCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
     goal = Goal(**input.model_dump())
     doc = goal.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     if doc.get('deadline'):
         doc['deadline'] = doc['deadline'].isoformat()
+    doc['user_email'] = user_email
     await db.goals.insert_one(doc)
     return goal
 
 @api_router.get("/goals", response_model=List[Goal])
-async def get_goals():
-    goals = await db.goals.find({}, {"_id": 0}).to_list(1000)
+async def get_goals(request: Request):
+    user = await get_current_user(request, db)
+    query = {"user_email": user['email']} if user else {"user_email": "anonymous"}
+    
+    goals = await db.goals.find(query, {"_id": 0}).to_list(1000)
     for goal in goals:
         if isinstance(goal.get('created_at'), str):
             goal['created_at'] = datetime.fromisoformat(goal['created_at'])
