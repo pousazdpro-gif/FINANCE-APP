@@ -1241,17 +1241,80 @@ async def logout(request: Request, response: Response):
 # ============================================================================
 # ROOT ROUTE
 # ============================================================================
+@api_router.get("/search")
+async def global_search(q: str, request: Request):
+    """Global search across all entities"""
+    user = await get_current_user(request, db)
+    query = {"user_email": user['email']} if user else {"user_email": "anonymous"}
+    
+    search_term = q.lower()
+    results = {
+        "transactions": [],
+        "investments": [],
+        "accounts": [],
+        "goals": [],
+        "products": [],
+        "categories": []
+    }
+    
+    # Search in transactions
+    transactions = await db.transactions.find(query, {"_id": 0}).to_list(1000)
+    results["transactions"] = [
+        txn for txn in transactions 
+        if search_term in txn.get('description', '').lower() or 
+           search_term in txn.get('category', '').lower()
+    ][:10]
+    
+    # Search in investments
+    investments = await db.investments.find(query, {"_id": 0}).to_list(1000)
+    results["investments"] = [
+        inv for inv in investments 
+        if search_term in inv.get('name', '').lower() or 
+           search_term in inv.get('symbol', '').lower()
+    ][:10]
+    
+    # Search in accounts
+    accounts = await db.accounts.find(query, {"_id": 0}).to_list(1000)
+    results["accounts"] = [
+        acc for acc in accounts 
+        if search_term in acc.get('name', '').lower()
+    ][:10]
+    
+    # Search in goals
+    goals = await db.goals.find(query, {"_id": 0}).to_list(1000)
+    results["goals"] = [
+        goal for goal in goals 
+        if search_term in goal.get('name', '').lower()
+    ][:10]
+    
+    # Search in products
+    products = await db.products.find(query, {"_id": 0}).to_list(1000)
+    results["products"] = [
+        prod for prod in products 
+        if search_term in prod.get('name', '').lower() or 
+           search_term in prod.get('category', '').lower()
+    ][:10]
+    
+    # Search in categories
+    categories = await db.categories.find(query, {"_id": 0}).to_list(1000)
+    results["categories"] = [
+        cat for cat in categories 
+        if search_term in cat.get('name', '').lower()
+    ][:10]
+    
+    return results
+
 @api_router.get("/")
 async def root():
     return {
-        "message": "FinanceApp API v1.0",
+        "message": "FinanceApp API v2.0",
         "status": "operational",
         "endpoints": [
             "/auth/session", "/auth/me", "/auth/logout",
             "/accounts", "/transactions", "/investments",
-            "/goals", "/debts", "/receivables",
+            "/goals", "/debts", "/receivables", "/categories",
             "/products", "/shopping-lists", "/bank-connections",
-            "/dashboard/summary", "/export/all", "/import/all"
+            "/dashboard/summary", "/search", "/export/all", "/import/all"
         ]
     }
 
