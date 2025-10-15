@@ -901,6 +901,51 @@ async def import_all_data(data: Dict[str, Any]):
 
 
 # ============================================================================
+# AUTHENTICATION ROUTES
+# ============================================================================
+@api_router.post("/auth/session")
+async def create_session(request: Request, response: Response, session_id: str):
+    """Create session from Emergent Auth session_id"""
+    try:
+        # Get user data from Emergent
+        user_data = await get_session_data(session_id)
+        
+        # Save session to database
+        session_token = await save_user_session(db, user_data)
+        
+        # Set cookie
+        set_session_cookie(response, session_token)
+        
+        return {
+            "success": True,
+            "user": {
+                "email": user_data['email'],
+                "name": user_data.get('name'),
+                "picture": user_data.get('picture')
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=str(e))
+
+
+@api_router.get("/auth/me")
+async def get_me(request: Request):
+    """Get current authenticated user"""
+    user = await get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return user
+
+
+@api_router.post("/auth/logout")
+async def logout(request: Request, response: Response):
+    """Logout current user"""
+    await logout_user(request, db)
+    response.delete_cookie("session_token", path="/", samesite="none", secure=True)
+    return {"success": True, "message": "Logged out successfully"}
+
+
+# ============================================================================
 # ROOT ROUTE
 # ============================================================================
 @api_router.get("/")
@@ -909,6 +954,7 @@ async def root():
         "message": "FinanceApp API v1.0",
         "status": "operational",
         "endpoints": [
+            "/auth/session", "/auth/me", "/auth/logout",
             "/accounts", "/transactions", "/investments",
             "/goals", "/debts", "/receivables",
             "/products", "/shopping-lists", "/bank-connections",
