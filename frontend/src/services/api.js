@@ -97,6 +97,19 @@ export const dashboardAPI = {
   getSummary: () => api.get('/dashboard/summary'),
 };
 
+// Categories
+export const categoriesAPI = {
+  getAll: (type) => api.get('/categories', { params: { type } }),
+  create: (data) => api.post('/categories', data),
+  update: (id, data) => api.put(`/categories/${id}`, data),
+  delete: (id) => api.delete(`/categories/${id}`),
+};
+
+// Search
+export const searchAPI = {
+  search: (query) => api.get('/search', { params: { q: query } }),
+};
+
 // Data Export/Import
 export const dataAPI = {
   exportAll: () => api.get('/export/all'),
