@@ -497,7 +497,7 @@ class FinanceAppTester:
         
         self.log(f"Testing GET /api/shopping-lists/{test_list_id}/download")
         try:
-            response = self.session.get(f"{API_BASE}/shopping-lists/{test_list_id}/download")
+            response = self.session.get(f"{BACKEND_URL}/api/shopping-lists/{test_list_id}/download")
             self.log(f"Shopping list download response: {response.status_code}")
             
             if response.status_code in [200, 404]:  # 404 is acceptable for non-existent list
