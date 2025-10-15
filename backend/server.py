@@ -1178,6 +1178,14 @@ async def get_goals(request: Request):
     
     goals = await db.goals.find(query, {"_id": 0}).to_list(1000)
     for goal in goals:
+        # Handle old camelCase fields
+        if 'targetAmount' in goal and 'target_amount' not in goal:
+            goal['target_amount'] = goal['targetAmount']
+        if 'currentAmount' in goal and 'current_amount' not in goal:
+            goal['current_amount'] = goal.get('currentAmount', 0)
+        if 'targetDate' in goal and 'deadline' not in goal:
+            goal['deadline'] = goal.get('targetDate')
+        
         if isinstance(goal.get('created_at'), str):
             goal['created_at'] = datetime.fromisoformat(goal['created_at'])
         if goal.get('deadline') and isinstance(goal.get('deadline'), str):
