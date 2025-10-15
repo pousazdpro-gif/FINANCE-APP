@@ -291,6 +291,12 @@ function App() {
               {currentView === 'shopping' && <ShoppingView products={products} shoppingLists={shoppingLists} openModal={openModal} setProducts={setProducts} setShoppingLists={setShoppingLists} />}
               {currentView === 'banks' && <BanksView bankConnections={bankConnections} accounts={accounts} openModal={openModal} setBankConnections={setBankConnections} />}
               {currentView === 'tasks' && <EisenhowerMatrix />}
+              {currentView === 'ocr' && <OCRScanner onTransactionsExtracted={(txns) => {
+                console.log('Transactions extracted:', txns);
+                // TODO: Create transactions in batch
+                loadAllData();
+              }} />}
+              {currentView === 'projection' && <InvestmentProjection />}
               {currentView === 'settings' && <SettingsPanel onClose={() => setCurrentView('dashboard')} onSave={(prefs) => {
                 console.log('Preferences saved:', prefs);
                 loadAllData();
