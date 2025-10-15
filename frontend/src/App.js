@@ -172,6 +172,8 @@ function App() {
     { id: 'receivables', label: 'Créances', icon: FileText },
     { id: 'shopping', label: 'Achats', icon: ShoppingCart },
     { id: 'banks', label: 'Banques', icon: Building2 },
+    { id: 'tasks', label: 'Tâches', icon: CheckSquare },
+    { id: 'settings', label: 'Paramètres', icon: Settings },
   ];
 
   return (
