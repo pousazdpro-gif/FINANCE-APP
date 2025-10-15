@@ -489,6 +489,29 @@ async def add_investment_operation(investment_id: str, input: InvestmentOperatio
             op['date'] = datetime.fromisoformat(op['date'])
     return updated
 
+@api_router.put("/investments/{investment_id}", response_model=Investment)
+async def update_investment(investment_id: str, input: InvestmentCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
+    investment = await db.investments.find_one({"id": investment_id, "user_email": user_email}, {"_id": 0})
+    if not investment:
+        raise HTTPException(status_code=404, detail="Investment not found")
+    
+    update_data = input.model_dump()
+    result = await db.investments.update_one(
+        {"id": investment_id, "user_email": user_email}, 
+        {"$set": update_data}
+    )
+    
+    updated = await db.investments.find_one({"id": investment_id}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    for op in updated.get('operations', []):
+        if isinstance(op.get('date'), str):
+            op['date'] = datetime.fromisoformat(op['date'])
+    return updated
+
 @api_router.delete("/investments/{investment_id}")
 async def delete_investment(investment_id: str):
     result = await db.investments.delete_one({"id": investment_id})
