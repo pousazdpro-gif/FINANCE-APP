@@ -339,6 +339,65 @@ class ShoppingListCreate(BaseModel):
 
 
 # ============================================================================
+# MODELS - TASKS & EISENHOWER MATRIX
+# ============================================================================
+class EisenhowerQuadrant(str, Enum):
+    urgent_important = "urgent_important"  # Do First
+    not_urgent_important = "not_urgent_important"  # Schedule
+    urgent_not_important = "urgent_not_important"  # Delegate
+    not_urgent_not_important = "not_urgent_not_important"  # Eliminate
+
+class Task(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    description: Optional[str] = None
+    quadrant: EisenhowerQuadrant
+    estimated_cost: Optional[float] = None
+    priority: int = 0  # 0-5
+    due_date: Optional[datetime] = None
+    completed: bool = False
+    tags: List[str] = []
+    linked_transaction_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class TaskCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    quadrant: EisenhowerQuadrant = EisenhowerQuadrant.not_urgent_not_important
+    estimated_cost: Optional[float] = None
+    priority: int = 0
+    due_date: Optional[datetime] = None
+    tags: List[str] = []
+
+
+# ============================================================================
+# MODELS - USER PREFERENCES
+# ============================================================================
+class UserPreferences(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    preferred_currency: CurrencyEnum = CurrencyEnum.EUR
+    date_format: str = "DD/MM/YYYY"
+    language: str = "fr"
+    dashboard_view: str = "grid"  # grid, list
+    enable_notifications: bool = True
+    auto_categorize: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class UserPreferencesUpdate(BaseModel):
+    preferred_currency: Optional[CurrencyEnum] = None
+    date_format: Optional[str] = None
+    language: Optional[str] = None
+    dashboard_view: Optional[str] = None
+    enable_notifications: Optional[bool] = None
+    auto_categorize: Optional[bool] = None
+
+
+# ============================================================================
 # MODELS - BANK INTEGRATION
 # ============================================================================
 class BankConnection(BaseModel):
