@@ -238,6 +238,21 @@ backend:
         comment: "✅ TESTED: PUT /api/investments/{id} THE NEW ENDPOINT working perfectly. Successfully updated investment name from 'Apple Inc.' to 'Apple Inc. (Updated)'. User verification enforced. Response: 200 OK. Also tested 404 for non-existent investments. Stuck count reset to 0 as issue is fully resolved."
 
 frontend:
+  - task: "Axios Configuration with Credentials"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/services/api.js"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User data not persisting after re-login - CORS errors with credentials mode"
+      - working: true
+        agent: "main"
+        comment: "✅ FIXED: Added withCredentials: true to axios create() configuration. This ensures session cookies are sent with every API request to maintain user authentication state across sessions."
+
   - task: "OCR with Tesseract.js"
     implemented: true
     working: true
