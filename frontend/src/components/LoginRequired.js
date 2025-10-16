@@ -119,15 +119,6 @@ export default function LoginRequired({ children }) {
             <span>Se connecter avec Google</span>
           </button>
 
-          {/* TEMPORARY: Test mode button */}
-          <button
-            onClick={() => window.location.href = window.location.href + '?test=true'}
-            className="w-full mt-4 flex items-center justify-center space-x-3 px-6 py-4 bg-orange-100 border-2 border-orange-300 hover:border-orange-500 hover:bg-orange-200 text-orange-700 hover:text-orange-800 rounded-xl transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
-            data-testid="test-mode-button"
-          >
-            <span>🧪 Mode Test (Accès sans authentification)</span>
-          </button>
-
           <div className="mt-6 text-center">
             <p className="text-xs text-gray-500">
               En vous connectant, vous acceptez que vos données soient stockées de manière sécurisée et isolées de celles des autres utilisateurs.
