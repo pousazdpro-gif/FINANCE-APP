@@ -61,6 +61,7 @@ function App() {
   const [selectedReceivable, setSelectedReceivable] = useState(null);
   const [categories, setCategories] = useState([]);
   const [showCSVImporter, setShowCSVImporter] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Load all data
   useEffect(() => {
