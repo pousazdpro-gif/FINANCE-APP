@@ -38,7 +38,8 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
     try {
       const data = {
         ...formData,
-        budget: formData.budget ? parseFloat(formData.budget) : null
+        budget: formData.budget ? parseFloat(formData.budget) : null,
+        subcategories: formData.subcategories || []
       };
 
       if (editingCategory) {
@@ -52,15 +53,34 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
         type: 'expense',
         icon: 'tag',
         color: '#6366f1',
-        budget: ''
+        budget: '',
+        subcategories: []
       });
       setShowForm(false);
       setEditingCategory(null);
+      setNewSubcategory('');
       loadCategories();
     } catch (error) {
       console.error('Error saving category:', error);
       alert('Erreur lors de la sauvegarde');
     }
+  };
+
+  const handleAddSubcategory = () => {
+    if (newSubcategory.trim()) {
+      setFormData({
+        ...formData,
+        subcategories: [...(formData.subcategories || []), newSubcategory.trim()]
+      });
+      setNewSubcategory('');
+    }
+  };
+
+  const handleRemoveSubcategory = (index) => {
+    setFormData({
+      ...formData,
+      subcategories: formData.subcategories.filter((_, i) => i !== index)
+    });
   };
 
   const handleEdit = (category) => {
