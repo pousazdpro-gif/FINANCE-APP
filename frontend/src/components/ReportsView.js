@@ -236,7 +236,10 @@ const ReportsView = ({ transactions = [] }) => {
             </label>
             <select
               value={period}
-              onChange={(e) => setPeriod(e.target.value)}
+              onChange={(e) => {
+                setPeriod(e.target.value);
+                setRefreshKey(prev => prev + 1); // Force refresh
+              }}
               className="w-full px-4 py-2 border rounded-lg"
             >
               <option value="month">1 Mois</option>
