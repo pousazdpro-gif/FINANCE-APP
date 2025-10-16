@@ -868,12 +868,29 @@ const TransactionsView = ({ transactions, accounts, openModal, setTransactions, 
                   {txn.type === 'income' ? '+' : '-'}{txn.amount.toFixed(2)} €
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <button onClick={() => openModal('transaction', txn)} className="text-indigo-600 hover:text-indigo-900 mr-2">
-                    <Edit size={16} />
-                  </button>
-                  <button onClick={() => handleDelete(txn.id)} className="text-red-600 hover:text-red-900">
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button 
+                      onClick={() => openModal('transaction', txn)} 
+                      className="text-indigo-600 hover:text-indigo-900"
+                      title="Modifier"
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button 
+                      onClick={() => onLinkToInvestment(txn)} 
+                      className="text-blue-600 hover:text-blue-900"
+                      title="Lier à un investissement"
+                    >
+                      <LinkIcon size={16} />
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(txn.id)} 
+                      className="text-red-600 hover:text-red-900"
+                      title="Supprimer"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
