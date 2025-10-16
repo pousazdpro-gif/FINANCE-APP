@@ -1574,8 +1574,9 @@ async def add_receivable_payment(receivable_id: str, input: ReceivablePaymentCre
     payment_dict = payment.model_dump()
     payment_dict['date'] = payment_dict['date'].isoformat()
     
-    # Update remaining amount
-    new_remaining = receivable['remaining_amount'] - input.amount
+    # Update remaining amount with safe default
+    current_remaining = receivable.get('remaining_amount', receivable.get('total_amount', 0))
+    new_remaining = current_remaining - input.amount
     
     await db.receivables.update_one(
         {"id": receivable_id, "user_email": user_email},
