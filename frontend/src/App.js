@@ -197,13 +197,29 @@ function App() {
   return (
     <LoginRequired>
     <div className="flex h-screen overflow-hidden bg-gray-100">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <aside className={`${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } lg:translate-x-0 fixed lg:relative z-50 w-64 h-full bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ease-in-out`}>
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-900 flex items-center">
             <PiggyBank className="text-indigo-600 mr-2" size={24} />
             FinanceApp
           </h1>
+          <button 
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden text-gray-500 hover:text-gray-700"
+          >
+            <X size={24} />
+          </button>
         </div>
         <nav className="flex-1 overflow-y-auto p-4 space-y-1">
           {navItems.map((item) => {
