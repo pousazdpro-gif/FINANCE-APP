@@ -384,7 +384,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Investment Projection New Component"
     - "PDF Export for Reports"
   stuck_tasks: []
   test_all: false
