@@ -262,7 +262,10 @@ const ReportsView = ({ transactions = [] }) => {
             </label>
             <select
               value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
+              onChange={(e) => {
+                setCategoryFilter(e.target.value);
+                setRefreshKey(prev => prev + 1); // Force refresh
+              }}
               className="w-full px-4 py-2 border rounded-lg"
             >
               {categories.map(cat => (
