@@ -120,7 +120,6 @@ const InvestmentDetailModal = ({ investment, onClose, onUpdate, onAddOperation, 
     return metrics;
   };
 
-  const gains = calculateGains();
   const metrics = calculateMetrics();
 
   const handleOperationSubmit = async (e) => {
