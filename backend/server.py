@@ -859,7 +859,8 @@ async def add_investment_operation(investment_id: str, input: InvestmentOperatio
         quantity=input.quantity,
         price=input.price,
         fees=input.fees,
-        total=(input.quantity * input.price) + input.fees
+        total=(input.quantity * input.price) + input.fees,
+        notes=input.notes
     )
     
     operation_dict = operation.model_dump()
@@ -919,7 +920,8 @@ async def update_investment_operation(investment_id: str, operation_index: int, 
         quantity=input.quantity,
         price=input.price,
         fees=input.fees,
-        total=(input.quantity * input.price) + input.fees
+        total=(input.quantity * input.price) + input.fees,
+        notes=input.notes
     )
     
     operation_dict = operation.model_dump()
