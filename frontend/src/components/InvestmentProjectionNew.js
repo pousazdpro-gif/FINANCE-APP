@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import { TrendingUp, DollarSign, Calendar, Percent, PiggyBank, Target, Sparkles } from 'lucide-react';
 
