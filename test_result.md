@@ -104,23 +104,36 @@
 
 user_problem_statement: |
   FinanceApp - Personal Financial Management PWA with Google Authentication.
-  CRITICAL ISSUE REPORTED: User data (198 transactions) disappearing after re-login, showing only 4 test transactions.
-  ROOT CAUSE: CORS configuration with wildcard '*' incompatible with credentials (cookies).
-  FIX APPLIED: 
-    1. Added withCredentials: true to axios configuration in frontend
-    2. Fixed CORS to use specific origins instead of '*'
-    3. Data now properly persists across sessions with Google authentication
+  
+  CRITICAL ISSUES RESOLVED:
+  1. User data (209 transactions) disappearing after re-login - ✅ FIXED
+     - Root cause: CORS wildcard '*' incompatible with credentials (cookies)
+     - Fix: withCredentials: true + specific CORS origins
+  
+  2. Transaction limit too low (100 vs 209) - ✅ FIXED
+     - Increased frontend limit from 100 to 10000
+     - All 209 transactions now accessible
+  
+  3. Investment Projection graph not visible + sliders not reactive - ✅ FIXED
+     - New InvestmentProjectionNew component with real-time updates
+     - Chart re-renders with useEffect when values change
+     - 4 interactive sliders: Initial Capital, Monthly Amount, Years, Return Rate
+  
+  4. All transactions re-imported on user account - ✅ COMPLETED
+     - 209 transactions assigned to pousaz.d.pro@gmail.com
+     - Backup created at /app/backup_transactions.json
+     - Data spans 2024-2025 (perfect for 2-year reports)
   
   Additional features working:
   - Full CRUD operations (✅ working)
-  - OCR with Tesseract.js for receipt scanning (✅ implemented)
+  - OCR with Tesseract.js (✅ implemented)
   - PDF export for reports (✅ implemented)
   - CSV import for bank statements (✅ implemented)
-  - Shopping module with download lists (✅ working)
-  - Payment history CRUD for debts/receivables (✅ working)
+  - Shopping module (✅ working)
+  - Payment history CRUD (✅ working)
   - Multi-currency support (✅ working)
   - Investment projections with reactive graphs (✅ working)
-  - Backend camelCase/snake_case conversions fixed (✅ fixed)
+  - Backend camelCase/snake_case conversions (✅ fixed)
 
 backend:
   - task: "Google Authentication Session Persistence"
