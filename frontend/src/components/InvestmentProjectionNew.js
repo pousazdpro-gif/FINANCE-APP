@@ -306,8 +306,17 @@ const InvestmentProjectionNew = () => {
               max="50"
               step="1"
               value={years}
-              onChange={(e) => setYears(parseInt(e.target.value))}
+              onChange={(e) => {
+                const newValue = parseInt(e.target.value);
+                console.log('Durée changed to:', newValue);
+                setYears(newValue);
+              }}
+              onInput={(e) => {
+                const newValue = parseInt(e.target.value);
+                setYears(newValue);
+              }}
               className="w-full h-3 bg-gradient-to-r from-purple-200 to-purple-400 rounded-lg appearance-none cursor-pointer slider"
+              style={{ zIndex: 10, position: 'relative' }}
             />
             <div className="flex justify-between text-xs text-gray-500">
               <span>1 an</span>
