@@ -956,28 +956,167 @@ const InvestmentsView = ({ investments, openModal, setInvestments, onViewDetail 
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {investments.map((inv) => {
-        // Calculate simple metrics
-        const totalValue = inv.quantity * inv.current_price;
         const operationsCount = inv.operations?.length || 0;
+        const invType = inv.type || 'stock';
+        
+        // Fonction pour obtenir l'icône selon le type
+        const getTypeIcon = (type) => {
+          switch(type) {
+            case 'crypto': return '₿';
+            case 'stock': return '📈';
+            case 'etf': return '📊';
+            case 'bond': return '📜';
+            case 'trading_account': return '💼';
+            case 'real_estate': return '🏠';
+            case 'mining_rig': return '⛏️';
+            case 'commodity': return '📦';
+            default: return '💰';
+          }
+        };
         
         return (
           <div 
             key={inv.id} 
-            className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer"
+            className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-l-4"
+            style={{ borderLeftColor: invType === 'crypto' ? '#f59e0b' : invType === 'real_estate' ? '#10b981' : '#6366f1' }}
             onClick={() => onViewDetail(inv)}
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex-1">
-                <div className="font-semibold text-lg">{inv.name}</div>
-                <div className="text-sm text-gray-500">{inv.symbol} • {inv.type}</div>
-                <div className="text-sm text-gray-600 mt-2">
-                  Quantité: {inv.quantity} @ {inv.current_price.toFixed(2)} €
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-2xl">{getTypeIcon(invType)}</span>
+                  <div>
+                    <div className="font-semibold text-lg">{inv.name}</div>
+                    <div className="text-xs text-gray-400">{inv.symbol}</div>
+                  </div>
                 </div>
-                <div className="text-lg font-bold text-indigo-600 mt-2">
-                  Valeur: {totalValue.toFixed(2)} €
-                </div>
-                <div className="text-xs text-gray-400 mt-1">
-                  {operationsCount} opération(s)
+                
+                {/* Affichage adapté selon le type */}
+                
+                {/* Actions, Crypto, ETF, Obligations */}
+                {['stock', 'crypto', 'etf', 'bond'].includes(invType) && (
+                  <>
+                    <div className="text-sm text-gray-600 mt-3">
+                      <div className="flex justify-between">
+                        <span>Quantité:</span>
+                        <span className="font-medium">{inv.quantity?.toFixed(4) || 0}</span>
+                      </div>
+                      <div className="flex justify-between mt-1">
+                        <span>PRU:</span>
+                        <span className="font-medium">{inv.average_price?.toFixed(2) || 0} €</span>
+                      </div>
+                      <div className="flex justify-between mt-1">
+                        <span>Prix actuel:</span>
+                        <span className="font-medium">{inv.current_price?.toFixed(2) || 0} €</span>
+                      </div>
+                    </div>
+                    <div className="text-lg font-bold text-indigo-600 mt-3">
+                      Valeur: {((inv.quantity || 0) * (inv.current_price || 0)).toFixed(2)} €
+                    </div>
+                  </>
+                )}
+                
+                {/* Compte Trading */}
+                {invType === 'trading_account' && (
+                  <>
+                    <div className="text-sm text-gray-600 mt-3">
+                      <div className="flex justify-between">
+                        <span>Capital initial:</span>
+                        <span className="font-medium">{inv.initial_value?.toFixed(2) || 0} €</span>
+                      </div>
+                      <div className="flex justify-between mt-1">
+                        <span>Solde actuel:</span>
+                        <span className="font-medium">{inv.current_price?.toFixed(2) || 0} €</span>
+                      </div>
+                      <div className="flex justify-between mt-1">
+                        <span>Performance:</span>
+                        <span className={`font-medium ${(inv.current_price - inv.initial_value) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {inv.initial_value > 0 ? (((inv.current_price - inv.initial_value) / inv.initial_value) * 100).toFixed(2) : 0}%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-lg font-bold text-indigo-600 mt-3">
+                      Solde: {inv.current_price?.toFixed(2) || 0} €
+                    </div>
+                  </>
+                )}
+                
+                {/* Immobilier */}
+                {invType === 'real_estate' && (
+                  <>
+                    <div className="text-sm text-gray-600 mt-3">
+                      <div className="flex justify-between">
+                        <span>Coût acquisition:</span>
+                        <span className="font-medium">{inv.initial_value?.toFixed(2) || 0} €</span>
+                      </div>
+                      <div className="flex justify-between mt-1">
+                        <span>Valeur actuelle:</span>
+                        <span className="font-medium">{inv.current_price?.toFixed(2) || 0} €</span>
+                      </div>
+                      <div className="flex justify-between mt-1">
+                        <span>Frais mensuels:</span>
+                        <span className="font-medium text-red-600">{inv.monthly_costs?.toFixed(2) || 0} €/mois</span>
+                      </div>
+                    </div>
+                    <div className="text-lg font-bold text-green-600 mt-3">
+                      Valeur: {inv.current_price?.toFixed(2) || 0} €
+                    </div>
+                  </>
+                )}
+                
+                {/* Matériel Passif */}
+                {invType === 'commodity' && (
+                  <>
+                    <div className="text-sm text-gray-600 mt-3">
+                      <div className="flex justify-between">
+                        <span>Coût d'achat:</span>
+                        <span className="font-medium">{inv.initial_value?.toFixed(2) || 0} €</span>
+                      </div>
+                      <div className="flex justify-between mt-1">
+                        <span>Valeur actuelle:</span>
+                        <span className="font-medium">{inv.current_price?.toFixed(2) || 0} €</span>
+                      </div>
+                      <div className="flex justify-between mt-1">
+                        <span>Dépréciation:</span>
+                        <span className="font-medium text-orange-600">{inv.depreciation_rate || 0}% / an</span>
+                      </div>
+                    </div>
+                    <div className="text-lg font-bold text-indigo-600 mt-3">
+                      Valeur: {inv.current_price?.toFixed(2) || 0} €
+                    </div>
+                  </>
+                )}
+                
+                {/* Matériel Actif (Mining) */}
+                {invType === 'mining_rig' && (
+                  <>
+                    <div className="text-sm text-gray-600 mt-3">
+                      <div className="flex justify-between">
+                        <span>Coût total:</span>
+                        <span className="font-medium">{inv.initial_value?.toFixed(2) || 0} €</span>
+                      </div>
+                      <div className="flex justify-between mt-1">
+                        <span>Frais mensuels:</span>
+                        <span className="font-medium text-red-600">{inv.monthly_costs?.toFixed(2) || 0} €/mois</span>
+                      </div>
+                      <div className="flex justify-between mt-1">
+                        <span>Récompenses:</span>
+                        <span className="font-medium text-green-600">
+                          {inv.operations?.filter(op => op.type === 'dividend').reduce((sum, op) => sum + (op.total || 0), 0).toFixed(2) || 0} €
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-lg font-bold text-indigo-600 mt-3">
+                      ROI en cours...
+                    </div>
+                  </>
+                )}
+                
+                <div className="text-xs text-gray-400 mt-2 flex items-center justify-between">
+                  <span>{operationsCount} opération(s)</span>
+                  <span className="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium">
+                    {invType.replace('_', ' ')}
+                  </span>
                 </div>
               </div>
               <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
