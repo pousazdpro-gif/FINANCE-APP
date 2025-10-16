@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import "@/App.css";
 import { 
-  PiggyBank, LayoutDashboard, Wallet, ArrowRightLeft, TrendingUp, 
-  Target, CreditCard, FileText, ShoppingCart, Building2, Download, 
-  Upload, Plus, Search, Bell, X, Edit, Trash2, Save, Tag, Settings, CheckSquare,
-  Camera, BarChart3, FileBarChart, Link as LinkIcon
-} from "lucide-react";
+  PiggyBank, TrendingUp, TrendingDown, Plus, Trash2, Edit, X, 
+  DollarSign, Target, CreditCard, Users, ShoppingCart, 
+  BarChart, Search, Tag, Calendar, Upload, Menu, Link as LinkIcon
+} from 'lucide-react';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { Pie, Bar, Line } from 'react-chartjs-2';
 import { 
