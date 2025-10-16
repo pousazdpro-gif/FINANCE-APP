@@ -90,7 +90,8 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
       type: category.type,
       icon: category.icon || 'tag',
       color: category.color || '#6366f1',
-      budget: category.budget || ''
+      budget: category.budget || '',
+      subcategories: category.subcategories || []
     });
     setShowForm(true);
   };
