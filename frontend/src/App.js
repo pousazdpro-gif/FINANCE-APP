@@ -27,6 +27,7 @@ import DebtDetailModal from './components/DebtDetailModal';
 import ReceivableDetailModal from './components/ReceivableDetailModal';
 import ReportsView from './components/ReportsView';
 import CSVImporter from './components/CSVImporter';
+import LinkTransactionModal from './components/LinkTransactionModal';
 
 // Register ChartJS components including Filler for fill option
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, Filler);
