@@ -790,7 +790,7 @@ const AccountsView = ({ accounts, openModal, setAccounts, onTransferClick }) => 
 };
 
 // Transactions View Component
-const TransactionsView = ({ transactions, accounts, openModal, setTransactions }) => {
+const TransactionsView = ({ transactions, accounts, openModal, setTransactions, investments, onLinkToInvestment }) => {
   const handleDelete = async (id) => {
     if (window.confirm('Supprimer cette transaction ?')) {
       try {
