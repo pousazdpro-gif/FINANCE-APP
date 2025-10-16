@@ -840,6 +840,10 @@ async def get_investments(request: Request):
         # Convert camelCase to snake_case for backward compatibility
         inv = convert_camel_to_snake(inv, INVESTMENT_FIELD_MAP)
         
+        # CRITICAL FIX: Add symbol if missing (old data compatibility)
+        if 'symbol' not in inv or inv['symbol'] is None:
+            inv['symbol'] = ""
+        
         # Handle dates
         inv = convert_dates_from_string(inv, ['created_at', 'purchase_date'])
         
