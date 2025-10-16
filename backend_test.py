@@ -106,23 +106,39 @@ class FinanceAppTester:
             self.log(f"❌ Auth me test error: {str(e)}", "ERROR")
             return False
         
-        # Test 2: /api/auth/session endpoint (if it exists)
-        self.log("Testing POST /api/auth/session")
+        # Test 2: /api/auth/session endpoint with invalid session_id (should return 401)
+        self.log("Testing POST /api/auth/session with invalid session_id")
         try:
-            session_data = {"session_id": "test-session-123"}
-            response = self.session.post(f"{API_BASE}/auth/session", json=session_data)
-            self.log(f"Auth session response: {response.status_code}")
+            response = self.session.post(f"{API_BASE}/auth/session?session_id=invalid-test-session")
+            self.log(f"Auth session response (invalid): {response.status_code}")
             
-            if response.status_code in [200, 404, 405]:  # 404/405 acceptable if endpoint doesn't exist
-                if response.status_code == 200:
-                    self.log("✅ /api/auth/session endpoint working")
-                else:
-                    self.log(f"✅ /api/auth/session endpoint responded with {response.status_code} (acceptable)")
+            if response.status_code == 401:
+                self.log("✅ /api/auth/session correctly returns 401 for invalid session_id")
+            elif response.status_code == 422:
+                self.log("✅ /api/auth/session returns 422 for invalid format (acceptable)")
             else:
                 self.log(f"⚠️ /api/auth/session unexpected response: {response.status_code}")
                 
         except Exception as e:
             self.log(f"⚠️ Auth session test error: {str(e)}")
+        
+        # Test 3: /api/auth/logout endpoint
+        self.log("Testing POST /api/auth/logout")
+        try:
+            response = self.session.post(f"{API_BASE}/auth/logout")
+            self.log(f"Auth logout response: {response.status_code}")
+            
+            if response.status_code == 200:
+                result = response.json()
+                if result.get('success'):
+                    self.log("✅ /api/auth/logout working correctly")
+                else:
+                    self.log("⚠️ /api/auth/logout returned success=false")
+            else:
+                self.log(f"⚠️ /api/auth/logout unexpected response: {response.status_code}")
+                
+        except Exception as e:
+            self.log(f"⚠️ Auth logout test error: {str(e)}")
         
         return True
     
