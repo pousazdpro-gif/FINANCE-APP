@@ -268,6 +268,7 @@ class InvestmentOperationCreate(BaseModel):
     quantity: float
     price: float
     fees: float = 0.0
+    notes: str = ""
 
 
 # ============================================================================
