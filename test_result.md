@@ -291,6 +291,18 @@ frontend:
       - working: true
         agent: "main"
         comment: "✅ FIXED: Changed import from 'import jspdf-autotable' to 'import autoTable from jspdf-autotable' and updated all doc.autoTable() calls to autoTable(doc, {...}). This is the correct way to use jspdf-autotable in React. Frontend restarted successfully."
+
+  - task: "Investment Projection New Component"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/InvestmentProjectionNew.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created completely new InvestmentProjectionNew component with better visual design, real-time interactive sliders (Initial Amount 0-50000€, Monthly Amount 0-5000€, Years 1-50, Annual Return 0-15%), beautiful chart with 3 datasets (Total Value, Invested Capital, Gains), 4 KPI cards (Capital Invested, Final Value, Gains, ROI%), and additional info panels with yearly projections and key insights. Imported in App.js as InvestmentProjection and accessible via 'Projection' tab."
         
   - task: "CSV Importer Component"
     implemented: true
