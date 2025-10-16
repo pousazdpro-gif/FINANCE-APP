@@ -718,11 +718,15 @@ class FinanceAppTester:
 
     def run_all_tests(self):
         """Run all backend tests"""
-        self.log(f"Starting FinanceApp Backend Tests")
+        self.log(f"Starting FinanceApp Backend Tests - CRITICAL AUTHENTICATION FIX TESTING")
         self.log(f"Backend URL: {BACKEND_URL}")
         self.log(f"API Base: {API_BASE}")
         
         results = {
+            'cors_and_credentials': False,
+            'auth_endpoints': False,
+            'user_data_isolation': False,
+            'session_cookie_handling': False,
             'authentication': False,
             'account_creation': False,
             'camelcase_conversion': False,
@@ -735,32 +739,49 @@ class FinanceAppTester:
         }
         
         try:
-            # 1. Authentication
+            # CRITICAL TESTS FIRST - Authentication Session Persistence Fix
+            self.log("🔥 RUNNING CRITICAL AUTHENTICATION TESTS FIRST 🔥")
+            
+            # 1. Test CORS and Credentials (CRITICAL FIX)
+            results['cors_and_credentials'] = self.test_cors_and_credentials()
+            
+            # 2. Test Auth Endpoints (CRITICAL FIX)
+            results['auth_endpoints'] = self.test_auth_endpoints()
+            
+            # 3. Test User Data Isolation (CRITICAL FIX)
+            results['user_data_isolation'] = self.test_user_data_isolation()
+            
+            # 4. Test Session Cookie Handling (CRITICAL FIX)
+            results['session_cookie_handling'] = self.test_session_cookie_handling()
+            
+            self.log("🔥 CRITICAL TESTS COMPLETED - RUNNING STANDARD TESTS 🔥")
+            
+            # 5. Authentication
             results['authentication'] = self.authenticate()
             
-            # 2. Create test account
+            # 6. Create test account
             results['account_creation'] = self.test_create_account()
             
-            # 3. Test NEW FEATURES - camelCase/snake_case conversion
+            # 7. Test NEW FEATURES - camelCase/snake_case conversion
             results['camelcase_conversion'] = self.test_camelcase_conversion_endpoints()
             
-            # 4. Test NEW FEATURES - CSV Bank Import
+            # 8. Test NEW FEATURES - CSV Bank Import
             results['csv_bank_import'] = self.test_csv_bank_import()
             
-            # 5. Test existing endpoints
+            # 9. Test existing endpoints
             results['existing_endpoints'] = self.test_existing_endpoints()
             
-            # 6. Test shopping lists download
+            # 10. Test shopping lists download
             results['shopping_lists_download'] = self.test_shopping_lists_download()
             
-            # 7. Test Transaction CRUD (existing)
+            # 11. Test Transaction CRUD (existing)
             if results['account_creation']:
                 results['transaction_crud'] = self.test_transaction_crud()
             
-            # 8. Test Investment CRUD (existing)
+            # 12. Test Investment CRUD (existing)
             results['investment_crud'] = self.test_investment_crud()
             
-            # 9. Test User Isolation (existing)
+            # 13. Test User Isolation (existing)
             if results['account_creation']:
                 results['user_isolation'] = self.test_user_isolation()
             
@@ -770,13 +791,33 @@ class FinanceAppTester:
         
         # Summary
         self.log("=== TEST SUMMARY ===")
+        
+        # Show critical tests first
+        critical_tests = ['cors_and_credentials', 'auth_endpoints', 'user_data_isolation', 'session_cookie_handling']
+        self.log("🔥 CRITICAL AUTHENTICATION TESTS:")
+        for test_name in critical_tests:
+            if test_name in results:
+                status = "✅ PASS" if results[test_name] else "❌ FAIL"
+                self.log(f"  {test_name.replace('_', ' ').title()}: {status}")
+        
+        self.log("\n📋 STANDARD TESTS:")
         for test_name, passed in results.items():
-            status = "✅ PASS" if passed else "❌ FAIL"
-            self.log(f"{test_name.replace('_', ' ').title()}: {status}")
+            if test_name not in critical_tests:
+                status = "✅ PASS" if passed else "❌ FAIL"
+                self.log(f"  {test_name.replace('_', ' ').title()}: {status}")
         
         total_tests = len(results)
         passed_tests = sum(results.values())
-        self.log(f"Overall: {passed_tests}/{total_tests} tests passed")
+        critical_passed = sum(results[test] for test in critical_tests if test in results)
+        
+        self.log(f"\n🎯 CRITICAL TESTS: {critical_passed}/{len(critical_tests)} passed")
+        self.log(f"📊 OVERALL: {passed_tests}/{total_tests} tests passed")
+        
+        # Special message for critical tests
+        if critical_passed == len(critical_tests):
+            self.log("🎉 ALL CRITICAL AUTHENTICATION TESTS PASSED - SESSION PERSISTENCE FIX WORKING!")
+        else:
+            self.log("⚠️ SOME CRITICAL AUTHENTICATION TESTS FAILED - SESSION PERSISTENCE NEEDS ATTENTION!")
         
         return results
 
