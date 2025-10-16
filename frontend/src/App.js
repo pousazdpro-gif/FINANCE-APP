@@ -79,7 +79,7 @@ function App() {
         dashboardRes, categoriesRes
       ] = await Promise.all([
         accountsAPI.getAll(),
-        transactionsAPI.getAll({ limit: 100 }),
+        transactionsAPI.getAll({ limit: 10000 }),
         investmentsAPI.getAll(),
         goalsAPI.getAll(),
         debtsAPI.getAll(),
