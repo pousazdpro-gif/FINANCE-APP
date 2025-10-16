@@ -1397,8 +1397,9 @@ async def add_debt_payment(debt_id: str, input: DebtPaymentCreate, request: Requ
     payment_dict = payment.model_dump()
     payment_dict['date'] = payment_dict['date'].isoformat()
     
-    # Update remaining amount
-    new_remaining = debt['remaining_amount'] - input.amount
+    # Update remaining amount with safe default
+    current_remaining = debt.get('remaining_amount', debt.get('total_amount', 0))
+    new_remaining = current_remaining - input.amount
     
     await db.debts.update_one(
         {"id": debt_id, "user_email": user_email},
