@@ -748,7 +748,7 @@ async def get_transactions(
     request: Request,
     account_id: Optional[str] = None,
     type: Optional[TransactionType] = None,
-    limit: int = Query(default=100, le=1000)
+    limit: int = Query(default=10000, le=50000)
 ):
     user = await get_current_user(request, db)
     query = {"user_email": user['email']} if user else {"user_email": "anonymous"}
