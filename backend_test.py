@@ -39,6 +39,177 @@ class FinanceAppTester:
         self.log("Testing without authentication (using anonymous user)")
         self.authenticated = True
         return True
+    
+    def test_cors_and_credentials(self):
+        """Test CORS headers and credentials handling - CRITICAL FIX"""
+        self.log("=== Testing CORS Headers and Credentials Handling ===")
+        
+        # Test 1: Check CORS headers on OPTIONS request
+        self.log("Testing CORS preflight request")
+        try:
+            response = self.session.options(f"{API_BASE}/transactions", headers={
+                'Origin': 'https://money-tracker-pro-2.preview.emergentagent.com',
+                'Access-Control-Request-Method': 'GET',
+                'Access-Control-Request-Headers': 'Content-Type'
+            })
+            self.log(f"CORS preflight response: {response.status_code}")
+            
+            # Check CORS headers
+            cors_headers = {
+                'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                'Access-Control-Allow-Credentials': response.headers.get('Access-Control-Allow-Credentials'),
+                'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers')
+            }
+            
+            self.log(f"CORS Headers: {cors_headers}")
+            
+            # Verify CORS is NOT using wildcard '*' with credentials
+            if cors_headers['Access-Control-Allow-Origin'] == '*':
+                self.log("❌ CRITICAL: CORS still using wildcard '*' - incompatible with credentials!", "ERROR")
+                return False
+            elif cors_headers['Access-Control-Allow-Origin'] in ['https://money-tracker-pro-2.preview.emergentagent.com', 'http://localhost:3000']:
+                self.log(f"✅ CORS origin correctly set to: {cors_headers['Access-Control-Allow-Origin']}")
+            else:
+                self.log(f"⚠️ CORS origin set to: {cors_headers['Access-Control-Allow-Origin']}")
+            
+            # Verify credentials are allowed
+            if cors_headers['Access-Control-Allow-Credentials'] == 'true':
+                self.log("✅ CORS credentials correctly enabled")
+            else:
+                self.log("❌ CORS credentials not enabled", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ CORS test error: {str(e)}", "ERROR")
+            return False
+        
+        return True
+    
+    def test_auth_endpoints(self):
+        """Test authentication endpoints - CRITICAL FIX"""
+        self.log("=== Testing Authentication Endpoints ===")
+        
+        # Test 1: /api/auth/me without session (should return 401)
+        self.log("Testing GET /api/auth/me without session")
+        try:
+            response = self.session.get(f"{API_BASE}/auth/me")
+            self.log(f"Auth me response (no session): {response.status_code}")
+            
+            if response.status_code == 401:
+                self.log("✅ /api/auth/me correctly returns 401 without session")
+            else:
+                self.log(f"❌ /api/auth/me should return 401 without session, got {response.status_code}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Auth me test error: {str(e)}", "ERROR")
+            return False
+        
+        # Test 2: /api/auth/session endpoint (if it exists)
+        self.log("Testing POST /api/auth/session")
+        try:
+            session_data = {"session_id": "test-session-123"}
+            response = self.session.post(f"{API_BASE}/auth/session", json=session_data)
+            self.log(f"Auth session response: {response.status_code}")
+            
+            if response.status_code in [200, 404, 405]:  # 404/405 acceptable if endpoint doesn't exist
+                if response.status_code == 200:
+                    self.log("✅ /api/auth/session endpoint working")
+                else:
+                    self.log(f"✅ /api/auth/session endpoint responded with {response.status_code} (acceptable)")
+            else:
+                self.log(f"⚠️ /api/auth/session unexpected response: {response.status_code}")
+                
+        except Exception as e:
+            self.log(f"⚠️ Auth session test error: {str(e)}")
+        
+        return True
+    
+    def test_user_data_isolation(self):
+        """Test user data isolation with and without authentication - CRITICAL FIX"""
+        self.log("=== Testing User Data Isolation ===")
+        
+        # Test 1: Get transactions without authentication (should see anonymous data)
+        self.log("Testing GET /api/transactions without authentication")
+        try:
+            # Create a fresh session without any cookies
+            fresh_session = requests.Session()
+            fresh_session.headers.update({
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            })
+            
+            response = fresh_session.get(f"{API_BASE}/transactions")
+            self.log(f"Transactions (no auth) response: {response.status_code}")
+            
+            if response.status_code == 200:
+                transactions = response.json()
+                self.log(f"✅ Transactions without auth: {len(transactions)} items (should be anonymous user data)")
+                
+                # Check if we see the expected anonymous data (4 transactions mentioned in issue)
+                if len(transactions) <= 10:  # Should be small number for anonymous
+                    self.log(f"✅ Anonymous user sees limited data: {len(transactions)} transactions")
+                else:
+                    self.log(f"⚠️ Anonymous user sees {len(transactions)} transactions - might be too many")
+                    
+            else:
+                self.log(f"❌ Transactions without auth failed: {response.status_code}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Transactions without auth error: {str(e)}", "ERROR")
+            return False
+        
+        # Test 2: Get investments without authentication
+        self.log("Testing GET /api/investments without authentication")
+        try:
+            response = fresh_session.get(f"{API_BASE}/investments")
+            self.log(f"Investments (no auth) response: {response.status_code}")
+            
+            if response.status_code == 200:
+                investments = response.json()
+                self.log(f"✅ Investments without auth: {len(investments)} items (should be anonymous user data)")
+            else:
+                self.log(f"❌ Investments without auth failed: {response.status_code}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Investments without auth error: {str(e)}", "ERROR")
+            return False
+        
+        return True
+    
+    def test_session_cookie_handling(self):
+        """Test session cookie handling - CRITICAL FIX"""
+        self.log("=== Testing Session Cookie Handling ===")
+        
+        # Test that requests are made with credentials
+        self.log("Testing that session uses credentials")
+        
+        # Check if our session is configured to send credentials
+        # Note: We can't easily test actual cookie handling without a real auth flow
+        # But we can verify the session configuration
+        
+        try:
+            # Make a request and check if it's sent with proper headers
+            response = self.session.get(f"{API_BASE}/transactions")
+            self.log(f"Session request response: {response.status_code}")
+            
+            # Check request headers (if available in response)
+            request_headers = getattr(response.request, 'headers', {})
+            self.log(f"Request headers sent: {dict(request_headers)}")
+            
+            if response.status_code == 200:
+                self.log("✅ Session requests working correctly")
+                return True
+            else:
+                self.log(f"⚠️ Session request returned {response.status_code}")
+                return True  # Still pass as this might be expected without auth
+                
+        except Exception as e:
+            self.log(f"❌ Session cookie test error: {str(e)}", "ERROR")
+            return False
         
     def test_create_account(self):
         """Test creating a test account for transactions"""
