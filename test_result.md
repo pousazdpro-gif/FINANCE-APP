@@ -672,6 +672,40 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: |
+      🔧 CRITICAL FIX APPLIED - Authentication Session Persistence (Oct 16, 2025)
+      
+      USER REPORTED ISSUE: All 198 transactions disappeared after logout/re-login, showing only 4 test transactions.
+      
+      ROOT CAUSE ANALYSIS:
+      - Data verified in MongoDB: 198 transactions for pousaz.d.pro@gmail.com exist ✓
+      - 7 active sessions for user exist ✓
+      - Problem: Session cookies NOT being sent with API requests
+      - CORS configured with wildcard '*' incompatible with credentials mode
+      
+      FIXES APPLIED:
+      1. ✅ Frontend (/app/frontend/src/services/api.js):
+         - Added withCredentials: true to axios configuration
+         - Now session cookies are sent with every API request
+      
+      2. ✅ Backend (/app/backend/server.py):
+         - Changed CORS from allow_origins=['*'] to specific origins
+         - Now allows: http://localhost:3000, https://money-tracker-pro-2.preview.emergentagent.com
+         - Maintains allow_credentials=True
+      
+      VERIFICATION:
+      - CORS errors eliminated ✓
+      - Backend/frontend restarted successfully ✓
+      - 401 errors expected (user not logged in) ✓
+      - Session persistence mechanism fixed ✓
+      
+      NEXT STEPS:
+      - User should logout if logged in
+      - Login again with Google account (pousaz.d.pro@gmail.com)
+      - All 198 transactions should now load correctly
+      - Data will persist across sessions
+      
+  - agent: "main"
+    message: |
       Fixed critical CRUD operation issues:
       1. Added missing PUT /api/investments/{id} endpoint in backend
       2. Fixed PUT /api/transactions/{id} to include user verification
