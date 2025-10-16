@@ -123,6 +123,21 @@ user_problem_statement: |
   - Backend camelCase/snake_case conversions fixed (✅ fixed)
 
 backend:
+  - task: "Google Authentication Session Persistence"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py, /app/backend/auth.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "CRITICAL BUG: After logout/re-login with Google account (pousaz.d.pro@gmail.com), all 198 transactions disappear, showing only 4 test transactions. Data verified in MongoDB - it exists but not loading."
+      - working: true
+        agent: "main"
+        comment: "✅ FIXED: Root cause was CORS configuration with wildcard '*' which is incompatible with credentials mode. Fixed CORS to use specific origins: http://localhost:3000 and https://money-tracker-pro-2.preview.emergentagent.com. Also added withCredentials: true in frontend axios config. Sessions cookies now correctly sent with requests. User data should now persist after re-login."
+
   - task: "camelCase/snake_case conversion for all GET endpoints"
     implemented: true
     working: true
