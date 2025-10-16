@@ -236,8 +236,17 @@ const InvestmentProjectionNew = () => {
               max="50000"
               step="100"
               value={initialAmount}
-              onChange={(e) => setInitialAmount(parseFloat(e.target.value))}
+              onChange={(e) => {
+                const newValue = parseFloat(e.target.value);
+                console.log('Capital Initial changed to:', newValue);
+                setInitialAmount(newValue);
+              }}
+              onInput={(e) => {
+                const newValue = parseFloat(e.target.value);
+                setInitialAmount(newValue);
+              }}
               className="w-full h-3 bg-gradient-to-r from-indigo-200 to-indigo-400 rounded-lg appearance-none cursor-pointer slider"
+              style={{ zIndex: 10, position: 'relative' }}
             />
             <div className="flex justify-between text-xs text-gray-500">
               <span>0 €</span>
