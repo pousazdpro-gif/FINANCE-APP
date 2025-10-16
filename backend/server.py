@@ -736,12 +736,28 @@ async def create_transaction(input: TransactionCreate, request: Request):
     user = await get_current_user(request, db)
     user_email = user['email'] if user else 'anonymous'
     
+    # Log authentication status for debugging
+    logger.info(f"Creating transaction - User: {user_email}, Has Cookie: {request.cookies.get('session_token') is not None}")
+    
     transaction = Transaction(**input.model_dump())
     doc = transaction.model_dump()
     doc['date'] = doc['date'].isoformat()
     doc['created_at'] = doc['created_at'].isoformat()
     doc['user_email'] = user_email  # Add user ownership
+    
+    # Check for duplicate (same id, user_email, and created_at within 1 second)
+    existing = await db.transactions.find_one({
+        "id": doc['id'],
+        "user_email": user_email
+    })
+    
+    if existing:
+        logger.warning(f"Duplicate transaction detected: {doc['id']} for user {user_email}")
+        # Return existing transaction instead of creating duplicate
+        return Transaction(**{**existing, '_id': str(existing.get('_id'))})
+    
     await db.transactions.insert_one(doc)
+    logger.info(f"Transaction created successfully: {doc['id']} for user {user_email}")
     return transaction
 
 @api_router.get("/transactions", response_model=List[Transaction])
