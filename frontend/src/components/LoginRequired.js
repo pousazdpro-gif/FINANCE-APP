@@ -74,6 +74,12 @@ export default function LoginRequired({ children }) {
     );
   }
 
+  // TEMPORARY: Allow testing without authentication
+  if (!user && window.location.search.includes('test=true')) {
+    console.log('🧪 TEST MODE: Bypassing authentication for testing');
+    return children;
+  }
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center p-4">
@@ -117,6 +123,15 @@ export default function LoginRequired({ children }) {
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
             <span>Se connecter avec Google</span>
+          </button>
+
+          {/* TEMPORARY: Test mode button */}
+          <button
+            onClick={() => window.location.href = window.location.href + '?test=true'}
+            className="w-full mt-4 flex items-center justify-center space-x-3 px-6 py-4 bg-orange-100 border-2 border-orange-300 hover:border-orange-500 hover:bg-orange-200 text-orange-700 hover:text-orange-800 rounded-xl transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
+            data-testid="test-mode-button"
+          >
+            <span>🧪 Mode Test (Accès sans authentification)</span>
           </button>
 
           <div className="mt-6 text-center">
