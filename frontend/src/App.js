@@ -109,6 +109,60 @@ function App() {
     }
   };
 
+  const handleLinkTransaction = async (transactionId, investmentId) => {
+    try {
+      // Find the transaction
+      const transaction = transactions.find(t => t.id === transactionId);
+      if (!transaction) return;
+
+      // Find the investment
+      const investment = investments.find(inv => inv.id === investmentId);
+      if (!investment) return;
+
+      // Create an operation for the investment based on the transaction
+      const operation = {
+        type: transaction.type === 'expense' ? 'buy' : 'sell',
+        date: transaction.date,
+        quantity: 1, // Default quantity, user can adjust later
+        price: transaction.amount,
+        total: transaction.amount,
+        notes: `Lié à transaction: ${transaction.description}`
+      };
+
+      // Add operation to investment
+      const updatedOperations = [...(investment.operations || []), operation];
+      
+      // Calculate new averages
+      const buyOps = updatedOperations.filter(op => op.type === 'buy');
+      const totalQuantity = buyOps.reduce((sum, op) => sum + op.quantity, 0);
+      const totalCost = buyOps.reduce((sum, op) => sum + (op.total || op.quantity * op.price), 0);
+      const averagePrice = totalQuantity > 0 ? totalCost / totalQuantity : 0;
+
+      // Update investment
+      await investmentsAPI.update(investmentId, {
+        ...investment,
+        operations: updatedOperations,
+        quantity: totalQuantity,
+        average_price: averagePrice,
+        current_price: averagePrice // Can be updated manually later
+      });
+
+      // Update transaction with link
+      await transactionsAPI.update(transactionId, {
+        ...transaction,
+        linked_investment_id: investmentId
+      });
+
+      // Reload data
+      await loadAllData();
+      
+      alert('Transaction liée avec succès!');
+    } catch (error) {
+      console.error('Error linking transaction:', error);
+      alert('Erreur lors de la liaison');
+    }
+  };
+
   // Quick add handler
   const handleQuickAdd = async () => {
     const regex = /(\w+)\s+([\d.]+)/;
