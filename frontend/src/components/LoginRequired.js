@@ -74,12 +74,6 @@ export default function LoginRequired({ children }) {
     );
   }
 
-  // TEMPORARY: Allow testing without authentication
-  if (!user && window.location.search.includes('test=true')) {
-    console.log('🧪 TEST MODE: Bypassing authentication for testing');
-    return children;
-  }
-
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center p-4">
