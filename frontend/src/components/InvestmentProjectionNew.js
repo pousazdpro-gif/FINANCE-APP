@@ -7,6 +7,12 @@ const InvestmentProjectionNew = () => {
   const [initialAmount, setInitialAmount] = useState(1000);
   const [years, setYears] = useState(20);
   const [annualReturn, setAnnualReturn] = useState(7);
+  const [chartKey, setChartKey] = useState(0);
+
+  // Force chart re-render when values change
+  useEffect(() => {
+    setChartKey(prev => prev + 1);
+  }, [monthlyAmount, initialAmount, years, annualReturn]);
 
   const calculateProjection = useMemo(() => {
     const months = years * 12;
