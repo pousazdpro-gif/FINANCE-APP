@@ -217,7 +217,7 @@ class TransactionCreate(BaseModel):
     is_recurring: bool = False
     recurring_frequency: Optional[str] = None
     splits: Optional[List[SplitItem]] = None
-    tags: List[str] = []
+    tags: List[str] = Field(default_factory=list)
 
 
 # ============================================================================
