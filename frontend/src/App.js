@@ -265,9 +265,17 @@ function App() {
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="bg-white border-b border-gray-200 p-4 flex items-center justify-between gap-4">
-          <h2 className="text-2xl font-bold text-gray-900 flex-shrink-0">
-            {navItems.find(item => item.id === currentView)?.label || 'FinanceApp'}
-          </h2>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden text-gray-500 hover:text-gray-700"
+            >
+              <Menu size={24} />
+            </button>
+            <h2 className="text-2xl font-bold text-gray-900 flex-shrink-0">
+              {navItems.find(item => item.id === currentView)?.label || 'FinanceApp'}
+            </h2>
+          </div>
           <div className="flex-grow min-w-0">
             <input
               type="text"
