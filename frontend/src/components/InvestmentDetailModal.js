@@ -652,7 +652,23 @@ const InvestmentDetailModal = ({ investment, onClose, onUpdate, onAddOperation, 
                               op.type === 'sell' ? 'bg-red-100 text-red-800' :
                               'bg-blue-100 text-blue-800'
                             }`}>
-                              {op.type === 'buy' ? 'Achat' : op.type === 'sell' ? 'Vente' : 'Dividende'}
+                              {op.type === 'buy' ? 'Achat' : 
+                               op.type === 'sell' ? 'Vente' : 
+                               op.type === 'dividend' ? 'Dividende' :
+                               op.type === 'interest' ? 'Intérêt' :
+                               op.type === 'deposit' ? 'Rechargement' :
+                               op.type === 'withdrawal' ? 'Retrait' :
+                               op.type === 'profit' ? 'Profit' :
+                               op.type === 'loss' ? 'Perte' :
+                               op.type === 'rent' ? 'Loyer' :
+                               op.type === 'renovation' ? 'Rénovation' :
+                               op.type === 'maintenance' ? 'Entretien' :
+                               op.type === 'tax' ? 'Taxes' :
+                               op.type === 'reward' ? 'Récompense' :
+                               op.type === 'electricity' ? 'Électricité' :
+                               op.type === 'upgrade' ? 'Amélioration' :
+                               op.type === 'depreciation' ? 'Dépréciation' :
+                               op.type}
                             </span>
                             <span className="text-sm text-gray-500">
                               {new Date(op.date).toLocaleDateString('fr-FR')}
