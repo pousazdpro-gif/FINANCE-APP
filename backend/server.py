@@ -869,11 +869,38 @@ async def add_investment_operation(investment_id: str, input: InvestmentOperatio
     operation_dict = operation.model_dump()
     operation_dict['date'] = operation_dict['date'].isoformat()
     
+    # Add operation to array
     await db.investments.update_one(
         {"id": investment_id},
         {"$push": {"operations": operation_dict}}
     )
     
+    # Recalculate investment totals
+    updated = await db.investments.find_one({"id": investment_id}, {"_id": 0})
+    operations = updated.get('operations', [])
+    
+    # Calculate totals based on operations
+    buy_ops = [op for op in operations if op.get('type') == 'buy']
+    sell_ops = [op for op in operations if op.get('type') == 'sell']
+    
+    total_bought_quantity = sum(op.get('quantity', 0) for op in buy_ops)
+    total_sold_quantity = sum(op.get('quantity', 0) for op in sell_ops)
+    current_quantity = total_bought_quantity - total_sold_quantity
+    
+    total_bought_cost = sum(op.get('total', op.get('quantity', 0) * op.get('price', 0)) for op in buy_ops)
+    average_price = total_bought_cost / total_bought_quantity if total_bought_quantity > 0 else 0
+    
+    # Update investment with calculated values
+    await db.investments.update_one(
+        {"id": investment_id},
+        {"$set": {
+            "quantity": current_quantity,
+            "average_price": average_price,
+            "current_price": average_price if updated.get('current_price', 0) == 0 else updated.get('current_price')
+        }}
+    )
+    
+    # Get final updated investment
     updated = await db.investments.find_one({"id": investment_id}, {"_id": 0})
     if isinstance(updated.get('created_at'), str):
         updated['created_at'] = datetime.fromisoformat(updated['created_at'])
