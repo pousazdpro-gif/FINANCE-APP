@@ -318,6 +318,11 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
                           Budget: {category.budget.toFixed(2)} €/mois
                         </div>
                       )}
+                      {category.subcategories && category.subcategories.length > 0 && (
+                        <div className="text-xs text-gray-400 mt-1">
+                          {category.subcategories.length} sous-catégorie(s)
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
