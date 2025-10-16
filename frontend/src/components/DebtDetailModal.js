@@ -72,19 +72,19 @@ const DebtDetailModal = ({ debt, onClose, onUpdate, onAddPayment, onUpdatePaymen
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
             <div className="bg-white bg-opacity-20 rounded-lg p-3">
               <div className="text-xs text-red-100">Montant Total</div>
-              <div className="text-xl font-bold">{debt.total_amount.toFixed(2)} €</div>
+              <div className="text-xl font-bold">{totalAmount.toFixed(2)} €</div>
             </div>
             <div className="bg-white bg-opacity-20 rounded-lg p-3">
               <div className="text-xs text-red-100">Restant</div>
-              <div className="text-xl font-bold">{debt.remaining_amount.toFixed(2)} €</div>
+              <div className="text-xl font-bold">{remainingAmount.toFixed(2)} €</div>
             </div>
             <div className="bg-white bg-opacity-20 rounded-lg p-3">
               <div className="text-xs text-red-100">Payé</div>
-              <div className="text-xl font-bold">{(debt.total_amount - debt.remaining_amount).toFixed(2)} €</div>
+              <div className="text-xl font-bold">{paidAmount.toFixed(2)} €</div>
             </div>
             <div className="bg-white bg-opacity-20 rounded-lg p-3">
-              <div className="text-xs text-red-100">Progression</div>
-              <div className="text-xl font-bold">{progressPercent.toFixed(1)}%</div>
+              <div className="text-xs text-red-100">Taux d'intérêt</div>
+              <div className="text-xl font-bold">{interestRate}%</div>
             </div>
           </div>
 
