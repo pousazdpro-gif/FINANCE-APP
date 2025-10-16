@@ -63,6 +63,7 @@ function App() {
   const [categories, setCategories] = useState([]);
   const [showCSVImporter, setShowCSVImporter] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [linkTransactionModal, setLinkTransactionModal] = useState({ show: false, transaction: null });
 
   // Load all data
   useEffect(() => {
