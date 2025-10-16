@@ -14,9 +14,11 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
     type: 'expense',
     icon: 'tag',
     color: '#6366f1',
-    budget: ''
+    budget: '',
+    subcategories: []
   });
   const [activeType, setActiveType] = useState('expense');
+  const [newSubcategory, setNewSubcategory] = useState('');
 
   useEffect(() => {
     loadCategories();
