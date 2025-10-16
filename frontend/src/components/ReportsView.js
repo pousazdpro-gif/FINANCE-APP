@@ -8,6 +8,7 @@ const ReportsView = ({ transactions = [] }) => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const filteredTransactions = useMemo(() => {
     let filtered = [...transactions];
@@ -41,6 +42,7 @@ const ReportsView = ({ transactions = [] }) => {
       case 'custom':
         if (startDate) periodStart = new Date(startDate);
         break;
+      case 'all':
       default:
         periodStart = new Date(0); // All time
     }
