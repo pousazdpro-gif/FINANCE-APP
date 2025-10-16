@@ -269,7 +269,7 @@ const ReportsView = ({ transactions = [] }) => {
               className="w-full px-4 py-2 border rounded-lg"
             >
               {categories.map(cat => (
-                <option key={cat} value={cat}>
+                <option key={`filter-${cat}`} value={cat}>
                   {cat === 'all' ? 'Toutes' : cat}
                 </option>
               ))}
