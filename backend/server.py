@@ -2212,6 +2212,35 @@ async def get_me(request: Request):
     return user
 
 
+@api_router.get("/auth/debug")
+async def debug_auth(request: Request):
+    """Debug endpoint to check authentication status"""
+    user = await get_current_user(request, db)
+    
+    # Get cookie info
+    session_cookie = request.cookies.get("session_token")
+    auth_header = request.headers.get("Authorization")
+    
+    # Get session info if exists
+    session_info = None
+    if session_cookie:
+        session_info = await db.sessions.find_one(
+            {"session_token": session_cookie},
+            {"_id": 0, "email": 1, "expires_at": 1, "created_at": 1}
+        )
+    
+    return {
+        "authenticated": user is not None,
+        "user": user,
+        "has_session_cookie": session_cookie is not None,
+        "cookie_preview": session_cookie[:20] + "..." if session_cookie else None,
+        "has_auth_header": auth_header is not None,
+        "session_info": session_info,
+        "origin": request.headers.get("origin"),
+        "referer": request.headers.get("referer")
+    }
+
+
 @api_router.post("/auth/logout")
 async def logout(request: Request, response: Response):
     """Logout current user"""
