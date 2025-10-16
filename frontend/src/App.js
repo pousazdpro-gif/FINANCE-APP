@@ -582,6 +582,16 @@ function App() {
           </div>
         </div>
       )}
+      
+      {/* Link Transaction Modal */}
+      {linkTransactionModal.show && (
+        <LinkTransactionModal
+          transaction={linkTransactionModal.transaction}
+          investments={investments}
+          onClose={() => setLinkTransactionModal({ show: false, transaction: null })}
+          onLink={handleLinkTransaction}
+        />
+      )}
     </div>
     </LoginRequired>
   );
