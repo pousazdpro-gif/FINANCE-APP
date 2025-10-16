@@ -244,7 +244,17 @@ const InvestmentProjection = () => {
       {/* Chart */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <div style={{ height: '400px', position: 'relative' }}>
-          <Line data={chartData} options={chartOptions} />
+          {chartData && chartData.labels && chartData.labels.length > 0 ? (
+            <Line 
+              key={`${monthlyAmount}-${years}-${annualReturn}`}
+              data={chartData} 
+              options={chartOptions} 
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              Chargement du graphique...
+            </div>
+          )}
         </div>
       </div>
 
