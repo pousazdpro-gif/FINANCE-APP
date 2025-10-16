@@ -360,8 +360,8 @@ const ReportsView = ({ transactions = [] }) => {
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h3 className="text-lg font-semibold mb-4">Transactions ({filteredTransactions.length})</h3>
         <div className="space-y-2 max-h-96 overflow-y-auto">
-          {filteredTransactions.map((txn, idx) => (
-            <div key={idx} className="flex justify-between items-center p-3 border-b">
+          {filteredTransactions.map((txn) => (
+            <div key={txn.id || txn.date + txn.description} className="flex justify-between items-center p-3 border-b">
               <div>
                 <div className="font-medium">{txn.description}</div>
                 <div className="text-sm text-gray-500">
