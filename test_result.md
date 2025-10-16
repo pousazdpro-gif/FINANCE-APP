@@ -104,17 +104,23 @@
 
 user_problem_statement: |
   FinanceApp - Personal Financial Management PWA with Google Authentication.
-  User wants ALL features completed and fully functional:
+  CRITICAL ISSUE REPORTED: User data (198 transactions) disappearing after re-login, showing only 4 test transactions.
+  ROOT CAUSE: CORS configuration with wildcard '*' incompatible with credentials (cookies).
+  FIX APPLIED: 
+    1. Added withCredentials: true to axios configuration in frontend
+    2. Fixed CORS to use specific origins instead of '*'
+    3. Data now properly persists across sessions with Google authentication
+  
+  Additional features working:
   - Full CRUD operations (✅ working)
-  - OCR with Tesseract.js for receipt scanning (✅ just implemented)
-  - PDF export for reports (✅ just implemented)
-  - CSV import for bank statements (✅ just implemented)
-  - Shopping module with download lists (✅ already working)
-  - Payment history CRUD for debts/receivables (✅ already working)
-  - Multi-currency support (✅ already working)
-  - Investment projections with reactive graphs (✅ already working)
-  - All data properly linked and persisted (✅ working)
-  - Backend camelCase/snake_case conversions fixed (✅ just fixed)
+  - OCR with Tesseract.js for receipt scanning (✅ implemented)
+  - PDF export for reports (✅ implemented)
+  - CSV import for bank statements (✅ implemented)
+  - Shopping module with download lists (✅ working)
+  - Payment history CRUD for debts/receivables (✅ working)
+  - Multi-currency support (✅ working)
+  - Investment projections with reactive graphs (✅ working)
+  - Backend camelCase/snake_case conversions fixed (✅ fixed)
 
 backend:
   - task: "camelCase/snake_case conversion for all GET endpoints"
