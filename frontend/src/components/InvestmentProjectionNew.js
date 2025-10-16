@@ -384,7 +384,7 @@ const InvestmentProjectionNew = () => {
       <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
         <div style={{ height: '500px', position: 'relative' }}>
           {chartData && chartData.labels && chartData.labels.length > 0 ? (
-            <Line data={chartData} options={chartOptions} />
+            <Line key={chartKey} data={chartData} options={chartOptions} />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500">
               <div className="text-center">
