@@ -46,7 +46,12 @@ const DebtDetailModal = ({ debt, onClose, onUpdate, onAddPayment, onUpdatePaymen
     }
   };
 
-  const progressPercent = (debt.total_amount - debt.remaining_amount) / debt.total_amount * 100;
+  // Safe values with defaults
+  const totalAmount = debt.total_amount || 0;
+  const remainingAmount = debt.remaining_amount || totalAmount;
+  const paidAmount = totalAmount - remainingAmount;
+  const progressPercent = totalAmount > 0 ? (paidAmount / totalAmount * 100) : 0;
+  const interestRate = debt.interest_rate || 0;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
