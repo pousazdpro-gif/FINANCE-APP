@@ -462,52 +462,166 @@ const InvestmentDetailModal = ({ investment, onClose, onUpdate, onAddOperation, 
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Type d'opération</label>
                       <select
                         value={operationForm.type}
                         onChange={(e) => setOperationForm({ ...operationForm, type: e.target.value })}
                         className="w-full px-3 py-2 border rounded-lg"
                       >
-                        <option value="buy">Achat</option>
-                        <option value="sell">Vente</option>
-                        <option value="dividend">Dividende</option>
+                        {/* Options selon le type d'investissement */}
+                        {['stock', 'crypto', 'etf'].includes(investment.type) && (
+                          <>
+                            <option value="buy">Achat</option>
+                            <option value="sell">Vente</option>
+                            <option value="dividend">Dividende</option>
+                          </>
+                        )}
+                        
+                        {investment.type === 'bond' && (
+                          <>
+                            <option value="buy">Investissement</option>
+                            <option value="interest">Intérêt reçu</option>
+                            <option value="fees">Frais</option>
+                          </>
+                        )}
+                        
+                        {investment.type === 'trading_account' && (
+                          <>
+                            <option value="deposit">Rechargement</option>
+                            <option value="withdrawal">Retrait</option>
+                            <option value="fees">Frais de plateforme</option>
+                            <option value="profit">Profit de trade</option>
+                            <option value="loss">Perte de trade</option>
+                          </>
+                        )}
+                        
+                        {investment.type === 'real_estate' && (
+                          <>
+                            <option value="buy">Achat initial</option>
+                            <option value="renovation">Rénovation/Travaux</option>
+                            <option value="rent">Loyer reçu</option>
+                            <option value="maintenance">Frais d'entretien</option>
+                            <option value="tax">Taxes</option>
+                          </>
+                        )}
+                        
+                        {investment.type === 'mining_rig' && (
+                          <>
+                            <option value="buy">Achat matériel</option>
+                            <option value="reward">Récompense mining</option>
+                            <option value="electricity">Frais électricité</option>
+                            <option value="maintenance">Frais maintenance</option>
+                            <option value="upgrade">Amélioration</option>
+                          </>
+                        )}
+                        
+                        {investment.type === 'commodity' && (
+                          <>
+                            <option value="buy">Achat</option>
+                            <option value="sell">Vente</option>
+                            <option value="maintenance">Entretien</option>
+                            <option value="depreciation">Ajustement dépréciation</option>
+                          </>
+                        )}
                       </select>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Quantité</label>
-                      <input
-                        type="number"
-                        step="0.0001"
-                        value={operationForm.quantity}
-                        onChange={(e) => setOperationForm({ ...operationForm, quantity: e.target.value })}
-                        className="w-full px-3 py-2 border rounded-lg"
-                        required
-                      />
+                  
+                  {/* Champs adaptés selon le type d'opération */}
+                  {['buy', 'sell'].includes(operationForm.type) && (
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Quantité</label>
+                        <input
+                          type="number"
+                          step="0.0001"
+                          value={operationForm.quantity}
+                          onChange={(e) => setOperationForm({ ...operationForm, quantity: e.target.value })}
+                          className="w-full px-3 py-2 border rounded-lg"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Prix Unitaire</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={operationForm.price}
+                          onChange={(e) => setOperationForm({ ...operationForm, price: e.target.value })}
+                          className="w-full px-3 py-2 border rounded-lg"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Frais</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={operationForm.fees}
+                          onChange={(e) => setOperationForm({ ...operationForm, fees: e.target.value })}
+                          className="w-full px-3 py-2 border rounded-lg"
+                        />
+                      </div>
                     </div>
+                  )}
+                  
+                  {/* Pour dividendes, intérêts, loyers, récompenses - juste un montant */}
+                  {['dividend', 'interest', 'rent', 'reward', 'profit'].includes(operationForm.type) && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Prix Unitaire</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Montant reçu</label>
                       <input
                         type="number"
                         step="0.01"
                         value={operationForm.price}
-                        onChange={(e) => setOperationForm({ ...operationForm, price: e.target.value })}
+                        onChange={(e) => setOperationForm({ 
+                          ...operationForm, 
+                          price: e.target.value,
+                          quantity: 1  // Quantité = 1 pour simplifier
+                        })}
                         className="w-full px-3 py-2 border rounded-lg"
                         required
                       />
                     </div>
+                  )}
+                  
+                  {/* Pour frais, pertes - juste un montant */}
+                  {['fees', 'maintenance', 'electricity', 'tax', 'loss'].includes(operationForm.type) && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Frais</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Montant des frais</label>
                       <input
                         type="number"
                         step="0.01"
                         value={operationForm.fees}
-                        onChange={(e) => setOperationForm({ ...operationForm, fees: e.target.value })}
+                        onChange={(e) => setOperationForm({ 
+                          ...operationForm, 
+                          fees: e.target.value,
+                          quantity: 1,
+                          price: 0
+                        })}
                         className="w-full px-3 py-2 border rounded-lg"
+                        required
                       />
                     </div>
-                  </div>
+                  )}
+                  
+                  {/* Pour rechargement, retrait, rénovation, upgrade - juste un montant */}
+                  {['deposit', 'withdrawal', 'renovation', 'upgrade'].includes(operationForm.type) && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Montant</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={operationForm.price}
+                        onChange={(e) => setOperationForm({ 
+                          ...operationForm, 
+                          price: e.target.value,
+                          quantity: 1
+                        })}
+                        className="w-full px-3 py-2 border rounded-lg"
+                        required
+                      />
+                    </div>
+                  )}
                   <div className="flex space-x-2">
                     <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
                       {editingOperation !== null ? 'Modifier' : 'Ajouter'}
