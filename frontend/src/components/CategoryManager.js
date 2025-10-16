@@ -231,6 +231,52 @@ const CategoryManager = ({ onClose, onCategorySelect }) => {
                 />
               </div>
 
+              {/* Sous-catégories */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Sous-catégories
+                </label>
+                <div className="flex space-x-2 mb-2">
+                  <input
+                    type="text"
+                    value={newSubcategory}
+                    onChange={(e) => setNewSubcategory(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddSubcategory();
+                      }
+                    }}
+                    className="flex-1 px-3 py-2 border rounded-lg"
+                    placeholder="Nom de la sous-catégorie"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddSubcategory}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                  >
+                    <Plus size={18} />
+                  </button>
+                </div>
+                <div className="space-y-1">
+                  {(formData.subcategories || []).map((sub, index) => (
+                    <div key={index} className="flex items-center justify-between bg-white px-3 py-2 rounded border">
+                      <span className="text-sm">{sub}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSubcategory(index)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ))}
+                  {(!formData.subcategories || formData.subcategories.length === 0) && (
+                    <p className="text-sm text-gray-500 italic">Aucune sous-catégorie</p>
+                  )}
+                </div>
+              </div>
+
               <div className="flex space-x-2">
                 <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center space-x-2">
                   <Save size={18} />
