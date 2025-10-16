@@ -22,7 +22,7 @@ import EisenhowerMatrix from './components/EisenhowerMatrix';
 import SettingsPanel from './components/SettingsPanel';
 import TransferModal from './components/TransferModal';
 import OCRScanner from './components/OCRScanner';
-import InvestmentProjection from './components/InvestmentProjection';
+import InvestmentProjection from './components/InvestmentProjectionNew';
 import DebtDetailModal from './components/DebtDetailModal';
 import ReceivableDetailModal from './components/ReceivableDetailModal';
 import ReportsView from './components/ReportsView';
