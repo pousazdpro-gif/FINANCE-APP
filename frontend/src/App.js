@@ -1686,28 +1686,234 @@ const Modal = ({ type, data, onClose, onSave, accounts }) => {
                 className="w-full px-3 py-2 border rounded-lg"
                 required
               />
-              <input
-                type="text"
-                placeholder="Symbol (ex: BTC, AAPL)"
-                value={formData.symbol || ''}
-                onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
+              
               <select
                 value={formData.type || 'stock'}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                onChange={(e) => {
+                  // Reset fields when type changes
+                  setFormData({ 
+                    ...formData, 
+                    type: e.target.value,
+                    quantity: 0,
+                    average_price: 0,
+                    current_price: 0,
+                    initial_value: 0,
+                    monthly_costs: 0,
+                    depreciation_rate: 0
+                  });
+                }}
                 className="w-full px-3 py-2 border rounded-lg"
               >
                 <option value="stock">Action</option>
                 <option value="crypto">Crypto</option>
                 <option value="etf">ETF</option>
                 <option value="bond">Obligation</option>
-                <option value="trading_account">Trading Account</option>
+                <option value="trading_account">Compte Trading</option>
                 <option value="real_estate">Immobilier</option>
                 <option value="mining_rig">Matériel Actif (Mining)</option>
                 <option value="commodity">Matériel Passif</option>
               </select>
+              
+              {/* Champs dynamiques selon le type */}
+              
+              {/* Pour Actions, Crypto, ETF, Obligation */}
+              {['stock', 'crypto', 'etf', 'bond'].includes(formData.type || 'stock') && (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Symbol (ex: BTC, AAPL)"
+                    value={formData.symbol || ''}
+                    onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    step="0.0001"
+                    placeholder="Quantité possédée"
+                    value={formData.quantity || 0}
+                    onChange={(e) => setFormData({ ...formData, quantity: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Prix d'achat moyen par unité"
+                    value={formData.average_price || 0}
+                    onChange={(e) => setFormData({ ...formData, average_price: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Prix actuel par unité"
+                    value={formData.current_price || 0}
+                    onChange={(e) => setFormData({ ...formData, current_price: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </>
+              )}
+              
+              {/* Pour Compte Trading */}
+              {formData.type === 'trading_account' && (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Nom du broker/plateforme"
+                    value={formData.symbol || ''}
+                    onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Capital initial du compte"
+                    value={formData.initial_value || 0}
+                    onChange={(e) => setFormData({ ...formData, initial_value: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Solde actuel du compte"
+                    value={formData.current_price || 0}
+                    onChange={(e) => setFormData({ ...formData, current_price: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </>
+              )}
+              
+              {/* Pour Immobilier */}
+              {formData.type === 'real_estate' && (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Adresse du bien"
+                    value={formData.symbol || ''}
+                    onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Coût total d'acquisition"
+                    value={formData.initial_value || 0}
+                    onChange={(e) => setFormData({ ...formData, initial_value: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Valeur actuelle estimée"
+                    value={formData.current_price || 0}
+                    onChange={(e) => setFormData({ ...formData, current_price: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Frais mensuels (taxes, entretien...)"
+                    value={formData.monthly_costs || 0}
+                    onChange={(e) => setFormData({ ...formData, monthly_costs: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="date"
+                    placeholder="Date d'achat"
+                    value={formData.purchase_date ? new Date(formData.purchase_date).toISOString().split('T')[0] : ''}
+                    onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </>
+              )}
+              
+              {/* Pour Matériel Passif */}
+              {formData.type === 'commodity' && (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Description du matériel"
+                    value={formData.symbol || ''}
+                    onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Coût d'achat"
+                    value={formData.initial_value || 0}
+                    onChange={(e) => setFormData({ ...formData, initial_value: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Valeur actuelle estimée"
+                    value={formData.current_price || 0}
+                    onChange={(e) => setFormData({ ...formData, current_price: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    step="0.1"
+                    placeholder="Taux de dépréciation annuel (%)"
+                    value={formData.depreciation_rate || 0}
+                    onChange={(e) => setFormData({ ...formData, depreciation_rate: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Frais d'entretien mensuels"
+                    value={formData.monthly_costs || 0}
+                    onChange={(e) => setFormData({ ...formData, monthly_costs: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="date"
+                    placeholder="Date d'achat"
+                    value={formData.purchase_date ? new Date(formData.purchase_date).toISOString().split('T')[0] : ''}
+                    onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </>
+              )}
+              
+              {/* Pour Matériel Actif (Mining) */}
+              {formData.type === 'mining_rig' && (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Modèle du matériel"
+                    value={formData.symbol || ''}
+                    onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Coût d'achat total"
+                    value={formData.initial_value || 0}
+                    onChange={(e) => setFormData({ ...formData, initial_value: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Frais mensuels (électricité, maintenance...)"
+                    value={formData.monthly_costs || 0}
+                    onChange={(e) => setFormData({ ...formData, monthly_costs: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <input
+                    type="date"
+                    placeholder="Date d'achat"
+                    value={formData.purchase_date ? new Date(formData.purchase_date).toISOString().split('T')[0] : ''}
+                    onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </>
+              )}
+              
               <select
                 value={formData.currency || 'EUR'}
                 onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
@@ -1716,6 +1922,8 @@ const Modal = ({ type, data, onClose, onSave, accounts }) => {
                 <option value="EUR">EUR</option>
                 <option value="USD">USD</option>
                 <option value="GBP">GBP</option>
+                <option value="CHF">CHF</option>
+                <option value="BTC">BTC</option>
               </select>
             </>
           )}
