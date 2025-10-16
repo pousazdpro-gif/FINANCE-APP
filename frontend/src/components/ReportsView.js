@@ -341,8 +341,8 @@ const ReportsView = ({ transactions = [] }) => {
       <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
         <h3 className="text-lg font-semibold mb-4">Par Catégorie</h3>
         <div className="space-y-2">
-          {Object.entries(stats.byCategory).map(([cat, data]) => (
-            <div key={cat} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+          {Object.entries(stats.byCategory).sort(([a], [b]) => a.localeCompare(b)).map(([cat, data]) => (
+            <div key={`cat-${cat}`} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
               <div>
                 <div className="font-medium">{cat}</div>
                 <div className="text-sm text-gray-500">{data.count} transaction(s)</div>
