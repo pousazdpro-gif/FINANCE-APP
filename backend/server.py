@@ -230,6 +230,7 @@ class InvestmentOperation(BaseModel):
     price: float
     fees: float = 0.0
     total: float
+    notes: str = ""
 
 class Investment(BaseModel):
     model_config = ConfigDict(extra="ignore")
