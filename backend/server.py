@@ -263,7 +263,6 @@ class InvestmentCreate(BaseModel):
     monthly_costs: Optional[float] = None
 
 class InvestmentOperationCreate(BaseModel):
-    investment_id: str
     date: datetime
     type: InvestmentOperationType
     quantity: float
