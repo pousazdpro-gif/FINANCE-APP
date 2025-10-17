@@ -1447,9 +1447,12 @@ async def get_debts(request: Request):
     return debts
 
 @api_router.put("/debts/{debt_id}", response_model=Debt)
-async def update_debt(debt_id: str, input: DebtCreate):
+async def update_debt(debt_id: str, input: DebtCreate, request: Request):
+    user = await get_current_user(request, db)
+    user_email = user['email'] if user else 'anonymous'
+    
     # Get existing debt to check for payments
-    existing_debt = await db.debts.find_one({"id": debt_id}, {"_id": 0})
+    existing_debt = await db.debts.find_one({"id": debt_id, "user_email": user_email}, {"_id": 0})
     if not existing_debt:
         raise HTTPException(status_code=404, detail="Debt not found")
     
@@ -1463,7 +1466,7 @@ async def update_debt(debt_id: str, input: DebtCreate):
     new_total = update_data.get('total_amount', existing_debt.get('total_amount', 0))
     update_data['remaining_amount'] = new_total - total_paid
     
-    result = await db.debts.update_one({"id": debt_id}, {"$set": update_data})
+    result = await db.debts.update_one({"id": debt_id, "user_email": user_email}, {"$set": update_data})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Debt not found")
     
