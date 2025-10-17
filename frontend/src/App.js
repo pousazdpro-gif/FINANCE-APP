@@ -1373,7 +1373,7 @@ const InvestmentsView = ({ investments, openModal, setInvestments, onViewDetail,
   );
 };
 
-const GoalsView = ({ goals, openModal, setGoals }) => (
+const GoalsView = ({ goals, openModal, setGoals, onViewDetail }) => (
   <div data-testid="goals-view">
     <div className="mb-4">
       <button
