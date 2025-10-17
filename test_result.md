@@ -716,9 +716,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Goal Modification Testing"
-    - "Debt Modification Testing" 
-    - "Receivable Modification Testing"
+    - "Account Balance Calculation Fix"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
