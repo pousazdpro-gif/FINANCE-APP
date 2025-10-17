@@ -92,6 +92,18 @@ const OCRScanner = ({ onTransactionsExtracted }) => {
   const processOCR = async () => {
     if (!file) return;
     
+    // Vérifier le type de fichier
+    if (file.type === 'application/pdf') {
+      alert('Les fichiers PDF ne sont pas supportés pour l\'OCR. Veuillez convertir votre PDF en image (JPG, PNG) ou prendre une capture d\'écran.');
+      return;
+    }
+    
+    // Vérifier que c'est bien une image
+    if (!file.type.startsWith('image/')) {
+      alert('Veuillez sélectionner un fichier image (JPG, PNG, etc.)');
+      return;
+    }
+    
     setProcessing(true);
     setOcrProgress(0);
     
@@ -105,8 +117,8 @@ const OCRScanner = ({ onTransactionsExtracted }) => {
         }
       });
       
-      // Faire l'OCR
-      const { data: { text } } = await worker.recognize(preview);
+      // Faire l'OCR sur l'image
+      const { data: { text } } = await worker.recognize(file);
       
       // Terminer le worker
       await worker.terminate();
