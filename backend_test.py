@@ -1447,7 +1447,8 @@ class FinanceAppTester:
             'transaction_crud': False,
             'investment_crud': False,
             'investment_operations_update': False,
-            'user_isolation': False
+            'user_isolation': False,
+            'transaction_linking_debts_receivables': False
         }
         
         try:
