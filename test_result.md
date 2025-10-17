@@ -716,7 +716,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Account Balance Calculation Fix"
+    - "Debt Creation and Update Debug"
+    - "Goal Creation and Update Debug"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
