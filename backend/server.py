@@ -1475,14 +1475,9 @@ async def add_debt_payment(debt_id: str, input: DebtPaymentCreate, request: Requ
     if not debt:
         raise HTTPException(status_code=404, detail="Debt not found")
     
-    # Apply field mapping to handle camelCase/snake_case conversion
-    debt = convert_camel_to_snake(debt, DEBT_FIELD_MAP)
-    
-    # Ensure amounts have defaults (same logic as GET endpoint)
-    if 'total_amount' not in debt:
-        debt['total_amount'] = 0
-    if 'remaining_amount' not in debt:
-        debt['remaining_amount'] = debt.get('total_amount', 0)
+    # Handle both camelCase (from aliases) and snake_case field names
+    total_amount = debt.get('total_amount', debt.get('totalAmount', 0))
+    remaining_amount = debt.get('remaining_amount', debt.get('remainingAmount', total_amount))
     
     payment = DebtPayment(
         date=input.date,
@@ -1493,9 +1488,8 @@ async def add_debt_payment(debt_id: str, input: DebtPaymentCreate, request: Requ
     payment_dict = payment.model_dump()
     payment_dict['date'] = payment_dict['date'].isoformat()
     
-    # Update remaining amount with safe default
-    current_remaining = debt.get('remaining_amount', debt.get('total_amount', 0))
-    new_remaining = current_remaining - input.amount
+    # Update remaining amount
+    new_remaining = remaining_amount - input.amount
     
     await db.debts.update_one(
         {"id": debt_id, "user_email": user_email},
