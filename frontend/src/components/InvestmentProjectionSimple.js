@@ -184,22 +184,29 @@ const InvestmentProjectionSimple = () => {
                 <Percent size={18} className="mr-2 text-yellow-600" />
                 Rendement Annuel
               </span>
-              <span className="text-2xl font-bold text-yellow-600">
-                {annualReturn.toFixed(1)} %
-              </span>
+              <input
+                type="number"
+                min="0"
+                max="1000"
+                step="0.5"
+                value={annualReturn}
+                onChange={(e) => setAnnualReturn(Number(e.target.value) || 0)}
+                className="text-xl font-bold text-yellow-600 border-2 border-yellow-300 rounded px-3 py-1 w-32 text-right"
+              />
+              <span className="text-lg font-bold text-yellow-600">%</span>
             </label>
             <input
               type="range"
               min="0"
-              max="15"
+              max="100"
               step="0.5"
-              value={annualReturn}
+              value={Math.min(annualReturn, 100)}
               onChange={(e) => setAnnualReturn(Number(e.target.value))}
               className="w-full h-3 bg-yellow-200 rounded-lg appearance-none cursor-pointer"
             />
             <div className="flex justify-between text-xs text-gray-500">
               <span>0%</span>
-              <span>15%</span>
+              <span>100% (max slider: 100%, éditable jusqu'à 1000%)</span>
             </div>
           </div>
         </div>
