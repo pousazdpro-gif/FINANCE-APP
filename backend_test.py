@@ -1308,9 +1308,9 @@ class FinanceAppTester:
                     payment = payments[-1]  # Get the last payment
                     self.log(f"✅ Payment added to receivable successfully: €{payment.get('amount')} on {payment.get('date')}")
                     
-                    # Verify remaining amount is updated
+                    # Verify remaining amount is updated (check camelCase field names)
                     expected_remaining = 500.0 - 150.0  # 350.0
-                    actual_remaining = updated_receivable.get('remaining_amount', 0)
+                    actual_remaining = updated_receivable.get('remainingAmount', updated_receivable.get('remaining_amount', 0))
                     if abs(actual_remaining - expected_remaining) < 0.01:
                         self.log(f"✅ Receivable remaining amount correctly updated: €{actual_remaining}")
                     else:
