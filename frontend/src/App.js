@@ -966,7 +966,7 @@ const AccountsView = ({ accounts, openModal, setAccounts, onTransferClick }) => 
 };
 
 // Transactions View Component
-const TransactionsView = ({ transactions, accounts, openModal, setTransactions, investments, onLinkToInvestment }) => {
+const TransactionsView = ({ transactions, accounts, openModal, setTransactions, investments, onLinkToInvestment, formatAmount }) => {
   const handleDelete = async (id) => {
     if (window.confirm('Supprimer cette transaction ?')) {
       try {
