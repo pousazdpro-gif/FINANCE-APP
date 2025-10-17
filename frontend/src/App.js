@@ -732,11 +732,38 @@ const DashboardView = ({ data, accounts, transactions }) => {
         </div>
       )}
 
-      {/* Trends Line Chart */}
-      {trendsData && (
+      {/* Trends Table (Simple) */}
+      {data.trends && data.trends.length > 0 && (
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Tendances sur 6 Mois</h3>
-          <Line data={trendsData} options={{ responsive: true, plugins: { legend: { position: 'top' } } }} />
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Mois</th>
+                  <th className="px-4 py-2 text-right text-sm font-semibold text-green-600">Revenus</th>
+                  <th className="px-4 py-2 text-right text-sm font-semibold text-red-600">Dépenses</th>
+                  <th className="px-4 py-2 text-right text-sm font-semibold text-indigo-600">Économies</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {data.trends.map((trend, idx) => (
+                  <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <td className="px-4 py-2 text-sm text-gray-900">{trend.month}</td>
+                    <td className="px-4 py-2 text-sm text-right text-green-600 font-semibold">
+                      +{(trend.income || 0).toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-2 text-sm text-right text-red-600 font-semibold">
+                      -{(trend.expenses || 0).toFixed(2)} €
+                    </td>
+                    <td className="px-4 py-2 text-sm text-right text-indigo-600 font-semibold">
+                      {(trend.savings || 0).toFixed(2)} €
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
