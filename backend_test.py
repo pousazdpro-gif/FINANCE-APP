@@ -1438,6 +1438,403 @@ class FinanceAppTester:
                 except:
                     self.log("⚠️ Test receivable cleanup failed")
 
+    def test_debt_and_receivable_calculations(self):
+        """Test debt and receivable calculation fixes - COMPREHENSIVE TESTING"""
+        self.log("=== Testing Debt and Receivable Calculation Fixes - COMPREHENSIVE TESTING ===")
+        
+        if not self.test_account_id:
+            self.log("❌ No test account available for debt/receivable testing", "ERROR")
+            return False
+        
+        # Test data storage
+        test_debt_id = None
+        test_receivable_id = None
+        
+        try:
+            # ========================================================================
+            # TEST SCENARIO 1: Debt Update with Total Amount Change
+            # ========================================================================
+            self.log("\n--- TEST SCENARIO 1: Debt Update with Total Amount Change ---")
+            
+            # 1.1 Create debt with total_amount 1000€
+            self.log("Step 1.1: Creating debt with total_amount 1000€")
+            debt_data = {
+                "name": "Test Loan - Amount Change",
+                "total_amount": 1000.0,
+                "remaining_amount": 1000.0,
+                "interest_rate": 5.0,
+                "creditor": "Test Bank",
+                "due_date": "2025-12-31T00:00:00Z",
+                "account_id": self.test_account_id
+            }
+            
+            response = self.session.post(f"{API_BASE}/debts", json=debt_data)
+            if response.status_code in [200, 201]:
+                debt = response.json()
+                test_debt_id = debt['id']
+                self.log(f"✅ Debt created: total_amount={debt.get('total_amount', debt.get('totalAmount'))}")
+            else:
+                self.log(f"❌ Debt creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # 1.2 Add payment of 200€
+            self.log("Step 1.2: Adding payment of 200€")
+            payment_data = {
+                "date": "2025-10-17T12:00:00Z",
+                "amount": 200.0,
+                "notes": "First payment"
+            }
+            
+            response = self.session.post(f"{API_BASE}/debts/{test_debt_id}/payments", json=payment_data)
+            if response.status_code in [200, 201]:
+                debt_with_payment = response.json()
+                remaining_after_payment = debt_with_payment.get('remainingAmount', debt_with_payment.get('remaining_amount'))
+                self.log(f"✅ Payment added: remaining_amount={remaining_after_payment}")
+                
+                # Verify remaining amount is 800€ (1000 - 200)
+                if abs(remaining_after_payment - 800.0) < 0.01:
+                    self.log("✅ Remaining amount correctly calculated after payment")
+                else:
+                    self.log(f"❌ Remaining amount incorrect: expected 800, got {remaining_after_payment}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Payment addition failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # 1.3 Update debt to change total_amount to 1500€
+            self.log("Step 1.3: Updating debt total_amount to 1500€")
+            update_data = {
+                "name": "Test Loan - Amount Change",
+                "total_amount": 1500.0,  # Changed from 1000 to 1500
+                "remaining_amount": 1500.0,  # This should be recalculated
+                "interest_rate": 5.0,
+                "creditor": "Test Bank",
+                "due_date": "2025-12-31T00:00:00Z",
+                "account_id": self.test_account_id
+            }
+            
+            response = self.session.put(f"{API_BASE}/debts/{test_debt_id}", json=update_data)
+            if response.status_code == 200:
+                updated_debt = response.json()
+                new_remaining = updated_debt.get('remainingAmount', updated_debt.get('remaining_amount'))
+                self.log(f"✅ Debt updated: new remaining_amount={new_remaining}")
+                
+                # Verify remaining amount is recalculated to 1300€ (1500 - 200)
+                if abs(new_remaining - 1300.0) < 0.01:
+                    self.log("✅ SCENARIO 1 PASSED: Remaining amount correctly recalculated to 1300€ (1500 - 200)")
+                else:
+                    self.log(f"❌ SCENARIO 1 FAILED: Expected 1300, got {new_remaining}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Debt update failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # ========================================================================
+            # TEST SCENARIO 2: Debt Payment Update
+            # ========================================================================
+            self.log("\n--- TEST SCENARIO 2: Debt Payment Update ---")
+            
+            # 2.1 Get current debt state (should have 1500€ total, 200€ paid, 1300€ remaining)
+            response = self.session.get(f"{API_BASE}/debts")
+            if response.status_code == 200:
+                debts = response.json()
+                current_debt = next((d for d in debts if d['id'] == test_debt_id), None)
+                if current_debt:
+                    self.log(f"Current debt state: total={current_debt.get('total_amount', current_debt.get('totalAmount'))}, remaining={current_debt.get('remainingAmount', current_debt.get('remaining_amount'))}")
+                else:
+                    self.log("❌ Could not find test debt", "ERROR")
+                    return False
+            
+            # 2.2 Update the payment from 200€ to 300€
+            self.log("Step 2.2: Updating payment from 200€ to 300€")
+            updated_payment_data = {
+                "date": "2025-10-17T12:00:00Z",
+                "amount": 300.0,  # Changed from 200 to 300
+                "notes": "Updated payment amount"
+            }
+            
+            response = self.session.put(f"{API_BASE}/debts/{test_debt_id}/payments/0", json=updated_payment_data)
+            if response.status_code == 200:
+                debt_after_payment_update = response.json()
+                remaining_after_update = debt_after_payment_update.get('remainingAmount', debt_after_payment_update.get('remaining_amount'))
+                self.log(f"✅ Payment updated: new remaining_amount={remaining_after_update}")
+                
+                # Verify remaining amount is recalculated to 1200€ (1500 - 300)
+                if abs(remaining_after_update - 1200.0) < 0.01:
+                    self.log("✅ SCENARIO 2 PASSED: Remaining amount correctly recalculated to 1200€ (1500 - 300)")
+                else:
+                    self.log(f"❌ SCENARIO 2 FAILED: Expected 1200, got {remaining_after_update}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Payment update failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # ========================================================================
+            # TEST SCENARIO 3: Debt Payment Deletion
+            # ========================================================================
+            self.log("\n--- TEST SCENARIO 3: Debt Payment Deletion ---")
+            
+            # 3.1 Add a second payment of 150€
+            self.log("Step 3.1: Adding second payment of 150€")
+            second_payment_data = {
+                "date": "2025-10-18T12:00:00Z",
+                "amount": 150.0,
+                "notes": "Second payment"
+            }
+            
+            response = self.session.post(f"{API_BASE}/debts/{test_debt_id}/payments", json=second_payment_data)
+            if response.status_code in [200, 201]:
+                debt_with_two_payments = response.json()
+                remaining_with_two = debt_with_two_payments.get('remainingAmount', debt_with_two_payments.get('remaining_amount'))
+                self.log(f"✅ Second payment added: remaining_amount={remaining_with_two}")
+                
+                # Should be 1050€ (1500 - 300 - 150)
+                if abs(remaining_with_two - 1050.0) < 0.01:
+                    self.log("✅ Remaining amount correct with two payments: 1050€")
+                else:
+                    self.log(f"❌ Remaining amount with two payments incorrect: expected 1050, got {remaining_with_two}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Second payment addition failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # 3.2 Delete the first payment (300€)
+            self.log("Step 3.2: Deleting first payment (300€)")
+            response = self.session.delete(f"{API_BASE}/debts/{test_debt_id}/payments/0")
+            if response.status_code == 200:
+                self.log("✅ First payment deleted")
+                
+                # Get updated debt to check remaining amount
+                response = self.session.get(f"{API_BASE}/debts")
+                if response.status_code == 200:
+                    debts = response.json()
+                    debt_after_deletion = next((d for d in debts if d['id'] == test_debt_id), None)
+                    if debt_after_deletion:
+                        remaining_after_deletion = debt_after_deletion.get('remainingAmount', debt_after_deletion.get('remaining_amount'))
+                        self.log(f"✅ After deletion: remaining_amount={remaining_after_deletion}")
+                        
+                        # Should be 1350€ (1500 - 150, only second payment remains)
+                        if abs(remaining_after_deletion - 1350.0) < 0.01:
+                            self.log("✅ SCENARIO 3 PASSED: Remaining amount correctly recalculated to 1350€ (1500 - 150)")
+                        else:
+                            self.log(f"❌ SCENARIO 3 FAILED: Expected 1350, got {remaining_after_deletion}", "ERROR")
+                            return False
+                    else:
+                        self.log("❌ Could not find debt after payment deletion", "ERROR")
+                        return False
+                else:
+                    self.log(f"❌ Could not retrieve debts after deletion: {response.status_code}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Payment deletion failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # ========================================================================
+            # TEST SCENARIO 4: Receivable Update with Total Amount Change
+            # ========================================================================
+            self.log("\n--- TEST SCENARIO 4: Receivable Update with Total Amount Change ---")
+            
+            # 4.1 Create receivable with total_amount 500€
+            self.log("Step 4.1: Creating receivable with total_amount 500€")
+            receivable_data = {
+                "name": "Test Invoice - Amount Change",
+                "total_amount": 500.0,
+                "remaining_amount": 500.0,
+                "debtor": "Test Client",
+                "due_date": "2025-11-30T00:00:00Z",
+                "account_id": self.test_account_id
+            }
+            
+            response = self.session.post(f"{API_BASE}/receivables", json=receivable_data)
+            if response.status_code in [200, 201]:
+                receivable = response.json()
+                test_receivable_id = receivable['id']
+                self.log(f"✅ Receivable created: total_amount={receivable.get('total_amount', receivable.get('totalAmount'))}")
+            else:
+                self.log(f"❌ Receivable creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # 4.2 Add payment of 100€
+            self.log("Step 4.2: Adding payment of 100€")
+            receivable_payment_data = {
+                "date": "2025-10-17T12:00:00Z",
+                "amount": 100.0,
+                "notes": "First receivable payment"
+            }
+            
+            response = self.session.post(f"{API_BASE}/receivables/{test_receivable_id}/payments", json=receivable_payment_data)
+            if response.status_code in [200, 201]:
+                receivable_with_payment = response.json()
+                remaining_after_payment = receivable_with_payment.get('remainingAmount', receivable_with_payment.get('remaining_amount'))
+                self.log(f"✅ Payment added: remaining_amount={remaining_after_payment}")
+                
+                # Verify remaining amount is 400€ (500 - 100)
+                if abs(remaining_after_payment - 400.0) < 0.01:
+                    self.log("✅ Remaining amount correctly calculated after payment")
+                else:
+                    self.log(f"❌ Remaining amount incorrect: expected 400, got {remaining_after_payment}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Receivable payment addition failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # 4.3 Update receivable to change total_amount to 800€
+            self.log("Step 4.3: Updating receivable total_amount to 800€")
+            receivable_update_data = {
+                "name": "Test Invoice - Amount Change",
+                "total_amount": 800.0,  # Changed from 500 to 800
+                "remaining_amount": 800.0,  # This should be recalculated
+                "debtor": "Test Client",
+                "due_date": "2025-11-30T00:00:00Z",
+                "account_id": self.test_account_id
+            }
+            
+            response = self.session.put(f"{API_BASE}/receivables/{test_receivable_id}", json=receivable_update_data)
+            if response.status_code == 200:
+                updated_receivable = response.json()
+                new_remaining = updated_receivable.get('remainingAmount', updated_receivable.get('remaining_amount'))
+                self.log(f"✅ Receivable updated: new remaining_amount={new_remaining}")
+                
+                # Verify remaining amount is recalculated to 700€ (800 - 100)
+                if abs(new_remaining - 700.0) < 0.01:
+                    self.log("✅ SCENARIO 4 PASSED: Remaining amount correctly recalculated to 700€ (800 - 100)")
+                else:
+                    self.log(f"❌ SCENARIO 4 FAILED: Expected 700, got {new_remaining}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Receivable update failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # ========================================================================
+            # TEST SCENARIO 5: Receivable Payment Update
+            # ========================================================================
+            self.log("\n--- TEST SCENARIO 5: Receivable Payment Update ---")
+            
+            # 5.1 Update the payment from 100€ to 200€
+            self.log("Step 5.1: Updating payment from 100€ to 200€")
+            updated_receivable_payment_data = {
+                "date": "2025-10-17T12:00:00Z",
+                "amount": 200.0,  # Changed from 100 to 200
+                "notes": "Updated receivable payment amount"
+            }
+            
+            response = self.session.put(f"{API_BASE}/receivables/{test_receivable_id}/payments/0", json=updated_receivable_payment_data)
+            if response.status_code == 200:
+                receivable_after_payment_update = response.json()
+                remaining_after_update = receivable_after_payment_update.get('remainingAmount', receivable_after_payment_update.get('remaining_amount'))
+                self.log(f"✅ Payment updated: new remaining_amount={remaining_after_update}")
+                
+                # Verify remaining amount is recalculated to 600€ (800 - 200)
+                if abs(remaining_after_update - 600.0) < 0.01:
+                    self.log("✅ SCENARIO 5 PASSED: Remaining amount correctly recalculated to 600€ (800 - 200)")
+                else:
+                    self.log(f"❌ SCENARIO 5 FAILED: Expected 600, got {remaining_after_update}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Receivable payment update failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # ========================================================================
+            # TEST SCENARIO 6: Receivable Payment Deletion
+            # ========================================================================
+            self.log("\n--- TEST SCENARIO 6: Receivable Payment Deletion ---")
+            
+            # 6.1 Add a second payment of 80€
+            self.log("Step 6.1: Adding second payment of 80€")
+            second_receivable_payment_data = {
+                "date": "2025-10-18T12:00:00Z",
+                "amount": 80.0,
+                "notes": "Second receivable payment"
+            }
+            
+            response = self.session.post(f"{API_BASE}/receivables/{test_receivable_id}/payments", json=second_receivable_payment_data)
+            if response.status_code in [200, 201]:
+                receivable_with_two_payments = response.json()
+                remaining_with_two = receivable_with_two_payments.get('remainingAmount', receivable_with_two_payments.get('remaining_amount'))
+                self.log(f"✅ Second payment added: remaining_amount={remaining_with_two}")
+                
+                # Should be 520€ (800 - 200 - 80)
+                if abs(remaining_with_two - 520.0) < 0.01:
+                    self.log("✅ Remaining amount correct with two payments: 520€")
+                else:
+                    self.log(f"❌ Remaining amount with two payments incorrect: expected 520, got {remaining_with_two}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Second receivable payment addition failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # 6.2 Delete the first payment (200€)
+            self.log("Step 6.2: Deleting first payment (200€)")
+            response = self.session.delete(f"{API_BASE}/receivables/{test_receivable_id}/payments/0")
+            if response.status_code == 200:
+                self.log("✅ First receivable payment deleted")
+                
+                # Get updated receivable to check remaining amount
+                response = self.session.get(f"{API_BASE}/receivables")
+                if response.status_code == 200:
+                    receivables = response.json()
+                    receivable_after_deletion = next((r for r in receivables if r['id'] == test_receivable_id), None)
+                    if receivable_after_deletion:
+                        remaining_after_deletion = receivable_after_deletion.get('remainingAmount', receivable_after_deletion.get('remaining_amount'))
+                        self.log(f"✅ After deletion: remaining_amount={remaining_after_deletion}")
+                        
+                        # Should be 720€ (800 - 80, only second payment remains)
+                        if abs(remaining_after_deletion - 720.0) < 0.01:
+                            self.log("✅ SCENARIO 6 PASSED: Remaining amount correctly recalculated to 720€ (800 - 80)")
+                        else:
+                            self.log(f"❌ SCENARIO 6 FAILED: Expected 720, got {remaining_after_deletion}", "ERROR")
+                            return False
+                    else:
+                        self.log("❌ Could not find receivable after payment deletion", "ERROR")
+                        return False
+                else:
+                    self.log(f"❌ Could not retrieve receivables after deletion: {response.status_code}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Receivable payment deletion failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # ========================================================================
+            # CLEANUP
+            # ========================================================================
+            self.log("\n--- CLEANUP ---")
+            
+            # Delete test debt
+            if test_debt_id:
+                response = self.session.delete(f"{API_BASE}/debts/{test_debt_id}")
+                if response.status_code == 200:
+                    self.log("✅ Test debt cleaned up")
+                else:
+                    self.log(f"⚠️ Test debt cleanup failed: {response.status_code}")
+            
+            # Delete test receivable
+            if test_receivable_id:
+                response = self.session.delete(f"{API_BASE}/receivables/{test_receivable_id}")
+                if response.status_code == 200:
+                    self.log("✅ Test receivable cleaned up")
+                else:
+                    self.log(f"⚠️ Test receivable cleanup failed: {response.status_code}")
+            
+            self.log("✅ ALL DEBT AND RECEIVABLE CALCULATION TESTS PASSED")
+            return True
+            
+        except Exception as e:
+            self.log(f"❌ Debt and receivable calculation test error: {str(e)}", "ERROR")
+            
+            # Cleanup on error
+            if test_debt_id:
+                try:
+                    self.session.delete(f"{API_BASE}/debts/{test_debt_id}")
+                except:
+                    pass
+            if test_receivable_id:
+                try:
+                    self.session.delete(f"{API_BASE}/receivables/{test_receivable_id}")
+                except:
+                    pass
+            
+            return False
+
     def run_all_tests(self):
         """Run all backend tests"""
         self.log(f"Starting FinanceApp Backend Tests - CRITICAL AUTHENTICATION FIX TESTING")
