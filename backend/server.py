@@ -1765,11 +1765,25 @@ async def update_receivable_payment(receivable_id: str, payment_index: int, inpu
     payment_dict = payment.model_dump()
     payment_dict['date'] = payment_dict['date'].isoformat()
     
+    # Update the payment
     await db.receivables.update_one(
         {"id": receivable_id, "user_email": user_email},
         {"$set": {f"payments.{payment_index}": payment_dict}}
     )
     
+    # Recalculate remaining amount
+    updated_receivable = await db.receivables.find_one({"id": receivable_id}, {"_id": 0})
+    total_amount = updated_receivable.get('total_amount', updated_receivable.get('totalAmount', 0))
+    payments = updated_receivable.get('payments', [])
+    total_paid = sum(p.get('amount', 0) for p in payments)
+    new_remaining = total_amount - total_paid
+    
+    await db.receivables.update_one(
+        {"id": receivable_id},
+        {"$set": {"remaining_amount": new_remaining}}
+    )
+    
+    # Return final updated receivable
     updated = await db.receivables.find_one({"id": receivable_id}, {"_id": 0})
     if isinstance(updated.get('created_at'), str):
         updated['created_at'] = datetime.fromisoformat(updated['created_at'])
