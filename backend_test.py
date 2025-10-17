@@ -1909,10 +1909,11 @@ class FinanceAppTester:
                 goals = response.json()
                 updated_goal = next((g for g in goals if g['id'] == test_goal_id), None)
                 
-                if updated_goal and updated_goal.get('current_amount') == 500.0:
+                current_amount = updated_goal.get('current_amount') or updated_goal.get('currentAmount') if updated_goal else None
+                if updated_goal and current_amount == 500.0:
                     self.log("✅ Goal update verified - GET returns new value (500€)")
                 else:
-                    self.log(f"❌ Goal update not persisted: GET returns {updated_goal.get('current_amount') if updated_goal else 'None'}", "ERROR")
+                    self.log(f"❌ Goal update not persisted: GET returns {current_amount}", "ERROR")
                     return False
             else:
                 self.log(f"❌ Goal verification failed: {response.status_code}", "ERROR")
