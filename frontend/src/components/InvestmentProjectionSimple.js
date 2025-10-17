@@ -156,17 +156,18 @@ const InvestmentProjectionSimple = () => {
               </span>
               <input
                 type="number"
-                min="1"
+                min="0"
                 max="100"
+                step="1"
                 value={years}
-                onChange={(e) => setYears(Number(e.target.value) || 1)}
+                onChange={(e) => setYears(Number(e.target.value) >= 0 ? Number(e.target.value) : 0)}
                 className="text-xl font-bold text-purple-600 border-2 border-purple-300 rounded px-3 py-1 w-32 text-right"
               />
-              <span className="text-lg font-bold text-purple-600">{years === 1 ? 'an' : 'ans'}</span>
+              <span className="text-lg font-bold text-purple-600">{years <= 1 ? 'an' : 'ans'}</span>
             </label>
             <input
               type="range"
-              min="1"
+              min="0"
               max="100"
               step="1"
               value={Math.min(years, 100)}
@@ -174,7 +175,7 @@ const InvestmentProjectionSimple = () => {
               className="w-full h-3 bg-purple-200 rounded-lg appearance-none cursor-pointer"
             />
             <div className="flex justify-between text-xs text-gray-500">
-              <span>1 an</span>
+              <span>0 an</span>
               <span>100 ans</span>
             </div>
           </div>
