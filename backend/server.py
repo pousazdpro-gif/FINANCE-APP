@@ -1554,11 +1554,25 @@ async def update_debt_payment(debt_id: str, payment_index: int, input: DebtPayme
     payment_dict = payment.model_dump()
     payment_dict['date'] = payment_dict['date'].isoformat()
     
+    # Update the payment
     await db.debts.update_one(
         {"id": debt_id, "user_email": user_email},
         {"$set": {f"payments.{payment_index}": payment_dict}}
     )
     
+    # Recalculate remaining amount
+    updated_debt = await db.debts.find_one({"id": debt_id}, {"_id": 0})
+    total_amount = updated_debt.get('total_amount', updated_debt.get('totalAmount', 0))
+    payments = updated_debt.get('payments', [])
+    total_paid = sum(p.get('amount', 0) for p in payments)
+    new_remaining = total_amount - total_paid
+    
+    await db.debts.update_one(
+        {"id": debt_id},
+        {"$set": {"remainingAmount": new_remaining}}
+    )
+    
+    # Return final updated debt
     updated = await db.debts.find_one({"id": debt_id}, {"_id": 0})
     if isinstance(updated.get('created_at'), str):
         updated['created_at'] = datetime.fromisoformat(updated['created_at'])
