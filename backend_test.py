@@ -2585,6 +2585,9 @@ class FinanceAppTester:
             # 20. Test Receivable Modification (USER REPORTED ISSUE)
             results['receivable_modification'] = self.test_receivable_modification()
             
+            # 21. Test Account Balance Calculation (THE MAIN FIX)
+            results['account_balance_calculation'] = self.test_account_balance_calculation()
+            
         finally:
             # Cleanup
             self.cleanup_test_account()
