@@ -1098,11 +1098,11 @@ const InvestmentsView = ({ investments, openModal, setInvestments, onViewDetail 
       </div>
       <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg shadow">
         <div className="text-xs opacity-90">Valeur Portfolio</div>
-        <div className="text-2xl font-bold">{(totalValue || 0).toFixed(2)} €</div>
+        <div className="text-2xl font-bold">{formatAmount(totalValue)}</div>
       </div>
       <div className={`bg-gradient-to-r ${(totalGains || 0) >= 0 ? 'from-green-500 to-green-600' : 'from-red-500 to-red-600'} text-white p-4 rounded-lg shadow`}>
         <div className="text-xs opacity-90">Plus/Moins-Value</div>
-        <div className="text-2xl font-bold">{(totalGains || 0) >= 0 ? '+' : ''}{(totalGains || 0).toFixed(2)} €</div>
+        <div className="text-2xl font-bold">{(totalGains || 0) >= 0 ? '+' : ''}{formatAmount(totalGains)}</div>
       </div>
       <div className={`bg-gradient-to-r ${(gainsPercent || 0) >= 0 ? 'from-purple-500 to-purple-600' : 'from-orange-500 to-orange-600'} text-white p-4 rounded-lg shadow`}>
         <div className="text-xs opacity-90">Performance</div>
