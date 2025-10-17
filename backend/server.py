@@ -1430,6 +1430,16 @@ async def create_debt(input: DebtCreate, request: Request):
     if doc.get('due_date'):
         doc['due_date'] = doc['due_date'].isoformat()
     doc['user_email'] = user_email
+    
+    # Initialize remaining_amount = total_amount if not set (support both camelCase and snake_case)
+    total = doc.get('total_amount') or doc.get('totalAmount', 0)
+    if 'remaining_amount' not in doc and 'remainingAmount' not in doc:
+        doc['remainingAmount'] = total  # Use camelCase for debts (has alias)
+        doc['remaining_amount'] = total
+    elif doc.get('remaining_amount') is None and doc.get('remainingAmount') is None:
+        doc['remainingAmount'] = total
+        doc['remaining_amount'] = total
+    
     await db.debts.insert_one(doc)
     return debt
 
