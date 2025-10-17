@@ -2238,45 +2238,89 @@ const Modal = ({ type, data, onClose, onSave, accounts, categories, setCategorie
           )}
           {type === 'goal' && (
             <>
-              <input
-                type="text"
-                placeholder="Nom de l'objectif"
-                value={formData.name || ''}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Montant cible"
-                value={formData.target_amount || 0}
-                onChange={(e) => setFormData({ ...formData, target_amount: parseFloat(e.target.value) })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Montant actuel"
-                value={formData.current_amount || 0}
-                onChange={(e) => setFormData({ ...formData, current_amount: parseFloat(e.target.value) })}
-                className="w-full px-3 py-2 border rounded-lg"
-              />
-              <input
-                type="date"
-                placeholder="Date limite"
-                value={formData.deadline ? formData.deadline.split('T')[0] : ''}
-                onChange={(e) => setFormData({ ...formData, deadline: e.target.value ? new Date(e.target.value).toISOString() : null })}
-                className="w-full px-3 py-2 border rounded-lg"
-              />
-              <input
-                type="text"
-                placeholder="Catégorie"
-                value={formData.category || 'savings'}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg"
-              />
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Nom de l'objectif *
+                  <span className="text-xs text-gray-500 ml-2">(Ex: Vacances 2025, Nouvelle voiture)</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex: Vacances en Grèce"
+                  value={formData.name || ''}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  💰 Montant à atteindre * 
+                  <span className="text-xs text-gray-500 ml-2">(Combien voulez-vous économiser?)</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Ex: 5000"
+                  value={formData.target_amount || ''}
+                  onChange={(e) => setFormData({ ...formData, target_amount: parseFloat(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border rounded-lg text-lg font-semibold"
+                  required
+                />
+                <p className="text-xs text-gray-500">💡 Astuce: C'est votre objectif final</p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  ✅ Montant déjà économisé
+                  <span className="text-xs text-gray-500 ml-2">(Combien avez-vous déjà?)</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Ex: 1200"
+                  value={formData.current_amount || 0}
+                  onChange={(e) => setFormData({ ...formData, current_amount: parseFloat(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+                {formData.target_amount > 0 && (
+                  <div className="text-xs bg-blue-50 p-2 rounded">
+                    📊 Progression: {((formData.current_amount || 0) / formData.target_amount * 100).toFixed(1)}%
+                    <br />
+                    💵 Reste à économiser: {(formData.target_amount - (formData.current_amount || 0)).toFixed(2)} €
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  📅 Date limite (optionnel)
+                </label>
+                <input
+                  type="date"
+                  value={formData.deadline ? formData.deadline.split('T')[0] : ''}
+                  onChange={(e) => setFormData({ ...formData, deadline: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  🏷️ Catégorie
+                </label>
+                <select
+                  value={formData.category || 'savings'}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                >
+                  <option value="savings">💰 Épargne</option>
+                  <option value="travel">✈️ Voyage</option>
+                  <option value="purchase">🛒 Achat</option>
+                  <option value="emergency">🚨 Urgence</option>
+                  <option value="investment">📈 Investissement</option>
+                  <option value="other">📦 Autre</option>
+                </select>
+              </div>
             </>
           )}
           {type === 'debt' && (
