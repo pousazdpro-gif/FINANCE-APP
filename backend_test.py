@@ -2858,6 +2858,12 @@ class FinanceAppTester:
             # 6. Create test account
             results['account_creation'] = self.test_create_account()
             
+            # 6.1. Test Debt Creation and Update (CRITICAL DEBUG)
+            results['debt_creation_and_update'] = self.test_debt_creation_and_update()
+            
+            # 6.2. Test Goal Creation and Update (CRITICAL DEBUG)
+            results['goal_creation_and_update'] = self.test_goal_creation_and_update()
+            
             # 7. Test NEW FEATURES - camelCase/snake_case conversion
             results['camelcase_conversion'] = self.test_camelcase_conversion_endpoints()
             
