@@ -124,13 +124,174 @@ input[type="range"].slider::-moz-range-thumb:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* Responsive text */
+/* ============================================ */
+/* MOBILE RESPONSIVE STYLES */
+/* ============================================ */
+
+/* Mobile: Tables scroll horizontally */
 @media (max-width: 768px) {
+  /* Table containers */
+  .bg-white.rounded-lg.shadow.overflow-hidden {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 600px; /* Minimum width for tables */
+  }
+
+  /* Reduce padding on mobile */
+  .px-6 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Responsive text sizes */
   .text-2xl {
-    font-size: 1.5rem;
+    font-size: 1.5rem !important;
   }
   
   .text-xl {
-    font-size: 1.25rem;
+    font-size: 1.25rem !important;
+  }
+
+  .text-lg {
+    font-size: 1.125rem !important;
+  }
+
+  /* Header adjustments */
+  header {
+    flex-wrap: wrap;
+    padding: 0.75rem !important;
+  }
+
+  header h2 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Quick add input on mobile */
+  header input[type="text"] {
+    font-size: 0.875rem;
+  }
+
+  /* Button groups wrap on mobile */
+  .flex.space-x-2,
+  .flex.space-x-3 {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* Stat cards stack on mobile */
+  .grid.gap-4 {
+    gap: 0.75rem !important;
+  }
+
+  /* Modal adjustments */
+  .max-w-md,
+  .max-w-4xl {
+    max-width: 95vw !important;
+    margin: 1rem;
+  }
+
+  /* Form inputs on mobile */
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+}
+
+/* Small Mobile (< 480px) */
+@media (max-width: 480px) {
+  /* Single column layouts */
+  .grid.grid-cols-2,
+  .grid.grid-cols-3,
+  .grid.grid-cols-4 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+
+  /* Reduce font sizes further */
+  .text-2xl {
+    font-size: 1.25rem !important;
+  }
+
+  .text-xl {
+    font-size: 1.125rem !important;
+  }
+
+  /* Buttons full width on small screens */
+  button {
+    width: 100%;
+  }
+
+  .flex > button:not(:only-child) {
+    width: auto;
+    flex: 1;
+  }
+
+  /* Table cells */
+  td, th {
+    padding: 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Investment cards smaller padding */
+  .bg-white.p-6 {
+    padding: 1rem !important;
+  }
+
+  /* Hide some columns on very small screens */
+  table th:nth-child(3),
+  table td:nth-child(3) {
+    display: none;
+  }
+}
+
+/* Tablet (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* Reduce grid columns on tablets */
+  .grid.grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .grid.grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Touch-friendly buttons */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  a.cursor-pointer,
+  [role="button"] {
+    min-height: 44px; /* Apple's recommended touch target */
+    min-width: 44px;
+  }
+
+  /* Larger click areas for icons */
+  .text-gray-400,
+  .text-gray-600 {
+    padding: 0.5rem;
+  }
+}
+
+/* Landscape mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  /* Reduce header height */
+  header {
+    padding: 0.5rem !important;
+  }
+
+  /* Make modals scrollable */
+  .fixed.inset-0 {
+    overflow-y: auto;
+  }
+}
+
+/* Print styles */
+@media print {
+  aside, header, button {
+    display: none !important;
+  }
+
+  .overflow-hidden {
+    overflow: visible !important;
   }
 }
