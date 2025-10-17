@@ -1505,6 +1505,10 @@ class FinanceAppTester:
             if results['account_creation']:
                 results['user_isolation'] = self.test_user_isolation()
             
+            # 16. Test Transaction Linking to Debts and Receivables (CRITICAL NEW TEST)
+            if results['account_creation']:
+                results['transaction_linking_debts_receivables'] = self.test_transaction_linking_to_debts_and_receivables()
+            
         finally:
             # Cleanup
             self.cleanup_test_account()
