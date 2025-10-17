@@ -227,6 +227,8 @@ class TransactionCreate(BaseModel):
     description: str
     date: datetime
     to_account_id: Optional[str] = None
+    linked_debt_id: Optional[str] = None  # Link to debt
+    linked_receivable_id: Optional[str] = None  # Link to receivable
     is_recurring: bool = False
     recurring_frequency: Optional[str] = None
     splits: Optional[List[SplitItem]] = None
