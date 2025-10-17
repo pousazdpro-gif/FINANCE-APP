@@ -262,17 +262,8 @@ const InvestmentProjectionNew = () => {
               max="5000"
               step="50"
               value={monthlyAmount}
-              onChange={(e) => {
-                const newValue = parseFloat(e.target.value);
-                console.log('Versement Mensuel changed to:', newValue);
-                setMonthlyAmount(newValue);
-              }}
-              onInput={(e) => {
-                const newValue = parseFloat(e.target.value);
-                setMonthlyAmount(newValue);
-              }}
-              className="w-full h-3 bg-gradient-to-r from-green-200 to-green-400 rounded-lg appearance-none cursor-pointer slider"
-              style={{ zIndex: 10, position: 'relative' }}
+              onChange={(e) => setMonthlyAmount(Number(e.target.value))}
+              className="w-full h-3 bg-gradient-to-r from-green-200 to-green-400 rounded-lg appearance-none cursor-pointer"
             />
             <div className="flex justify-between text-xs text-gray-500">
               <span>0 €</span>
