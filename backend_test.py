@@ -2152,7 +2152,10 @@ class FinanceAppTester:
             'investment_crud': False,
             'investment_operations_update': False,
             'user_isolation': False,
-            'transaction_linking_debts_receivables': False
+            'transaction_linking_debts_receivables': False,
+            'goal_modification': False,
+            'debt_modification': False,
+            'receivable_modification': False
         }
         
         try:
