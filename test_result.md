@@ -149,10 +149,10 @@ backend:
         comment: "CRITICAL BUG: After logout/re-login with Google account (pousaz.d.pro@gmail.com), all 198 transactions disappear, showing only 4 test transactions. Data verified in MongoDB - it exists but not loading."
       - working: true
         agent: "main"
-        comment: "✅ FIXED: Root cause was CORS configuration with wildcard '*' which is incompatible with credentials mode. Fixed CORS to use specific origins: http://localhost:3000 and https://money-tracker-pro-2.preview.emergentagent.com. Also added withCredentials: true in frontend axios config. Sessions cookies now correctly sent with requests. User data should now persist after re-login."
+        comment: "✅ FIXED: Root cause was CORS configuration with wildcard '*' which is incompatible with credentials mode. Fixed CORS to use specific origins: http://localhost:3000 and https://finance-fusion-2.preview.emergentagent.com. Also added withCredentials: true in frontend axios config. Sessions cookies now correctly sent with requests. User data should now persist after re-login."
       - working: true
         agent: "testing"
-        comment: "✅ COMPREHENSIVE TESTING COMPLETED: All critical authentication fixes verified working correctly. CORS headers properly configured (origin: https://money-tracker-pro-2.preview.emergentagent.com, credentials: true). Auth endpoints working: /api/auth/me returns 401 without session, /api/auth/session handles invalid sessions correctly (401), /api/auth/logout working (200 OK). User data isolation confirmed: anonymous users see limited data (6 transactions, 2 investments), session cookie handling functional. Session persistence mechanism fully operational - user data will now persist across login sessions."
+        comment: "✅ COMPREHENSIVE TESTING COMPLETED: All critical authentication fixes verified working correctly. CORS headers properly configured (origin: https://finance-fusion-2.preview.emergentagent.com, credentials: true). Auth endpoints working: /api/auth/me returns 401 without session, /api/auth/session handles invalid sessions correctly (401), /api/auth/logout working (200 OK). User data isolation confirmed: anonymous users see limited data (6 transactions, 2 investments), session cookie handling functional. Session persistence mechanism fully operational - user data will now persist across login sessions."
 
   - task: "camelCase/snake_case conversion for all GET endpoints"
     implemented: true
@@ -754,7 +754,7 @@ agent_communication:
       📋 ADDITIONAL BACKEND TESTING RESULTS (14/14 PASSED):
       
       CRITICAL AUTHENTICATION TESTS (4/4 PASSED):
-      - CORS Headers: ✅ Correctly configured (origin: https://money-tracker-pro-2.preview.emergentagent.com, credentials: true)
+      - CORS Headers: ✅ Correctly configured (origin: https://finance-fusion-2.preview.emergentagent.com, credentials: true)
       - Auth Endpoints: ✅ All working (/api/auth/me returns 401, /api/auth/session handles invalid sessions, /api/auth/logout working)
       - User Data Isolation: ✅ Anonymous users see limited data (0 transactions, 2 investments)
       - Session Cookie Handling: ✅ Credentials properly configured
@@ -1021,7 +1021,7 @@ agent_communication:
       🔥 CRITICAL TESTS (4/4 PASSED):
       
       1. ✅ CORS & Credentials Configuration:
-         - CORS origin correctly set to: https://money-tracker-pro-2.preview.emergentagent.com
+         - CORS origin correctly set to: https://finance-fusion-2.preview.emergentagent.com
          - CORS credentials enabled: true
          - NO MORE wildcard '*' incompatibility issue
          - Preflight requests working correctly
@@ -1069,7 +1069,7 @@ agent_communication:
       
       2. ✅ Backend (/app/backend/server.py):
          - Changed CORS from allow_origins=['*'] to specific origins
-         - Now allows: http://localhost:3000, https://money-tracker-pro-2.preview.emergentagent.com
+         - Now allows: http://localhost:3000, https://finance-fusion-2.preview.emergentagent.com
          - Maintains allow_credentials=True
       
       VERIFICATION:
@@ -1201,7 +1201,7 @@ agent_communication:
       📋 ADDITIONAL BACKEND TESTING RESULTS (15/15 PASSED):
       
       CRITICAL AUTHENTICATION TESTS (4/4 PASSED):
-      - CORS Headers: ✅ Correctly configured (origin: https://money-tracker-pro-2.preview.emergentagent.com, credentials: true)
+      - CORS Headers: ✅ Correctly configured (origin: https://finance-fusion-2.preview.emergentagent.com, credentials: true)
       - Auth Endpoints: ✅ All working (/api/auth/me returns 401, /api/auth/session handles invalid sessions, /api/auth/logout working)
       - User Data Isolation: ✅ Anonymous users see limited data (2 transactions, 2 investments)
       - Session Cookie Handling: ✅ Credentials properly configured

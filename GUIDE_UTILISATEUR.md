@@ -71,12 +71,12 @@ Je peux ajouter l'authentification Google avec Emergent (gratuit et simple). Vou
 
 ### 3. Export via API (pour automatisation)
 ```bash
-curl https://money-tracker-pro-2.preview.emergentagent.com/api/export/all > backup.json
+curl https://finance-fusion-2.preview.emergentagent.com/api/export/all > backup.json
 ```
 
 ### 4. Import via API
 ```bash
-curl -X POST https://money-tracker-pro-2.preview.emergentagent.com/api/import/all \
+curl -X POST https://finance-fusion-2.preview.emergentagent.com/api/import/all \
   -H "Content-Type: application/json" \
   -d @backup.json
 ```
@@ -180,7 +180,7 @@ docker-compose up
 ## 🌐 DÉPLOIEMENT SUR LE NET
 
 ### Option 1 : Emergent (Actuel)
-- ✅ Déjà déployé sur : https://money-tracker-pro-2.preview.emergentagent.com
+- ✅ Déjà déployé sur : https://finance-fusion-2.preview.emergentagent.com
 - ✅ Gratuit pendant le développement
 - ✅ MongoDB intégré
 - ✅ HTTPS automatique
@@ -229,13 +229,13 @@ docker-compose up
 
 ```bash
 # 1. Tester le backend
-curl https://money-tracker-pro-2.preview.emergentagent.com/api/
+curl https://finance-fusion-2.preview.emergentagent.com/api/
 
 # Devrait retourner :
 # {"message":"FinanceApp API v1.0","status":"operational", ...}
 
 # 2. Créer un compte de test
-curl -X POST https://money-tracker-pro-2.preview.emergentagent.com/api/accounts \
+curl -X POST https://finance-fusion-2.preview.emergentagent.com/api/accounts \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Mon Compte Test",
@@ -245,7 +245,7 @@ curl -X POST https://money-tracker-pro-2.preview.emergentagent.com/api/accounts 
   }'
 
 # 3. Vérifier qu'il apparaît dans l'app
-# Ouvrir https://money-tracker-pro-2.preview.emergentagent.com
+# Ouvrir https://finance-fusion-2.preview.emergentagent.com
 # Cliquer sur "Comptes"
 # Vous devriez voir "Mon Compte Test"
 ```

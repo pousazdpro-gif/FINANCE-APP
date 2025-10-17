@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 load_dotenv('/app/frontend/.env')
 
 # Configuration
-BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL', 'https://money-tracker-pro-2.preview.emergentagent.com')
+BACKEND_URL = os.getenv('REACT_APP_BACKEND_URL', 'https://finance-fusion-2.preview.emergentagent.com')
 API_BASE = f"{BACKEND_URL}/api"
 
 class FinanceAppTester:
@@ -48,7 +48,7 @@ class FinanceAppTester:
         self.log("Testing CORS preflight request")
         try:
             response = self.session.options(f"{API_BASE}/transactions", headers={
-                'Origin': 'https://money-tracker-pro-2.preview.emergentagent.com',
+                'Origin': 'https://finance-fusion-2.preview.emergentagent.com',
                 'Access-Control-Request-Method': 'GET',
                 'Access-Control-Request-Headers': 'Content-Type'
             })
@@ -68,7 +68,7 @@ class FinanceAppTester:
             if cors_headers['Access-Control-Allow-Origin'] == '*':
                 self.log("❌ CRITICAL: CORS still using wildcard '*' - incompatible with credentials!", "ERROR")
                 return False
-            elif cors_headers['Access-Control-Allow-Origin'] in ['https://money-tracker-pro-2.preview.emergentagent.com', 'http://localhost:3000']:
+            elif cors_headers['Access-Control-Allow-Origin'] in ['https://finance-fusion-2.preview.emergentagent.com', 'http://localhost:3000']:
                 self.log(f"✅ CORS origin correctly set to: {cors_headers['Access-Control-Allow-Origin']}")
             else:
                 self.log(f"⚠️ CORS origin set to: {cors_headers['Access-Control-Allow-Origin']}")

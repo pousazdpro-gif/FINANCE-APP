@@ -1,95 +1,74 @@
 <analysis>
-The AI engineer's work transitioned from an initial MVP to a feature-rich personal finance application. Initially, the focus was on migrating a vanilla JS app to a React/FastAPI/MongoDB stack, establishing core CRUD functionality and Google authentication. A significant phase involved implementing a multitude of features: enhanced financial modules (accounts, transactions, investments, goals, debts, claims), banking integration, an intelligent shopping list (renamed from Courses to Achats), global search, a detailed dashboard, an Eisenhower matrix for tasks, and a comprehensive settings panel. Persistent debugging cycles, especially related to MongoDB data schema inconsistencies ( vs ) and Pydantic validation issues, dominated the latter part of the trajectory. The engineer continuously refined API endpoints, Pydantic models, and frontend component integration based on iterative user feedback, particularly around data persistence, CRUD operations, and display errors. At the end, the engineer was actively addressing critical s impacting data loading, stemming from / mismatches in transaction data.
+The AI engineer migrated the FinanceApp to a React/FastAPI/MongoDB stack, implementing core financial management features. Initial work focused on fixing  from / mismatches, integrating OCR (Tesseract.js), PDF export, and a dynamic investment module. Recurring issues included data persistence after re-authentication, non-functional investment projection graphs, transaction import problems, and  errors during transaction creation. The engineer debugged Google authentication flows (CORS, session handling), resolved transaction duplication, fixed display errors for categories and dashboard elements, and enhanced the investment projection and OCR components per user feedback. Recent efforts addressed currency display, simplified forms, and corrected receivable calculations. The immediate focus is on enabling transaction linking to debts and receivables.
 </analysis>
 
 <product_requirements>
-The user requested a comprehensive personal financial management PWA, FinanceApp, rebuilt with React, FastAPI, and MongoDB.
-**Core Features:**
-- **Daily Financial Management**: Multiple accounts, multi-currency transactions (income, expenses, transfers, split, recurring), categories, sub-categories, payees.
-- **Investment Tracking**: Portfolio, Unit Cost Price (PRU), capital gains/losses, operation history, dividend management, various investment types (crypto, passive/active material, stock, trading, bond, real estate) with specific calculation logic. Investment projection graph over time.
-- **Goals, Debts, Claims**: Tracking and management with payment history, modifiable, clickable details (like investments).
-- **Dashboards & Analysis**: Net worth, asset distribution, interactive Chart.js graphs, mini-dashboards per tab, global reports (1, 2, 3, 5 years, month/semester, export PDF).
-- **Advanced Tools**: Tesseract.js for OCR on receipts/bank statements, JSON/CSV import/export, global search, quick add, keyboard shortcuts, offline PWA capabilities.
-**New & Enhanced Features:**
-- **Banking API Integration**: Connect/synchronize transactions, automatic import, manual categorization/linking.
-- **Intelligent Shopping Module (Achats)**: Product database, selectable lists (drag-and-drop), export, price tracking, OCR integration for direct product addition.
-- **Google Authentication**: Secure user login, mandatory access, data linked to Google account.
-- **Full CRUD**: Add, modify, delete all entities (transactions, investments, categories, tasks, debts, claims).
-- **Data Persistence & Linkage**: All data persists and links to Google account; financial figures correctly reflect across modules.
-- **Multi-Currency Support**: Link BTC, CHF, EUR, USD; automatic conversion, dashboard display in chosen currency.
-- **Inter-Account Transfers**.
-- **Task Management**: Eisenhower Matrix (tasks/wishlist) with drag-and-drop and an À classer column.
-- **Settings Panel**: Manage categories, sub-categories, payees, view preferences (list/table).
-- **Data Deletion**: Option to delete all user data.
-**Critical Bugs/Fixes**: Ensure transactions save, data imports work, projection graph is reactive, and resolve  on data load.
+The FinanceApp is a personal financial management PWA. The user required a robust app for managing finances, investments, goals, debts, and claims, with multi-currency support and advanced tools. Implemented features include daily financial management (accounts, multi-currency transactions, categories), investment tracking (portfolio, operations, types), goals, debts, and claims with payment history, dashboards (net worth, asset distribution), and advanced tools like OCR and JSON/CSV import/export. Google authentication for secure login and data persistence is central. Critical bugs addressed involved data loading errors, graph reactivity, PDF export issues,  crashes, transaction import duplication, and  errors on creation. Key outstanding issues include transaction linking to debts/goals/receivables, debt payment persistence, mobile display, and potentially re-introducing dynamic dashboard graphs.
 </product_requirements>
 
 <key_technical_concepts>
-- **Full-stack**: React (frontend), FastAPI (backend), MongoDB (database).
-- **Styling**: TailwindCSS, Lucide icons.
-- **Data Visualization**: Chart.js.
-- **PWA**: Service Worker, .
-- **Authentication**: Emergent Google Integration.
-- **Data Handling**: Pydantic for API models, UUIDs for MongoDB IDs,  for timestamps, / alias handling.
-- **API Design**:  prefix, environment variables for URLs.
+-   **Full-stack**: React (frontend), FastAPI (backend), MongoDB (database).
+-   **Styling**: TailwindCSS, Lucide icons.
+-   **Data Visualization**: Chart.js (later simplified to tables).
+-   **Authentication**: Google Integration, session tokens.
+-   **Data Handling**: Pydantic, UUIDs, / conversion, .
+-   **API Design**:  prefix, environment variables (REACT_APP_BACKEND_URL, MONGO_URL), Axios with .
+-   **OCR**: Tesseract.js, .
+-   **Document Generation**: jsPDF, jsPDF-AutoTable.
 </key_technical_concepts>
 
 <code_architecture>
 
 
-- ****: Main FastAPI application.
-    - **Summary**: Manages all API endpoints, database interactions, and authentication protection.
-    - **Changes**: Significantly expanded to include new models (, , , , , ,  for debts/receivables), extended existing models (, , , , , ) for multi-currency, investment types, linked transactions, payment history, and alias handling ( for  input/output). Added new routes for categories (CRUD), payees (CRUD), inter-account transfers, currency conversion, tasks (CRUD), preferences (CRUD), debt/receivable payments (CRUD), shopping list product additions/removals, dashboard enhancements, global search, and a route to delete all user data. Critical fixes involved making models more flexible for older data and implementing helper functions for / conversions in responses.
-- ****: Handles Google authentication.
-    - **Summary**: Encapsulates Google authentication logic and  dependency.
-    - **Changes**: No explicit changes mentioned in the trajectory, but it is a core part of the authentication flow.
-- ****: Environment variables for backend.
-    - **Summary**: Contains , , .
-    - **Changes**: No explicit changes mentioned, but it's crucial for configuration.
-- ****: Main React component.
-    - **Summary**: Orchestrates UI, state, routing, and integrates all other components.
-    - **Changes**: Heavily modified to integrate new views (, , , , , , ), manage new states (categories, payees, selected investment/debt/receivable for modals), updated  to fetch new entities, integrated , . Updated header with global search and category management buttons. Incorporated new modals for detailed investment, debt, and receivable views, and the transfer modal. Added logic for passing callbacks to components (e.g.,  for settings). Renamed Courses to Achats throughout. Updated rendering logic for new tabs and components.
-- ****: Frontend API service.
-    - **Summary**: Centralizes all API calls to the FastAPI backend.
-    - **Changes**: Significantly extended with new functions for categories, payees, transfers, tasks, preferences, debt/receivable payments, and shopping list product management to reflect backend changes.
-- ****: Google login button. (No explicit changes).
-- ****: Login enforcement component. (No explicit changes).
-- ****: **Created**. Displays and allows editing of investment details.
-- ****: **Created**. Implements application-wide search.
-- ****: **Created**. Manages categories and subcategories.
-- ****: **Created**. Task management matrix.
-    - **Changes**: Added a fix for deletion with . Updated to display 5 columns (4 quadrants + À classer).
-- ****: **Created**. Handles user preferences and app settings.
-    - **Changes**: Implemented logic for view preferences (list/table) with a callback to  for state updates.
-- ****: **Created**. Facilitates transfers between user accounts.
-- ****: **Created**. Placeholder for OCR functionality.
-- ****: **Created**. Displays investment growth projections.
-    - **Changes**: Integrated into , but still needs reactivity fixes for the graph/sliders.
-- ****: **Created**. Detailed view/editing for debts.
-- ****: **Created**. Detailed view/editing for receivables.
-- ****: **Created**. Placeholder for financial reports.
-- ****: **Created**. Documents development changes.
-- ****: **Created**. A summary of work completed by the AI engineer.
+-   ****: Core FastAPI app.
+    -   Summary: Handles all API endpoints, DB interactions, and auth.
+    -   Changes: Implemented /. Fixed   and operation recalculations.  improved.  fields made flexible. Fixed  in /.  limit increased to 10000. CORS configured with  set to  (from ) for . Added debug endpoint . Added idempotency key for transaction creation. Implemented Pydantic exception handler for better error messages. Created  model for .
+-   ****: Google authentication.
+    -   Summary: Encapsulates Google auth logic.
+    -   Changes: Investigated for data persistence issues after re-login.
+-   ****: Main React component.
+    -   Summary: Orchestrates UI, state, routing, component integration.
+    -   Changes: Integrated new components. Implemented dynamic forms for investments. Added null-checks. Auto-category addition. Responsive sidebar. Fixed  timing to be after authentication via custom event listener. Initialized  with default  in . Passed , ,  as props to child components (, , , , , , ). Null-checks added to Dashboard. Replaced Chart.js-based dashboard components (trends, top categories, account distribution) with simple tables/lists. Implemented  state and logic to load/save user preferences and format amounts. Modified  to attempt linking to investments, and prepared for linking to other entities.
+-   ****: Frontend API service.
+    -   Summary: Centralizes API calls.
+    -   Changes: Configured Axios with  to send cookies.
+-   ** (NEW)**:
+    -   Summary: Simplified investment projection, no graph. Uses editable input fields and sliders.
+    -   Changes: Fixed  to properly react to state changes. Set min/max values for inputs (e.g., initial/monthly amount from 0-10000, annual return 0-500%). Added handling for zero inputs and division-by-zero protection in calculations.
+-   ** (NEW)**:
+    -   Summary: Advanced OCR for precise, line-by-line cell extraction and linking.
+    -   Changes: Replaced  and . Integrated  for PDF support. Allows granular selection of extracted text for transaction creation.
+-   ****:
+    -   Summary: Detailed view/editing for receivables.
+    -   Changes: Added null protection for display values.  function's invocation context might be an issue.
+-   ****:
+    -   Summary: Modal to link a transaction.
+    -   Changes: Currently being modified to support linking to investments, debts, and receivables dynamically.
+-   ****: Global CSS.
+    -   Changes: Added styles for custom sliders.
+-   ****:
+    -   Summary: Ensures user is authenticated before rendering children.
+    -   Changes: Dispatches a custom 'auth-ready' event when authentication is confirmed.
+-   ****:
+    -   Summary: Manages user preferences.
+    -   Changes: Integrated with  to load/save user's preferred currency.
 </code_architecture>
 
 <pending_tasks>
-- Fully implement and refine Achats module (adding products to lists, download functionality, OCR for direct product addition).
-- Implement OCR feature using Tesseract.js (beyond just the placeholder component).
-- Ensure all financial calculations (investments, transactions, debts, claims) are correctly linked and reflected in dashboard totals.
-- Verify and fix the reactivity of the investment projection graph/sliders.
-- Implement full CRUD for payment history within DebtDetailModal and ReceivableDetailModal.
-- Finalize multi-currency display logic for dashboard and transactions.
-- Implement automatic bank statement import and synchronization.
-- Fix the data import/export functionality which is currently not registering transactions.
-- Implement full functionality for the Rapports tab, including filtering and PDF export.
-- Address the  preventing transactions and investments from loading due to / mismatches in API responses.
+-   **Transaction Linking**: Enable linking transactions to debts and receivables, similar to investments.
+-   **Debt Payment Deletion**: Fix the inactive delete button for payments within Debt/Receivable detail modals.
+-   **Dashboard Graphs**: User's original request for visual graphs in the dashboard (currently simplified to tables).
+-   **Local Authentication Loop**: Investigate and fix the infinite redirect loop when using the app locally.
+-   **Goals Module Enhancement**: Implement correct calculations and visual history for goals (not explicitly confirmed as fully fixed).
+-   **Subcategory Saving**: Verify if subcategories created in  are persisting correctly.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary, the AI engineer was engaged in debugging critical s that were preventing the application from loading investment and transaction data. The user reported these errors, indicating the backend was crashing. The AI engineer diagnosed the issue as a mismatch between the  fields coming from potentially older MongoDB data and the  fields expected by the Pydantic models in the FastAPI backend's GET response. Specifically, for transactions, the issue was identified as  (camelCase in data) versus  (snake_case in Pydantic models). The engineer had just identified this specific problem and was about to implement a fix.
+Immediately before this summary request, the user reported that deleting existing transactions within the Créances (Receivables) tab was not functional, and requested the ability to link transactions to both debts and receivables, mirroring the functionality already present for investments. The user also reiterated a concern about mobile display.
+
+The AI engineer has begun addressing these issues by first examining the  component, specifically the  function and its invocation, to diagnose why the delete button is inactive. Following this, the engineer identified that the  needs to be extended to support linking to multiple entity types (investments, debts, receivables). To facilitate this,  was added as a dependency, and a new  component was introduced (replacing previous OCR components) for more precise, line-by-line scanning with PDF support. The current task involves modifying the  and related frontend logic to enable comprehensive transaction linking.
 </current_work>
 
 <optional_next_step>
-Fix the  to  conversion in the backend for GET transactions to resolve the 500 Internal Server Error.
+Modify  to support linking transactions to debts and receivables.
 </optional_next_step>
-

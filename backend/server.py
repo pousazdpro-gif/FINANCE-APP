@@ -2421,7 +2421,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_origins=[
         "http://localhost:3000",
-        "https://money-tracker-pro-2.preview.emergentagent.com",
+        "https://finance-fusion-2.preview.emergentagent.com",
         os.environ.get('FRONTEND_URL', 'http://localhost:3000')
     ],
     allow_methods=["*"],

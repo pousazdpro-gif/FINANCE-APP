@@ -61,7 +61,7 @@
 ## 🚀 Démarrage Rapide
 
 ### En Ligne (Déjà Déployé)
-1. Allez sur : https://money-tracker-pro-2.preview.emergentagent.com
+1. Allez sur : https://finance-fusion-2.preview.emergentagent.com
 2. Utilisez l'application !
 
 ### En Local (Sur Votre Ordinateur)
