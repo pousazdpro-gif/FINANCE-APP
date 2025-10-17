@@ -678,6 +678,244 @@ class FinanceAppTester:
             return False
             
         return True
+
+    def test_investment_operations_update(self):
+        """Test investment operations update after linking transaction - THE MAIN FIX"""
+        self.log("=== Testing Investment Operations Update - THE MAIN FIX ===")
+        
+        # 1. CREATE Test Investment
+        self.log("Testing POST /api/investments for operations test")
+        investment_data = {
+            "name": "Test Stock",
+            "symbol": "TEST",
+            "type": "stock",
+            "currency": "EUR"
+        }
+        
+        test_investment_id = None
+        try:
+            response = self.session.post(f"{API_BASE}/investments", json=investment_data)
+            self.log(f"Investment creation response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                investment = response.json()
+                test_investment_id = investment['id']
+                self.log(f"✅ Test investment created: {investment['name']} (ID: {test_investment_id})")
+            else:
+                self.log(f"❌ Test investment creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Test investment creation error: {str(e)}", "ERROR")
+            return False
+        
+        # 2. ADD Operation via PUT endpoint (THE MAIN TEST)
+        self.log("Testing PUT /api/investments/{id} with operations array - THE MAIN FIX")
+        update_data_with_operations = {
+            "operations": [
+                {
+                    "type": "buy",
+                    "date": "2025-10-17T00:00:00Z",
+                    "quantity": 10,
+                    "price": 50,
+                    "total": 500,
+                    "notes": "Test operation"
+                }
+            ],
+            "quantity": 10,
+            "average_price": 50
+        }
+        
+        try:
+            response = self.session.put(f"{API_BASE}/investments/{test_investment_id}", json=update_data_with_operations)
+            self.log(f"Investment operations update response: {response.status_code}")
+            
+            if response.status_code == 200:
+                updated_investment = response.json()
+                operations = updated_investment.get('operations', [])
+                
+                if len(operations) > 0:
+                    operation = operations[0]
+                    self.log(f"✅ Operation added successfully: {operation.get('type')} {operation.get('quantity')} shares at {operation.get('price')}")
+                    
+                    # Verify operation fields
+                    expected_fields = ['type', 'date', 'quantity', 'price', 'total', 'notes']
+                    missing_fields = [field for field in expected_fields if field not in operation]
+                    if missing_fields:
+                        self.log(f"❌ Missing operation fields: {missing_fields}", "ERROR")
+                        return False
+                    else:
+                        self.log("✅ All operation fields present")
+                        
+                    # Verify operation values
+                    if (operation.get('type') == 'buy' and 
+                        operation.get('quantity') == 10 and 
+                        operation.get('price') == 50 and
+                        operation.get('total') == 500):
+                        self.log("✅ Operation values correctly saved")
+                    else:
+                        self.log(f"❌ Operation values incorrect: {operation}", "ERROR")
+                        return False
+                        
+                else:
+                    self.log("❌ No operations found in updated investment", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Investment operations update failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Investment operations update error: {str(e)}", "ERROR")
+            return False
+        
+        # 3. VERIFY Operation is returned in GET request
+        self.log("Testing GET /api/investments/{id} - verify operation is returned")
+        try:
+            response = self.session.get(f"{API_BASE}/investments/{test_investment_id}")
+            self.log(f"Investment retrieval response: {response.status_code}")
+            
+            if response.status_code == 200:
+                investment = response.json()
+                operations = investment.get('operations', [])
+                
+                if len(operations) > 0:
+                    operation = operations[0]
+                    self.log(f"✅ Operation retrieved successfully: {operation.get('type')} operation with {operation.get('quantity')} shares")
+                    
+                    # Verify date handling (datetime to ISO string and back)
+                    operation_date = operation.get('date')
+                    if operation_date:
+                        self.log(f"✅ Operation date properly handled: {operation_date}")
+                    else:
+                        self.log("❌ Operation date missing", "ERROR")
+                        return False
+                else:
+                    self.log("❌ Operation not found in retrieved investment", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Investment retrieval failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Investment retrieval error: {str(e)}", "ERROR")
+            return False
+        
+        # 4. ADD Multiple Operations
+        self.log("Testing PUT /api/investments/{id} with multiple operations")
+        update_data_multiple_operations = {
+            "operations": [
+                {
+                    "type": "buy",
+                    "date": "2025-10-17T00:00:00Z",
+                    "quantity": 10,
+                    "price": 50,
+                    "total": 500,
+                    "notes": "First operation"
+                },
+                {
+                    "type": "buy",
+                    "date": "2025-10-18T00:00:00Z",
+                    "quantity": 5,
+                    "price": 55,
+                    "total": 275,
+                    "notes": "Second operation"
+                }
+            ],
+            "quantity": 15,
+            "average_price": 51.67
+        }
+        
+        try:
+            response = self.session.put(f"{API_BASE}/investments/{test_investment_id}", json=update_data_multiple_operations)
+            self.log(f"Multiple operations update response: {response.status_code}")
+            
+            if response.status_code == 200:
+                updated_investment = response.json()
+                operations = updated_investment.get('operations', [])
+                
+                if len(operations) == 2:
+                    self.log(f"✅ Multiple operations added successfully: {len(operations)} operations")
+                    
+                    # Verify both operations
+                    for i, operation in enumerate(operations):
+                        expected_quantities = [10, 5]
+                        expected_prices = [50, 55]
+                        if (operation.get('quantity') == expected_quantities[i] and 
+                            operation.get('price') == expected_prices[i]):
+                            self.log(f"✅ Operation {i+1} values correct")
+                        else:
+                            self.log(f"❌ Operation {i+1} values incorrect: {operation}", "ERROR")
+                            return False
+                else:
+                    self.log(f"❌ Expected 2 operations, got {len(operations)}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Multiple operations update failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Multiple operations update error: {str(e)}", "ERROR")
+            return False
+        
+        # 5. TEST Date Conversion (datetime to ISO string and back)
+        self.log("Testing operations date handling (datetime to ISO string and back)")
+        update_data_date_test = {
+            "operations": [
+                {
+                    "type": "sell",
+                    "date": "2025-10-19T14:30:00.000Z",  # ISO format with milliseconds
+                    "quantity": 3,
+                    "price": 60,
+                    "total": 180,
+                    "notes": "Date conversion test"
+                }
+            ],
+            "quantity": 12,
+            "average_price": 52.5
+        }
+        
+        try:
+            response = self.session.put(f"{API_BASE}/investments/{test_investment_id}", json=update_data_date_test)
+            self.log(f"Date conversion test response: {response.status_code}")
+            
+            if response.status_code == 200:
+                updated_investment = response.json()
+                operations = updated_investment.get('operations', [])
+                
+                if len(operations) > 0:
+                    operation = operations[0]
+                    operation_date = operation.get('date')
+                    
+                    # Check if date is properly formatted
+                    if operation_date and ('2025-10-19' in str(operation_date)):
+                        self.log(f"✅ Date conversion working correctly: {operation_date}")
+                    else:
+                        self.log(f"❌ Date conversion failed: {operation_date}", "ERROR")
+                        return False
+                else:
+                    self.log("❌ No operations found for date test", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Date conversion test failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Date conversion test error: {str(e)}", "ERROR")
+            return False
+        
+        # 6. CLEANUP - Delete test investment
+        self.log("Cleaning up test investment")
+        try:
+            response = self.session.delete(f"{API_BASE}/investments/{test_investment_id}")
+            if response.status_code == 200:
+                self.log("✅ Test investment cleaned up")
+            else:
+                self.log(f"⚠️ Test investment cleanup failed: {response.status_code}")
+        except Exception as e:
+            self.log(f"⚠️ Test investment cleanup error: {str(e)}")
+        
+        self.log("✅ ALL INVESTMENT OPERATIONS UPDATE TESTS PASSED")
+        return True
     
     def test_user_isolation(self):
         """Test that user data is properly isolated"""
