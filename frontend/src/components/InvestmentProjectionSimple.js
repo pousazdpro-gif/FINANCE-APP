@@ -7,63 +7,56 @@ const InvestmentProjectionSimple = () => {
   const [years, setYears] = useState(20);
   const [annualReturn, setAnnualReturn] = useState(7);
 
-  // Calcul simple
-  const calculateFinalValue = () => {
-    const months = years * 12;
-    const monthlyReturn = annualReturn / 100 / 12;
-    
-    let total = initialAmount;
-    let invested = initialAmount;
+  // Calcul en temps réel - recalcule à chaque changement
+  const months = years * 12;
+  const monthlyReturn = annualReturn / 100 / 12;
+  
+  // Calcul valeur finale
+  let finalTotal = initialAmount;
+  let finalInvested = initialAmount;
 
-    for (let month = 1; month <= months; month++) {
-      total += monthlyAmount;
-      invested += monthlyAmount;
-      total = total * (1 + monthlyReturn);
-    }
+  for (let month = 1; month <= months; month++) {
+    finalTotal += monthlyAmount;
+    finalInvested += monthlyAmount;
+    finalTotal = finalTotal * (1 + monthlyReturn);
+  }
 
-    return {
-      total: total,
-      invested: invested,
-      gains: total - invested,
-      roi: ((total - invested) / invested * 100)
-    };
+  const finalGains = finalTotal - finalInvested;
+  const finalRoi = finalInvested > 0 ? ((finalTotal - finalInvested) / finalInvested * 100) : 0;
+
+  const finalData = {
+    total: finalTotal,
+    invested: finalInvested,
+    gains: finalGains,
+    roi: finalRoi
   };
 
-  // Calcul par année pour le tableau
-  const calculateYearlyData = () => {
-    const yearlyData = [];
-    const monthlyReturn = annualReturn / 100 / 12;
-    
-    let total = initialAmount;
-    let invested = initialAmount;
+  // Calcul tableau année par année
+  const yearlyData = [];
+  let yearTotal = initialAmount;
+  let yearInvested = initialAmount;
 
+  yearlyData.push({
+    year: 0,
+    total: initialAmount,
+    invested: initialAmount,
+    gains: 0
+  });
+
+  for (let year = 1; year <= years; year++) {
+    for (let month = 1; month <= 12; month++) {
+      yearTotal += monthlyAmount;
+      yearInvested += monthlyAmount;
+      yearTotal = yearTotal * (1 + monthlyReturn);
+    }
+    
     yearlyData.push({
-      year: 0,
-      total: initialAmount,
-      invested: initialAmount,
-      gains: 0
+      year: year,
+      total: yearTotal,
+      invested: yearInvested,
+      gains: yearTotal - yearInvested
     });
-
-    for (let year = 1; year <= years; year++) {
-      for (let month = 1; month <= 12; month++) {
-        total += monthlyAmount;
-        invested += monthlyAmount;
-        total = total * (1 + monthlyReturn);
-      }
-      
-      yearlyData.push({
-        year: year,
-        total: total,
-        invested: invested,
-        gains: total - invested
-      });
-    }
-
-    return yearlyData;
-  };
-
-  const finalData = calculateFinalValue();
-  const yearlyData = calculateYearlyData();
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-4 space-y-6">
