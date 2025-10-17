@@ -120,22 +120,28 @@ const InvestmentProjectionSimple = () => {
                 <DollarSign size={18} className="mr-2 text-green-600" />
                 Versement Mensuel
               </span>
-              <span className="text-2xl font-bold text-green-600">
-                {monthlyAmount.toLocaleString('fr-FR')} €
-              </span>
+              <input
+                type="number"
+                min="10"
+                max="10000"
+                value={monthlyAmount}
+                onChange={(e) => setMonthlyAmount(Number(e.target.value) || 0)}
+                className="text-xl font-bold text-green-600 border-2 border-green-300 rounded px-3 py-1 w-40 text-right"
+              />
+              <span className="text-lg font-bold text-green-600">€</span>
             </label>
             <input
               type="range"
-              min="0"
-              max="5000"
+              min="10"
+              max="10000"
               step="50"
-              value={monthlyAmount}
+              value={Math.min(monthlyAmount, 10000)}
               onChange={(e) => setMonthlyAmount(Number(e.target.value))}
               className="w-full h-3 bg-green-200 rounded-lg appearance-none cursor-pointer"
             />
             <div className="flex justify-between text-xs text-gray-500">
-              <span>0 €</span>
-              <span>5 000 €</span>
+              <span>10 €</span>
+              <span>10 000 €</span>
             </div>
           </div>
 
