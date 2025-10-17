@@ -1676,7 +1676,7 @@ async def add_receivable_payment(receivable_id: str, input: ReceivablePaymentCre
         {"id": receivable_id, "user_email": user_email},
         {
             "$push": {"payments": payment_dict},
-            "$set": {"remainingAmount": new_remaining}  # Use camelCase for database
+            "$set": {"remaining_amount": new_remaining}  # Use snake_case for receivables (no aliases)
         }
     )
     
