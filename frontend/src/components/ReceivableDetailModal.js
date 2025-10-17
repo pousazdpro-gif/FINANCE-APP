@@ -47,8 +47,9 @@ const ReceivableDetailModal = ({ receivable, onClose, onUpdate, onAddPayment, on
   };
 
   const totalAmount = receivable.total_amount || receivable.amount || 0;
-  const remainingAmount = receivable.remaining_amount || totalAmount;
-  const progressPercent = (totalAmount - remainingAmount) / totalAmount * 100;
+  const receivedPayments = (receivable.payments || []).reduce((sum, p) => sum + (p.amount || 0), 0);
+  const remainingAmount = receivable.remaining_amount !== undefined ? receivable.remaining_amount : (totalAmount - receivedPayments);
+  const progressPercent = totalAmount > 0 ? ((totalAmount - remainingAmount) / totalAmount * 100) : 0;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
