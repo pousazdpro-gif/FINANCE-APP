@@ -1590,7 +1590,7 @@ const SimpleListView = ({ items, title, onAdd, onDelete, renderItem }) => (
 );
 
 // Modal Component (Simplified - you'll need to expand this)
-const Modal = ({ type, data, onClose, onSave, accounts }) => {
+const Modal = ({ type, data, onClose, onSave, accounts, categories, setCategories }) => {
   const [formData, setFormData] = useState(data || {});
   const [loading, setLoading] = useState(false);
 
