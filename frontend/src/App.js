@@ -667,7 +667,7 @@ function App() {
 }
 
 // Dashboard View Component
-const DashboardView = ({ data, accounts, transactions }) => {
+const DashboardView = ({ data, accounts, transactions, formatAmount }) => {
   if (!data) return <div>Chargement des données...</div>;
 
   const pieData = {
