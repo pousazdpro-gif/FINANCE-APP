@@ -1237,3 +1237,110 @@ agent_communication:
       
       READY FOR PRODUCTION - Investment operations update fix is fully functional and tested.
       Ready for production use with Google authentication.
+
+
+backend:
+  - task: "Transaction Linking to Debts and Receivables"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Backend already has endpoints for adding payments to debts (debtsAPI.addPayment) and receivables (receivablesAPI.addPayment). These will be used for linking transactions."
+
+frontend:
+  - task: "LinkTransactionModal - Support Multiple Entity Types"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/LinkTransactionModal.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Modified LinkTransactionModal to support 3 entity types: investments, debts, and receivables. Added UI with 3 buttons to select entity type. Modal now dynamically shows appropriate entities based on selected type. Header color changes based on type (indigo for investments, red for debts, green for receivables)."
+
+  - task: "App.js - Handle Transaction Linking to All Entity Types"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Modified handleLinkTransaction function to accept entityType parameter ('investment', 'debt', 'receivable'). Implemented logic for each type: investments add operations, debts add payments, receivables add payments. Updated transaction with appropriate linked_id field. Passed debts and receivables arrays to LinkTransactionModal component."
+
+  - task: "Mobile Responsive Design"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.css"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added comprehensive mobile responsive styles: tables scroll horizontally on mobile, reduced padding and font sizes, single column layouts on small screens (<480px), touch-friendly button sizes (min 44px), landscape mobile adjustments, tablet-specific breakpoints (768-1024px). Font size set to 16px to prevent iOS zoom. Tables have horizontal scroll on mobile."
+
+agent_communication:
+  - agent: "main"
+    message: |
+      🎯 TRANSACTION LINKING TO DEBTS/RECEIVABLES + MOBILE DISPLAY IMPLEMENTED
+      
+      PHASE 1 COMPLETED - Transaction Linking Extension:
+      
+      1. ✅ LinkTransactionModal Component Modified:
+         - Added support for 3 entity types (investment, debt, receivable)
+         - UI includes 3 buttons for entity type selection
+         - Dynamic header color based on type (indigo/red/green)
+         - Dynamic entity list based on selected type
+         - Contextual info messages for each type
+      
+      2. ✅ App.js handleLinkTransaction Function Extended:
+         - Now accepts entityType parameter
+         - Investment linking: Creates operations (buy/sell)
+         - Debt linking: Creates payment via debtsAPI.addPayment
+         - Receivable linking: Creates payment via receivablesAPI.addPayment
+         - Updates transaction with appropriate linked_id field
+         - Error handling with user-friendly messages
+      
+      3. ✅ Component Integration:
+         - LinkTransactionModal now receives debts and receivables arrays
+         - All data properly passed from App.js state
+      
+      PHASE 2 COMPLETED - Mobile Responsive Design:
+      
+      1. ✅ Mobile Breakpoints Added:
+         - Small mobile (<480px): Single column layouts, smaller fonts
+         - Mobile (<768px): Horizontal table scroll, reduced padding, responsive text
+         - Tablet (768-1024px): 2-column grids instead of 3-4
+         - Landscape mobile: Reduced header height, scrollable modals
+      
+      2. ✅ Mobile-Specific Improvements:
+         - Tables scroll horizontally (min-width 600px)
+         - Touch-friendly buttons (44px minimum for touch targets)
+         - Font size 16px on inputs (prevents iOS zoom)
+         - Reduced padding on mobile (px-6 → 1rem)
+         - Single column layouts on very small screens
+         - Modal adjustments (95vw max-width)
+      
+      3. ✅ Additional Enhancements:
+         - Print styles (hide sidebar, header, buttons)
+         - Landscape orientation handling
+         - Third table column hidden on very small screens
+      
+      READY FOR TESTING:
+      - Backend testing: Verify debt/receivable payment addition
+      - Frontend testing: Test transaction linking to all 3 entity types
+      - Mobile testing: Test on various screen sizes (mobile, tablet, desktop)
+      
+      USER FEATURES DELIVERED:
+      ✅ Transactions can now be linked to investments OR debts OR receivables
+      ✅ Mobile display significantly improved with responsive design
