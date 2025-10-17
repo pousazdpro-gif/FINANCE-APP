@@ -972,7 +972,11 @@ class FinanceAppTester:
             # 10. Test shopping lists download
             results['shopping_lists_download'] = self.test_shopping_lists_download()
             
-            # 11. Test Transaction CRUD (existing)
+            # 11. Test Transaction Creation with Type Field (THE MAIN FIX)
+            if results['account_creation']:
+                results['transaction_type_field_fix'] = self.test_transaction_creation_with_type_field()
+            
+            # 12. Test Transaction CRUD (existing)
             if results['account_creation']:
                 results['transaction_crud'] = self.test_transaction_crud()
             
