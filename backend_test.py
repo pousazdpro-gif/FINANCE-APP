@@ -1960,7 +1960,8 @@ class FinanceAppTester:
                 debt = response.json()
                 test_debt_id = debt['id']
                 self.log(f"✅ Debt created: {debt['name']} (ID: {test_debt_id})")
-                self.log(f"Initial values - name: '{debt.get('name')}', total_amount: €{debt.get('total_amount')}")
+                total_amount = debt.get('total_amount') or debt.get('totalAmount')
+                self.log(f"Initial values - name: '{debt.get('name')}', total_amount: €{total_amount}")
             else:
                 self.log(f"❌ Debt creation failed: {response.status_code} - {response.text}", "ERROR")
                 return False
