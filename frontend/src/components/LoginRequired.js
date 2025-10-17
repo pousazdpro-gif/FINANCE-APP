@@ -30,10 +30,14 @@ export default function LoginRequired({ children }) {
       const response = await api.get(`${BACKEND_URL}/api/auth/me`);
       setUser(response.data);
       setChecking(false);
+      // Dispatch event to notify App that auth is ready
+      window.dispatchEvent(new CustomEvent('auth-ready', { detail: { user: response.data } }));
     } catch (error) {
       console.log('Not authenticated');
       setUser(null);
       setChecking(false);
+      // Dispatch event even if not authenticated
+      window.dispatchEvent(new CustomEvent('auth-ready', { detail: { user: null } }));
     } finally {
       setLoading(false);
     }
