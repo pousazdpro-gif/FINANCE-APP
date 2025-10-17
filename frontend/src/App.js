@@ -27,6 +27,7 @@ import GranularOCRScanner from './components/GranularOCRScanner';
 import InvestmentProjection from './components/InvestmentProjectionSimple';
 import DebtDetailModal from './components/DebtDetailModal';
 import ReceivableDetailModal from './components/ReceivableDetailModal';
+import GoalDetailModal from './components/GoalDetailModal';
 import ReportsView from './components/ReportsView';
 import CSVImporter from './components/CSVImporter';
 import LinkTransactionModal from './components/LinkTransactionModal';
