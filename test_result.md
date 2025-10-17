@@ -1324,6 +1324,18 @@ backend:
         agent: "testing"
         comment: "✅ COMPREHENSIVE TESTING COMPLETED: Receivable modification working perfectly. All tests passed (3/3): ✅ Receivable creation with name 'Test Receivable', total_amount 500€ working correctly ✅ PUT /api/receivables/{id} successfully updates name to 'Updated Receivable' and total_amount to 800€ ✅ Changes persist correctly - GET returns updated values ✅ Field mapping working correctly (no aliases, direct field names) ✅ Calculation logic working (remaining_amount recalculated based on payments). User reported issue with receivable modifications not saving is resolved - PUT endpoints are working correctly."
 
+  - task: "Account Balance Calculation Fix"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE TESTING COMPLETED: Account balance calculation fix working perfectly. All tests passed (3/3): ✅ Test 1: Account Balance Calculation - Created account with initial balance 1000€, added 3 income transactions (+500€, +300€, +200€ = +1000€), added 2 expense transactions (-150€, -250€ = -400€), verified current_balance = 1000 + 1000 - 400 = 1600€ ✓ ✅ Test 2: Account Balance Updates After Transaction Changes - Added new expense transaction (-100€), verified current_balance updated from 1600€ to 1500€ ✓ ✅ Test 3: Multiple Accounts Balance Calculation - Created Account A (initial 500€) + 200€ income = 700€, Account B (initial 1000€) - 150€ expense = 850€, both balances calculated correctly ✓ Formula working correctly: current_balance = initial_balance + income - expenses. Handles both account_id and accountId field naming. Dynamic calculation implemented in GET /api/accounts endpoint."
+
   - task: "Transaction Linking to Debts and Receivables"
     implemented: true
     working: true
