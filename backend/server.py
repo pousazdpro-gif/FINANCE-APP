@@ -1657,9 +1657,20 @@ async def update_receivable(receivable_id: str, input: ReceivableCreate, request
     user = await get_current_user(request, db)
     user_email = user['email'] if user else 'anonymous'
     
+    # Get existing receivable to check for payments
+    existing_receivable = await db.receivables.find_one({"id": receivable_id, "user_email": user_email}, {"_id": 0})
+    if not existing_receivable:
+        raise HTTPException(status_code=404, detail="Receivable not found")
+    
     update_data = input.model_dump()
     if update_data.get('due_date'):
         update_data['due_date'] = update_data['due_date'].isoformat()
+    
+    # Recalculate remaining_amount if total_amount changed
+    payments = existing_receivable.get('payments', [])
+    total_paid = sum(p.get('amount', 0) for p in payments)
+    new_total = update_data.get('total_amount', existing_receivable.get('total_amount', 0))
+    update_data['remaining_amount'] = new_total - total_paid
     
     result = await db.receivables.update_one({"id": receivable_id, "user_email": user_email}, {"$set": update_data})
     if result.matched_count == 0:
