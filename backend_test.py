@@ -931,6 +931,7 @@ class FinanceAppTester:
             'csv_bank_import': False,
             'existing_endpoints': False,
             'shopping_lists_download': False,
+            'transaction_type_field_fix': False,
             'transaction_crud': False,
             'investment_crud': False,
             'user_isolation': False
