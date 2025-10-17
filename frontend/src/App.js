@@ -88,6 +88,16 @@ function App() {
   const loadAllData = async () => {
     setLoading(true);
     try {
+      // Load user preferences first
+      try {
+        const prefsRes = await preferencesAPI.get();
+        if (prefsRes.data && prefsRes.data.preferred_currency) {
+          setPreferredCurrency(prefsRes.data.preferred_currency);
+        }
+      } catch (error) {
+        console.log('Could not load preferences:', error);
+      }
+      
       const [
         accountsRes, transactionsRes, investmentsRes, goalsRes, debtsRes,
         receivablesRes, productsRes, shoppingListsRes, bankConnectionsRes, 
