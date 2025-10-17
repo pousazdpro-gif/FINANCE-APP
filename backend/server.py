@@ -2302,43 +2302,6 @@ async def logout(request: Request, response: Response):
     return {"success": True, "message": "Logged out successfully"}
 
 
-@api_router.get("/user/preferences")
-async def get_preferences(request: Request):
-    """Get user preferences"""
-    user = await get_current_user(request, db)
-    if not user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    
-    # Get or create preferences
-    prefs = await db.user_preferences.find_one({"user_email": user['email']}, {"_id": 0})
-    if not prefs:
-        prefs = {
-            "user_email": user['email'],
-            "preferred_currency": "EUR",
-            "theme": "light"
-        }
-    
-    return prefs
-
-
-@api_router.post("/user/preferences")
-async def save_preferences(preferences: dict, request: Request):
-    """Save user preferences"""
-    user = await get_current_user(request, db)
-    if not user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    
-    preferences['user_email'] = user['email']
-    
-    await db.user_preferences.update_one(
-        {"user_email": user['email']},
-        {"$set": preferences},
-        upsert=True
-    )
-    
-    return {"message": "Preferences saved", "preferences": preferences}
-
-
 # ============================================================================
 # ROOT ROUTE
 # ============================================================================
