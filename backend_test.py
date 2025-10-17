@@ -2220,6 +2220,15 @@ class FinanceAppTester:
             if results['account_creation']:
                 results['debt_receivable_calculations'] = self.test_debt_and_receivable_calculations()
             
+            # 18. Test Goal Modification (USER REPORTED ISSUE)
+            results['goal_modification'] = self.test_goal_modification()
+            
+            # 19. Test Debt Modification (USER REPORTED ISSUE)
+            results['debt_modification'] = self.test_debt_modification()
+            
+            # 20. Test Receivable Modification (USER REPORTED ISSUE)
+            results['receivable_modification'] = self.test_receivable_modification()
+            
         finally:
             # Cleanup
             self.cleanup_test_account()
