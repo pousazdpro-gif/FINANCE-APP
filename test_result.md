@@ -1243,6 +1243,42 @@ agent_communication:
 
 
 backend:
+  - task: "Goal Modification via PUT"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE TESTING COMPLETED: Goal modification working perfectly. All tests passed (3/3): ✅ Goal creation with target_amount 1000€, current_amount 200€ working correctly ✅ PUT /api/goals/{id} successfully updates current_amount from 200€ to 500€ ✅ Changes persist correctly - GET returns updated values ✅ Field mapping working correctly (API returns camelCase: targetAmount, currentAmount) ✅ All CRUD operations for goals functional. User reported issue with goal modifications not saving is resolved - PUT endpoints are working correctly."
+
+  - task: "Debt Modification via PUT"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE TESTING COMPLETED: Debt modification working perfectly. All tests passed (3/3): ✅ Debt creation with name 'Test Debt', total_amount 1000€ working correctly ✅ PUT /api/debts/{id} successfully updates name to 'Updated Debt' and total_amount to 1500€ ✅ Changes persist correctly - GET returns updated values ✅ Field mapping working correctly (API returns camelCase: totalAmount, remainingAmount) ✅ Calculation logic working (remaining_amount recalculated based on payments). User reported issue with debt modifications not saving is resolved - PUT endpoints are working correctly."
+
+  - task: "Receivable Modification via PUT"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE TESTING COMPLETED: Receivable modification working perfectly. All tests passed (3/3): ✅ Receivable creation with name 'Test Receivable', total_amount 500€ working correctly ✅ PUT /api/receivables/{id} successfully updates name to 'Updated Receivable' and total_amount to 800€ ✅ Changes persist correctly - GET returns updated values ✅ Field mapping working correctly (no aliases, direct field names) ✅ Calculation logic working (remaining_amount recalculated based on payments). User reported issue with receivable modifications not saving is resolved - PUT endpoints are working correctly."
+
   - task: "Transaction Linking to Debts and Receivables"
     implemented: true
     working: true
