@@ -1255,6 +1255,21 @@ backend:
         agent: "testing"
         comment: "✅ COMPREHENSIVE TESTING COMPLETED: Transaction linking to debts and receivables working perfectly. All tests passed (7/7): ✅ Debt creation working correctly ✅ Receivable creation working correctly ✅ Transaction creation working correctly ✅ POST /api/debts/{id}/payments - Payment added successfully, remaining amount correctly updated from €1000 to €800 ✅ POST /api/receivables/{id}/payments - Payment added successfully, remaining amount correctly updated from €500 to €350 ✅ Transaction update with linked_debt_id field - Successfully linked and persisted ✅ Transaction update with linked_receivable_id field - Successfully linked and persisted. Fixed field mapping issues between camelCase (debts) and snake_case (receivables) models. Added missing linked_debt_id and linked_receivable_id fields to Transaction model. All payment calculations and field persistence working correctly."
 
+  - task: "Debt and Receivable Calculation Fixes"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "Initial testing revealed calculation issues: debt update with total amount change not recalculating remaining_amount correctly. Expected 1300€ (1500 - 200) but got 800€."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE TESTING COMPLETED: All debt and receivable calculation fixes working perfectly. All 6 test scenarios passed (6/6): ✅ SCENARIO 1: Debt Update with Total Amount Change - remaining_amount correctly recalculated from 800€ to 1300€ when total_amount changed from 1000€ to 1500€ ✅ SCENARIO 2: Debt Payment Update - remaining_amount correctly recalculated from 1300€ to 1200€ when payment updated from 200€ to 300€ ✅ SCENARIO 3: Debt Payment Deletion - remaining_amount correctly recalculated from 1050€ to 1350€ when first payment (300€) deleted, leaving only second payment (150€) ✅ SCENARIO 4: Receivable Update with Total Amount Change - remaining_amount correctly recalculated from 400€ to 700€ when total_amount changed from 500€ to 800€ ✅ SCENARIO 5: Receivable Payment Update - remaining_amount correctly recalculated from 700€ to 600€ when payment updated from 100€ to 200€ ✅ SCENARIO 6: Receivable Payment Deletion - remaining_amount correctly recalculated from 520€ to 720€ when first payment (200€) deleted, leaving only second payment (80€). Fixed issues: 1) Added missing Request parameter and user authentication to update_debt endpoint 2) Fixed camelCase/snake_case field mapping for debt calculations 3) Updated payment addition endpoints to recalculate from total payments instead of incremental updates. All calculation logic now working correctly for debt and receivable management."
+
 frontend:
   - task: "LinkTransactionModal - Support Multiple Entity Types"
     implemented: true
