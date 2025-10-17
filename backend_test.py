@@ -1835,6 +1835,301 @@ class FinanceAppTester:
             
             return False
 
+    def test_goal_modification(self):
+        """Test goal modification - USER REPORTED ISSUE"""
+        self.log("=== Testing Goal Modification - USER REPORTED ISSUE ===")
+        
+        # 1. CREATE Goal with initial values
+        self.log("Step 1: Creating goal with target_amount 1000€, current_amount 200€")
+        goal_data = {
+            "name": "Test Goal",
+            "target_amount": 1000.0,
+            "current_amount": 200.0,
+            "category": "savings",
+            "color": "#10b981"
+        }
+        
+        test_goal_id = None
+        try:
+            response = self.session.post(f"{API_BASE}/goals", json=goal_data)
+            self.log(f"Goal creation response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                goal = response.json()
+                test_goal_id = goal['id']
+                self.log(f"✅ Goal created: {goal['name']} (ID: {test_goal_id})")
+                self.log(f"Initial values - target_amount: €{goal.get('target_amount')}, current_amount: €{goal.get('current_amount')}")
+            else:
+                self.log(f"❌ Goal creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Goal creation error: {str(e)}", "ERROR")
+            return False
+        
+        # 2. UPDATE Goal to change current_amount to 500€
+        self.log("Step 2: Updating goal to change current_amount to 500€")
+        update_data = {
+            "name": "Test Goal",
+            "target_amount": 1000.0,
+            "current_amount": 500.0,  # Changed from 200€ to 500€
+            "category": "savings",
+            "color": "#10b981"
+        }
+        
+        try:
+            response = self.session.put(f"{API_BASE}/goals/{test_goal_id}", json=update_data)
+            self.log(f"Goal update response: {response.status_code}")
+            
+            if response.status_code == 200:
+                updated_goal = response.json()
+                self.log(f"Updated values - target_amount: €{updated_goal.get('target_amount')}, current_amount: €{updated_goal.get('current_amount')}")
+                
+                # Verify the update worked
+                if updated_goal.get('current_amount') == 500.0:
+                    self.log("✅ Goal current_amount successfully updated from 200€ to 500€")
+                else:
+                    self.log(f"❌ Goal update failed: expected current_amount 500€, got €{updated_goal.get('current_amount')}", "ERROR")
+                    return False
+                    
+            else:
+                self.log(f"❌ Goal update failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Goal update error: {str(e)}", "ERROR")
+            return False
+        
+        # 3. VERIFY Update by reading the goal again
+        self.log("Step 3: Verifying update by reading goal again")
+        try:
+            response = self.session.get(f"{API_BASE}/goals")
+            if response.status_code == 200:
+                goals = response.json()
+                updated_goal = next((g for g in goals if g['id'] == test_goal_id), None)
+                
+                if updated_goal and updated_goal.get('current_amount') == 500.0:
+                    self.log("✅ Goal update verified - GET returns new value (500€)")
+                else:
+                    self.log(f"❌ Goal update not persisted: GET returns {updated_goal.get('current_amount') if updated_goal else 'None'}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Goal verification failed: {response.status_code}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Goal verification error: {str(e)}", "ERROR")
+            return False
+        
+        # 4. CLEANUP
+        try:
+            if test_goal_id:
+                self.session.delete(f"{API_BASE}/goals/{test_goal_id}")
+                self.log("✅ Test goal cleaned up")
+        except:
+            pass
+        
+        self.log("✅ GOAL MODIFICATION TEST PASSED")
+        return True
+
+    def test_debt_modification(self):
+        """Test debt modification via PUT - USER REPORTED ISSUE"""
+        self.log("=== Testing Debt Modification via PUT - USER REPORTED ISSUE ===")
+        
+        # 1. CREATE Debt with initial values
+        self.log("Step 1: Creating debt 'Test Debt' with total_amount 1000€")
+        debt_data = {
+            "name": "Test Debt",
+            "total_amount": 1000.0,
+            "remaining_amount": 1000.0,
+            "interest_rate": 5.0,
+            "creditor": "Test Creditor"
+        }
+        
+        test_debt_id = None
+        try:
+            response = self.session.post(f"{API_BASE}/debts", json=debt_data)
+            self.log(f"Debt creation response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                debt = response.json()
+                test_debt_id = debt['id']
+                self.log(f"✅ Debt created: {debt['name']} (ID: {test_debt_id})")
+                self.log(f"Initial values - name: '{debt.get('name')}', total_amount: €{debt.get('total_amount')}")
+            else:
+                self.log(f"❌ Debt creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Debt creation error: {str(e)}", "ERROR")
+            return False
+        
+        # 2. UPDATE Debt via PUT to change name and total_amount
+        self.log("Step 2: Using PUT /api/debts/{id} to change name to 'Updated Debt' and total_amount to 1500€")
+        update_data = {
+            "name": "Updated Debt",  # Changed from "Test Debt"
+            "total_amount": 1500.0,  # Changed from 1000€ to 1500€
+            "remaining_amount": 1500.0,  # Should be recalculated
+            "interest_rate": 5.0,
+            "creditor": "Test Creditor"
+        }
+        
+        try:
+            response = self.session.put(f"{API_BASE}/debts/{test_debt_id}", json=update_data)
+            self.log(f"Debt PUT update response: {response.status_code}")
+            
+            if response.status_code == 200:
+                updated_debt = response.json()
+                self.log(f"Updated values - name: '{updated_debt.get('name')}', total_amount: €{updated_debt.get('total_amount')}")
+                
+                # Verify the changes persist
+                if (updated_debt.get('name') == "Updated Debt" and 
+                    updated_debt.get('total_amount') == 1500.0):
+                    self.log("✅ Debt PUT update successful - name and total_amount changed")
+                else:
+                    self.log(f"❌ Debt PUT update failed: name='{updated_debt.get('name')}', total_amount=€{updated_debt.get('total_amount')}", "ERROR")
+                    return False
+                    
+            else:
+                self.log(f"❌ Debt PUT update failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Debt PUT update error: {str(e)}", "ERROR")
+            return False
+        
+        # 3. VERIFY Changes persist by reading debt again
+        self.log("Step 3: Verifying changes persist by reading debt again")
+        try:
+            response = self.session.get(f"{API_BASE}/debts")
+            if response.status_code == 200:
+                debts = response.json()
+                updated_debt = next((d for d in debts if d['id'] == test_debt_id), None)
+                
+                if (updated_debt and 
+                    updated_debt.get('name') == "Updated Debt" and 
+                    updated_debt.get('total_amount') == 1500.0):
+                    self.log("✅ Debt changes verified - GET returns updated values")
+                else:
+                    self.log(f"❌ Debt changes not persisted: name='{updated_debt.get('name') if updated_debt else 'None'}', total_amount=€{updated_debt.get('total_amount') if updated_debt else 'None'}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Debt verification failed: {response.status_code}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Debt verification error: {str(e)}", "ERROR")
+            return False
+        
+        # 4. CLEANUP
+        try:
+            if test_debt_id:
+                self.session.delete(f"{API_BASE}/debts/{test_debt_id}")
+                self.log("✅ Test debt cleaned up")
+        except:
+            pass
+        
+        self.log("✅ DEBT MODIFICATION TEST PASSED")
+        return True
+
+    def test_receivable_modification(self):
+        """Test receivable modification via PUT - USER REPORTED ISSUE"""
+        self.log("=== Testing Receivable Modification via PUT - USER REPORTED ISSUE ===")
+        
+        # 1. CREATE Receivable with initial values
+        self.log("Step 1: Creating receivable 'Test Receivable' with total_amount 500€")
+        receivable_data = {
+            "name": "Test Receivable",
+            "total_amount": 500.0,
+            "remaining_amount": 500.0,
+            "debtor": "Test Debtor"
+        }
+        
+        test_receivable_id = None
+        try:
+            response = self.session.post(f"{API_BASE}/receivables", json=receivable_data)
+            self.log(f"Receivable creation response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                receivable = response.json()
+                test_receivable_id = receivable['id']
+                self.log(f"✅ Receivable created: {receivable['name']} (ID: {test_receivable_id})")
+                self.log(f"Initial values - name: '{receivable.get('name')}', total_amount: €{receivable.get('total_amount')}")
+            else:
+                self.log(f"❌ Receivable creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Receivable creation error: {str(e)}", "ERROR")
+            return False
+        
+        # 2. UPDATE Receivable via PUT to change name and total_amount
+        self.log("Step 2: Using PUT /api/receivables/{id} to change name to 'Updated Receivable' and total_amount to 800€")
+        update_data = {
+            "name": "Updated Receivable",  # Changed from "Test Receivable"
+            "total_amount": 800.0,  # Changed from 500€ to 800€
+            "remaining_amount": 800.0,  # Should be recalculated
+            "debtor": "Test Debtor"
+        }
+        
+        try:
+            response = self.session.put(f"{API_BASE}/receivables/{test_receivable_id}", json=update_data)
+            self.log(f"Receivable PUT update response: {response.status_code}")
+            
+            if response.status_code == 200:
+                updated_receivable = response.json()
+                self.log(f"Updated values - name: '{updated_receivable.get('name')}', total_amount: €{updated_receivable.get('total_amount')}")
+                
+                # Verify the changes persist
+                if (updated_receivable.get('name') == "Updated Receivable" and 
+                    updated_receivable.get('total_amount') == 800.0):
+                    self.log("✅ Receivable PUT update successful - name and total_amount changed")
+                else:
+                    self.log(f"❌ Receivable PUT update failed: name='{updated_receivable.get('name')}', total_amount=€{updated_receivable.get('total_amount')}", "ERROR")
+                    return False
+                    
+            else:
+                self.log(f"❌ Receivable PUT update failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Receivable PUT update error: {str(e)}", "ERROR")
+            return False
+        
+        # 3. VERIFY Changes persist by reading receivable again
+        self.log("Step 3: Verifying changes persist by reading receivable again")
+        try:
+            response = self.session.get(f"{API_BASE}/receivables")
+            if response.status_code == 200:
+                receivables = response.json()
+                updated_receivable = next((r for r in receivables if r['id'] == test_receivable_id), None)
+                
+                if (updated_receivable and 
+                    updated_receivable.get('name') == "Updated Receivable" and 
+                    updated_receivable.get('total_amount') == 800.0):
+                    self.log("✅ Receivable changes verified - GET returns updated values")
+                else:
+                    self.log(f"❌ Receivable changes not persisted: name='{updated_receivable.get('name') if updated_receivable else 'None'}', total_amount=€{updated_receivable.get('total_amount') if updated_receivable else 'None'}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Receivable verification failed: {response.status_code}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Receivable verification error: {str(e)}", "ERROR")
+            return False
+        
+        # 4. CLEANUP
+        try:
+            if test_receivable_id:
+                self.session.delete(f"{API_BASE}/receivables/{test_receivable_id}")
+                self.log("✅ Test receivable cleaned up")
+        except:
+            pass
+        
+        self.log("✅ RECEIVABLE MODIFICATION TEST PASSED")
+        return True
+
     def run_all_tests(self):
         """Run all backend tests"""
         self.log(f"Starting FinanceApp Backend Tests - CRITICAL AUTHENTICATION FIX TESTING")
