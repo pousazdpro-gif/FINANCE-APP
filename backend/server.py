@@ -1809,9 +1809,14 @@ async def delete_receivable_payment(receivable_id: str, payment_index: int, requ
     
     payments.pop(payment_index)
     
+    # Recalculate remaining amount
+    total_amount = receivable.get('total_amount', receivable.get('totalAmount', 0))
+    total_paid = sum(p.get('amount', 0) for p in payments)
+    new_remaining = total_amount - total_paid
+    
     await db.receivables.update_one(
         {"id": receivable_id, "user_email": user_email},
-        {"$set": {"payments": payments}}
+        {"$set": {"payments": payments, "remaining_amount": new_remaining}}
     )
     
     return {"message": "Payment deleted successfully"}
