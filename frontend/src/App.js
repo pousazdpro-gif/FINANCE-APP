@@ -415,9 +415,29 @@ function App() {
               {currentView === 'shopping' && <ShoppingView products={products} shoppingLists={shoppingLists} openModal={openModal} setProducts={setProducts} setShoppingLists={setShoppingLists} />}
               {currentView === 'banks' && <BanksView bankConnections={bankConnections} accounts={accounts} openModal={openModal} setBankConnections={setBankConnections} />}
               {currentView === 'tasks' && <EisenhowerMatrix />}
-              {currentView === 'ocr' && <OCRScanner onTransactionsExtracted={(txns) => {
-                console.log('Transactions extracted:', txns);
-                // TODO: Create transactions in batch
+              {currentView === 'ocr' && <AdvancedOCRScanner onTransactionsImported={async (txns) => {
+                console.log('Importing transactions:', txns);
+                // Importer toutes les transactions
+                for (const txn of txns) {
+                  try {
+                    // Utiliser le premier compte disponible
+                    const accountId = accounts.length > 0 ? accounts[0].id : null;
+                    if (!accountId) {
+                      alert('Veuillez créer un compte avant d\'importer des transactions');
+                      break;
+                    }
+                    
+                    await transactionsAPI.create({
+                      ...txn,
+                      account_id: accountId,
+                      tags: txn.tags || [],
+                      is_recurring: false
+                    });
+                  } catch (error) {
+                    console.error('Erreur import transaction:', error);
+                  }
+                }
+                alert(`${txns.length} transactions importées avec succès!`);
                 loadAllData();
               }} />}
               {currentView === 'projection' && <InvestmentProjection />}
