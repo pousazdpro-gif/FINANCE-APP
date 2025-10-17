@@ -810,7 +810,7 @@ const DashboardView = ({ data, accounts, transactions }) => {
                       </div>
                       <div className="text-right">
                         <span className="text-lg font-bold text-gray-900">
-                          {(account.current_balance || 0).toFixed(2)} {account.currency || 'EUR'}
+                          {formatAmount(account.current_balance)}
                         </span>
                         <span className="text-sm text-gray-500 ml-2">
                           ({percentage.toFixed(1)}%)
