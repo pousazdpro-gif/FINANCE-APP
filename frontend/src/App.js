@@ -139,49 +139,91 @@ function App() {
     }
   };
 
-  const handleLinkTransaction = async (transactionId, investmentId) => {
+  const handleLinkTransaction = async (transactionId, entityId, entityType) => {
     try {
       // Find the transaction
       const transaction = transactions.find(t => t.id === transactionId);
       if (!transaction) return;
 
-      // Find the investment
-      const investment = investments.find(inv => inv.id === investmentId);
-      if (!investment) return;
+      if (entityType === 'investment') {
+        // Link to investment
+        const investment = investments.find(inv => inv.id === entityId);
+        if (!investment) return;
 
-      // Create an operation for the investment based on the transaction
-      const operation = {
-        type: transaction.type === 'expense' ? 'buy' : 'sell',
-        date: transaction.date,
-        quantity: 1, // Default quantity, user can adjust later
-        price: transaction.amount,
-        total: transaction.amount,
-        notes: `Lié à transaction: ${transaction.description}`
-      };
+        // Create an operation for the investment based on the transaction
+        const operation = {
+          type: transaction.type === 'expense' ? 'buy' : 'sell',
+          date: transaction.date,
+          quantity: 1, // Default quantity, user can adjust later
+          price: transaction.amount,
+          total: transaction.amount,
+          notes: `Lié à transaction: ${transaction.description}`
+        };
 
-      // Add operation to investment
-      const updatedOperations = [...(investment.operations || []), operation];
-      
-      // Calculate new averages
-      const buyOps = updatedOperations.filter(op => op.type === 'buy');
-      const totalQuantity = buyOps.reduce((sum, op) => sum + op.quantity, 0);
-      const totalCost = buyOps.reduce((sum, op) => sum + (op.total || op.quantity * op.price), 0);
-      const averagePrice = totalQuantity > 0 ? totalCost / totalQuantity : 0;
+        // Add operation to investment
+        const updatedOperations = [...(investment.operations || []), operation];
+        
+        // Calculate new averages
+        const buyOps = updatedOperations.filter(op => op.type === 'buy');
+        const totalQuantity = buyOps.reduce((sum, op) => sum + op.quantity, 0);
+        const totalCost = buyOps.reduce((sum, op) => sum + (op.total || op.quantity * op.price), 0);
+        const averagePrice = totalQuantity > 0 ? totalCost / totalQuantity : 0;
 
-      // Update investment
-      await investmentsAPI.update(investmentId, {
-        ...investment,
-        operations: updatedOperations,
-        quantity: totalQuantity,
-        average_price: averagePrice,
-        current_price: averagePrice // Can be updated manually later
-      });
+        // Update investment
+        await investmentsAPI.update(entityId, {
+          ...investment,
+          operations: updatedOperations,
+          quantity: totalQuantity,
+          average_price: averagePrice,
+          current_price: averagePrice // Can be updated manually later
+        });
 
-      // Update transaction with link
-      await transactionsAPI.update(transactionId, {
-        ...transaction,
-        linked_investment_id: investmentId
-      });
+        // Update transaction with link
+        await transactionsAPI.update(transactionId, {
+          ...transaction,
+          linked_investment_id: entityId
+        });
+      } else if (entityType === 'debt') {
+        // Link to debt
+        const debt = debts.find(d => d.id === entityId);
+        if (!debt) return;
+
+        // Create a payment for the debt
+        const payment = {
+          date: transaction.date,
+          amount: transaction.amount,
+          notes: `Lié à transaction: ${transaction.description}`
+        };
+
+        // Add payment to debt
+        await debtsAPI.addPayment(entityId, payment);
+
+        // Update transaction with link
+        await transactionsAPI.update(transactionId, {
+          ...transaction,
+          linked_debt_id: entityId
+        });
+      } else if (entityType === 'receivable') {
+        // Link to receivable
+        const receivable = receivables.find(r => r.id === entityId);
+        if (!receivable) return;
+
+        // Create a payment for the receivable
+        const payment = {
+          date: transaction.date,
+          amount: transaction.amount,
+          notes: `Lié à transaction: ${transaction.description}`
+        };
+
+        // Add payment to receivable
+        await receivablesAPI.addPayment(entityId, payment);
+
+        // Update transaction with link
+        await transactionsAPI.update(transactionId, {
+          ...transaction,
+          linked_receivable_id: entityId
+        });
+      }
 
       // Reload data
       await loadAllData();
@@ -189,7 +231,7 @@ function App() {
       alert('Transaction liée avec succès!');
     } catch (error) {
       console.error('Error linking transaction:', error);
-      alert('Erreur lors de la liaison');
+      alert('Erreur lors de la liaison: ' + (error.response?.data?.detail || error.message));
     }
   };
 
