@@ -653,6 +653,30 @@ agent_communication:
       - working: true
         agent: "testing"
         comment: "✅ COMPREHENSIVE TESTING COMPLETED: Investment operations update functionality working perfectly. All tests passed (15/15): ✅ Single operation addition via PUT endpoint working correctly ✅ Multiple operations can be added and saved ✅ Operations dates properly handled (datetime to ISO string and back) ✅ All operation fields present and values correctly saved ✅ Operations are returned in GET /api/investments requests ✅ Date conversion working correctly (2025-10-19T14:30:00Z format) ✅ User can link transactions to investments and operations appear in investment details. The main fix is fully functional and ready for production."
+
+  - task: "Debt Creation and Update Debug"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE DEBT TESTING COMPLETED - ROOT CAUSE IDENTIFIED: The backend is using camelCase field names (totalAmount, remainingAmount) instead of snake_case (total_amount, remaining_amount). All CRUD operations work correctly, but the API returns camelCase fields. This is NOT a bug - it's the intended behavior with field aliases. Debt creation: ✅ Working (total=2000, remaining=2000), Debt update: ✅ Working (total updated to 3000), Field persistence: ✅ Working correctly. The user issue may be frontend-related or a misunderstanding of field naming."
+
+  - task: "Goal Creation and Update Debug"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE GOAL TESTING COMPLETED - ROOT CAUSE IDENTIFIED: Similar to debts, the backend uses camelCase field names (targetAmount, currentAmount) instead of snake_case (target_amount, current_amount). All CRUD operations work correctly. Goal creation: ✅ Working (target=5000, current=1000), Goal update: ✅ Working (current updated to 2000), Field persistence: ✅ Working correctly. The API correctly uses field aliases as designed. User issue likely frontend-related or field naming confusion."
 frontend:
   - task: "Transaction Form with Date Field"
     implemented: true
