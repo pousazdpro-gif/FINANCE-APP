@@ -51,10 +51,14 @@ export default function LoginRequired({ children }) {
       );
       setUser(response.data.user);
       setChecking(false);
+      // Dispatch event to notify App that auth is ready
+      window.dispatchEvent(new CustomEvent('auth-ready', { detail: { user: response.data.user } }));
     } catch (error) {
       console.error('Session error:', error);
       setUser(null);
       setChecking(false);
+      // Dispatch event even if error
+      window.dispatchEvent(new CustomEvent('auth-ready', { detail: { user: null } }));
     } finally {
       setLoading(false);
     }
