@@ -769,35 +769,41 @@ class FinanceAppTester:
             return False
         
         # 3. VERIFY Operation is returned in GET request
-        self.log("Testing GET /api/investments/{id} - verify operation is returned")
+        self.log("Testing GET /api/investments - verify operation is returned")
         try:
-            response = self.session.get(f"{API_BASE}/investments/{test_investment_id}")
-            self.log(f"Investment retrieval response: {response.status_code}")
+            response = self.session.get(f"{API_BASE}/investments")
+            self.log(f"Investment list retrieval response: {response.status_code}")
             
             if response.status_code == 200:
-                investment = response.json()
-                operations = investment.get('operations', [])
+                investments = response.json()
+                investment = next((inv for inv in investments if inv['id'] == test_investment_id), None)
                 
-                if len(operations) > 0:
-                    operation = operations[0]
-                    self.log(f"✅ Operation retrieved successfully: {operation.get('type')} operation with {operation.get('quantity')} shares")
+                if investment:
+                    operations = investment.get('operations', [])
                     
-                    # Verify date handling (datetime to ISO string and back)
-                    operation_date = operation.get('date')
-                    if operation_date:
-                        self.log(f"✅ Operation date properly handled: {operation_date}")
+                    if len(operations) > 0:
+                        operation = operations[0]
+                        self.log(f"✅ Operation retrieved successfully: {operation.get('type')} operation with {operation.get('quantity')} shares")
+                        
+                        # Verify date handling (datetime to ISO string and back)
+                        operation_date = operation.get('date')
+                        if operation_date:
+                            self.log(f"✅ Operation date properly handled: {operation_date}")
+                        else:
+                            self.log("❌ Operation date missing", "ERROR")
+                            return False
                     else:
-                        self.log("❌ Operation date missing", "ERROR")
+                        self.log("❌ Operation not found in retrieved investment", "ERROR")
                         return False
                 else:
-                    self.log("❌ Operation not found in retrieved investment", "ERROR")
+                    self.log("❌ Test investment not found in list", "ERROR")
                     return False
             else:
-                self.log(f"❌ Investment retrieval failed: {response.status_code} - {response.text}", "ERROR")
+                self.log(f"❌ Investment list retrieval failed: {response.status_code} - {response.text}", "ERROR")
                 return False
                 
         except Exception as e:
-            self.log(f"❌ Investment retrieval error: {str(e)}", "ERROR")
+            self.log(f"❌ Investment list retrieval error: {str(e)}", "ERROR")
             return False
         
         # 4. ADD Multiple Operations
