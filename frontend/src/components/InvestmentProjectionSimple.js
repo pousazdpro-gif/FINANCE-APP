@@ -152,22 +152,28 @@ const InvestmentProjectionSimple = () => {
                 <Calendar size={18} className="mr-2 text-purple-600" />
                 Durée d'Investissement
               </span>
-              <span className="text-2xl font-bold text-purple-600">
-                {years} {years === 1 ? 'an' : 'ans'}
-              </span>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                value={years}
+                onChange={(e) => setYears(Number(e.target.value) || 1)}
+                className="text-xl font-bold text-purple-600 border-2 border-purple-300 rounded px-3 py-1 w-32 text-right"
+              />
+              <span className="text-lg font-bold text-purple-600">{years === 1 ? 'an' : 'ans'}</span>
             </label>
             <input
               type="range"
               min="1"
-              max="50"
+              max="100"
               step="1"
-              value={years}
+              value={Math.min(years, 100)}
               onChange={(e) => setYears(Number(e.target.value))}
               className="w-full h-3 bg-purple-200 rounded-lg appearance-none cursor-pointer"
             />
             <div className="flex justify-between text-xs text-gray-500">
               <span>1 an</span>
-              <span>50 ans</span>
+              <span>100 ans</span>
             </div>
           </div>
 
