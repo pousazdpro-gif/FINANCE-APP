@@ -201,7 +201,20 @@ function App() {
   // Modal handlers
   const openModal = (type, data = {}) => {
     setModalType(type);
-    setModalData(data);
+    
+    // Set default values for new transactions
+    if (type === 'transaction' && !data.id) {
+      setModalData({
+        ...data,
+        type: 'expense',
+        tags: [],
+        is_recurring: false,
+        date: new Date().toISOString()
+      });
+    } else {
+      setModalData(data);
+    }
+    
     setShowModal(true);
   };
 
