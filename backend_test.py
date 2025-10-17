@@ -1885,10 +1885,11 @@ class FinanceAppTester:
             
             if response.status_code == 200:
                 updated_goal = response.json()
-                self.log(f"Updated values - target_amount: €{updated_goal.get('target_amount')}, current_amount: €{updated_goal.get('current_amount')}")
+                target_amount = updated_goal.get('target_amount') or updated_goal.get('targetAmount')
+                current_amount = updated_goal.get('current_amount') or updated_goal.get('currentAmount')
+                self.log(f"Updated values - target_amount: €{target_amount}, current_amount: €{current_amount}")
                 
                 # Verify the update worked (check both snake_case and camelCase field names)
-                current_amount = updated_goal.get('current_amount') or updated_goal.get('currentAmount')
                 if current_amount == 500.0:
                     self.log("✅ Goal current_amount successfully updated from 200€ to 500€")
                 else:
