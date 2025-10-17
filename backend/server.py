@@ -1463,8 +1463,10 @@ async def update_debt(debt_id: str, input: DebtCreate, request: Request):
     # Recalculate remaining_amount if total_amount changed
     payments = existing_debt.get('payments', [])
     total_paid = sum(p.get('amount', 0) for p in payments)
-    new_total = update_data.get('total_amount', existing_debt.get('total_amount', 0))
+    new_total = update_data.get('total_amount', existing_debt.get('total_amount', existing_debt.get('totalAmount', 0)))
     update_data['remaining_amount'] = new_total - total_paid
+    # Also update camelCase field for database compatibility
+    update_data['remainingAmount'] = new_total - total_paid
     
     result = await db.debts.update_one({"id": debt_id, "user_email": user_email}, {"$set": update_data})
     if result.matched_count == 0:
