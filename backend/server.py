@@ -1475,6 +1475,15 @@ async def add_debt_payment(debt_id: str, input: DebtPaymentCreate, request: Requ
     if not debt:
         raise HTTPException(status_code=404, detail="Debt not found")
     
+    # Apply field mapping to handle camelCase/snake_case conversion
+    debt = convert_camel_to_snake(debt, DEBT_FIELD_MAP)
+    
+    # Ensure amounts have defaults (same logic as GET endpoint)
+    if 'total_amount' not in debt:
+        debt['total_amount'] = 0
+    if 'remaining_amount' not in debt:
+        debt['remaining_amount'] = debt.get('total_amount', 0)
+    
     payment = DebtPayment(
         date=input.date,
         amount=input.amount,
