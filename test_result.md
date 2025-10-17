@@ -1514,3 +1514,78 @@ agent_communication:
       - Receivables (newly tested and verified)
       
       READY FOR PRODUCTION - All transaction linking scenarios working perfectly.
+  - agent: "testing"
+    message: |
+      🎉 DEBT AND RECEIVABLE CALCULATION FIXES TESTING COMPLETED - ALL TESTS PASSED ✅
+      
+      COMPREHENSIVE VERIFICATION OF CALCULATION FIXES:
+      
+      🔥 CRITICAL CALCULATION TESTS (6/6 SCENARIOS PASSED):
+      
+      1. ✅ SCENARIO 1: Debt Update with Total Amount Change
+         - Created debt: 1000€ total, added 200€ payment → 800€ remaining
+         - Updated total to 1500€ → correctly recalculated to 1300€ remaining (1500 - 200)
+         - Fix: Added missing Request parameter and user authentication to update_debt endpoint
+         - Fix: Added camelCase field mapping (remainingAmount) for database compatibility
+      
+      2. ✅ SCENARIO 2: Debt Payment Update  
+         - Updated payment from 200€ to 300€ → correctly recalculated to 1200€ remaining (1500 - 300)
+         - Payment update endpoint properly recalculates from total payments
+      
+      3. ✅ SCENARIO 3: Debt Payment Deletion
+         - Added second payment 150€ → 1050€ remaining (1500 - 300 - 150)
+         - Deleted first payment (300€) → correctly recalculated to 1350€ remaining (1500 - 150)
+         - Payment deletion properly recalculates remaining amount
+      
+      4. ✅ SCENARIO 4: Receivable Update with Total Amount Change
+         - Created receivable: 500€ total, added 100€ payment → 400€ remaining  
+         - Updated total to 800€ → correctly recalculated to 700€ remaining (800 - 100)
+         - Receivable calculations working with snake_case field names
+      
+      5. ✅ SCENARIO 5: Receivable Payment Update
+         - Updated payment from 100€ to 200€ → correctly recalculated to 600€ remaining (800 - 200)
+         - Receivable payment update endpoint working correctly
+      
+      6. ✅ SCENARIO 6: Receivable Payment Deletion  
+         - Added second payment 80€ → 520€ remaining (800 - 200 - 80)
+         - Deleted first payment (200€) → correctly recalculated to 720€ remaining (800 - 80)
+         - Receivable payment deletion working correctly
+      
+      🔧 CRITICAL FIXES IMPLEMENTED:
+      
+      1. ✅ Fixed update_debt endpoint:
+         - Added missing Request parameter for user authentication
+         - Added user_email verification for security
+         - Fixed camelCase/snake_case field mapping (totalAmount/remainingAmount)
+      
+      2. ✅ Fixed payment addition logic:
+         - Changed from incremental updates to full recalculation from total payments
+         - Prevents calculation drift and ensures accuracy
+         - Both debt and receivable payment additions now recalculate properly
+      
+      3. ✅ Fixed field name consistency:
+         - Debts use camelCase aliases (totalAmount, remainingAmount) 
+         - Receivables use snake_case (total_amount, remaining_amount)
+         - All endpoints now handle both field naming conventions correctly
+      
+      📊 OVERALL RESULTS: 17/17 backend tests passed (100% success rate)
+      
+      🎯 USER ISSUE RESOLUTION STATUS:
+      
+      ✅ ISSUE COMPLETELY RESOLVED: "Debt and receivable calculation issues"
+      - All remaining_amount calculations now work correctly when:
+        1. Updating debt/receivable total amounts
+        2. Updating payment amounts  
+        3. Deleting payments
+      - All scenarios tested with real data and verified accurate calculations
+      - Both debt and receivable management now fully functional
+      
+      🎉 DEBT AND RECEIVABLE CALCULATION FIXES FULLY FUNCTIONAL
+      
+      Users can now:
+      - Update debt/receivable amounts and see correct remaining balance recalculation
+      - Modify payment amounts and see accurate remaining balance updates
+      - Delete payments and see proper remaining balance adjustments
+      - All calculations are mathematically correct and persistent
+      
+      READY FOR PRODUCTION - All debt and receivable calculation scenarios working perfectly.
