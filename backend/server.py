@@ -736,8 +736,9 @@ async def create_transaction(input: TransactionCreate, request: Request):
     user = await get_current_user(request, db)
     user_email = user['email'] if user else 'anonymous'
     
-    # Log authentication status for debugging
+    # Log authentication status and input data for debugging
     logger.info(f"Creating transaction - User: {user_email}, Has Cookie: {request.cookies.get('session_token') is not None}")
+    logger.info(f"Transaction input data: {input.model_dump()}")
     
     transaction = Transaction(**input.model_dump())
     doc = transaction.model_dump()
