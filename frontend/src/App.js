@@ -2325,55 +2325,109 @@ const Modal = ({ type, data, onClose, onSave, accounts, categories, setCategorie
           )}
           {type === 'debt' && (
             <>
-              <input
-                type="text"
-                placeholder="Nom de la dette"
-                value={formData.name || ''}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Créancier"
-                value={formData.creditor || ''}
-                onChange={(e) => setFormData({ ...formData, creditor: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Montant total"
-                value={formData.total_amount || 0}
-                onChange={(e) => setFormData({ ...formData, total_amount: parseFloat(e.target.value) })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Montant restant"
-                value={formData.remaining_amount || 0}
-                onChange={(e) => setFormData({ ...formData, remaining_amount: parseFloat(e.target.value) })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Taux d'intérêt (%)"
-                value={formData.interest_rate || 0}
-                onChange={(e) => setFormData({ ...formData, interest_rate: parseFloat(e.target.value) })}
-                className="w-full px-3 py-2 border rounded-lg"
-              />
-              <input
-                type="date"
-                placeholder="Date d'échéance"
-                value={formData.due_date ? formData.due_date.split('T')[0] : ''}
-                onChange={(e) => setFormData({ ...formData, due_date: e.target.value ? new Date(e.target.value).toISOString() : null })}
-                className="w-full px-3 py-2 border rounded-lg"
-              />
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Nom de la dette *
+                  <span className="text-xs text-gray-500 ml-2">(Ex: Prêt voiture, Carte de crédit)</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex: Prêt immobilier"
+                  value={formData.name || ''}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  🏦 Créancier *
+                  <span className="text-xs text-gray-500 ml-2">(Qui vous prête l'argent?)</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex: Banque Nationale"
+                  value={formData.creditor || ''}
+                  onChange={(e) => setFormData({ ...formData, creditor: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  💰 Montant total emprunté *
+                  <span className="text-xs text-gray-500 ml-2">(Montant initial de la dette)</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Ex: 50000"
+                  value={formData.total_amount || ''}
+                  onChange={(e) => {
+                    const total = parseFloat(e.target.value) || 0;
+                    setFormData({ 
+                      ...formData, 
+                      total_amount: total,
+                      remaining_amount: formData.remaining_amount || total
+                    });
+                  }}
+                  className="w-full px-3 py-2 border rounded-lg text-lg font-semibold"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  💳 Montant restant à rembourser *
+                  <span className="text-xs text-gray-500 ml-2">(Combien devez-vous encore?)</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Ex: 35000"
+                  value={formData.remaining_amount || ''}
+                  onChange={(e) => setFormData({ ...formData, remaining_amount: parseFloat(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border rounded-lg text-lg font-semibold text-red-600"
+                  required
+                />
+                {formData.total_amount > 0 && formData.remaining_amount >= 0 && (
+                  <div className="text-xs bg-green-50 p-2 rounded">
+                    ✅ Déjà remboursé: {(formData.total_amount - formData.remaining_amount).toFixed(2)} €
+                    <br />
+                    📊 Progression: {((formData.total_amount - formData.remaining_amount) / formData.total_amount * 100).toFixed(1)}%
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  📈 Taux d'intérêt annuel (optionnel)
+                  <span className="text-xs text-gray-500 ml-2">(En %)</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Ex: 3.5"
+                  value={formData.interest_rate || 0}
+                  onChange={(e) => setFormData({ ...formData, interest_rate: parseFloat(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  📅 Date d'échéance (optionnel)
+                  <span className="text-xs text-gray-500 ml-2">(Quand finissez-vous de rembourser?)</span>
+                </label>
+                <input
+                  type="date"
+                  value={formData.due_date ? formData.due_date.split('T')[0] : ''}
+                  onChange={(e) => setFormData({ ...formData, due_date: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
             </>
           )}
           {type === 'receivable' && (
