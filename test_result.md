@@ -1242,15 +1242,18 @@ agent_communication:
 backend:
   - task: "Transaction Linking to Debts and Receivables"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Backend already has endpoints for adding payments to debts (debtsAPI.addPayment) and receivables (receivablesAPI.addPayment). These will be used for linking transactions."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE TESTING COMPLETED: Transaction linking to debts and receivables working perfectly. All tests passed (7/7): ✅ Debt creation working correctly ✅ Receivable creation working correctly ✅ Transaction creation working correctly ✅ POST /api/debts/{id}/payments - Payment added successfully, remaining amount correctly updated from €1000 to €800 ✅ POST /api/receivables/{id}/payments - Payment added successfully, remaining amount correctly updated from €500 to €350 ✅ Transaction update with linked_debt_id field - Successfully linked and persisted ✅ Transaction update with linked_receivable_id field - Successfully linked and persisted. Fixed field mapping issues between camelCase (debts) and snake_case (receivables) models. Added missing linked_debt_id and linked_receivable_id fields to Transaction model. All payment calculations and field persistence working correctly."
 
 frontend:
   - task: "LinkTransactionModal - Support Multiple Entity Types"
