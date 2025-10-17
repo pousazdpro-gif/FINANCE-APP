@@ -1448,9 +1448,20 @@ async def get_debts(request: Request):
 
 @api_router.put("/debts/{debt_id}", response_model=Debt)
 async def update_debt(debt_id: str, input: DebtCreate):
+    # Get existing debt to check for payments
+    existing_debt = await db.debts.find_one({"id": debt_id}, {"_id": 0})
+    if not existing_debt:
+        raise HTTPException(status_code=404, detail="Debt not found")
+    
     update_data = input.model_dump()
     if update_data.get('due_date'):
         update_data['due_date'] = update_data['due_date'].isoformat()
+    
+    # Recalculate remaining_amount if total_amount changed
+    payments = existing_debt.get('payments', [])
+    total_paid = sum(p.get('amount', 0) for p in payments)
+    new_total = update_data.get('total_amount', existing_debt.get('total_amount', 0))
+    update_data['remaining_amount'] = new_total - total_paid
     
     result = await db.debts.update_one({"id": debt_id}, {"$set": update_data})
     if result.matched_count == 0:
