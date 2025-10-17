@@ -1158,6 +1158,274 @@ class FinanceAppTester:
             self.log(f"❌ Shopping list download error: {str(e)}", "ERROR")
             return False
 
+    def test_transaction_linking_to_debts_and_receivables(self):
+        """Test transaction linking functionality for debts and receivables - CRITICAL TEST"""
+        self.log("=== Testing Transaction Linking to Debts and Receivables - CRITICAL TEST ===")
+        
+        if not self.test_account_id:
+            self.log("❌ No test account available for transaction linking testing", "ERROR")
+            return False
+        
+        # Test data storage
+        test_debt_id = None
+        test_receivable_id = None
+        test_transaction_id = None
+        
+        try:
+            # 1. CREATE Test Debt
+            self.log("Step 1: Creating test debt")
+            debt_data = {
+                "name": "Test Loan for Transaction Linking",
+                "total_amount": 1000.0,
+                "remaining_amount": 1000.0,
+                "interest_rate": 5.0,
+                "creditor": "Test Bank",
+                "due_date": "2025-12-31T00:00:00Z",
+                "account_id": self.test_account_id
+            }
+            
+            response = self.session.post(f"{API_BASE}/debts", json=debt_data)
+            self.log(f"Debt creation response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                debt = response.json()
+                test_debt_id = debt['id']
+                self.log(f"✅ Test debt created: {debt['name']} (ID: {test_debt_id})")
+            else:
+                self.log(f"❌ Debt creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # 2. CREATE Test Receivable
+            self.log("Step 2: Creating test receivable")
+            receivable_data = {
+                "name": "Test Invoice for Transaction Linking",
+                "total_amount": 500.0,
+                "remaining_amount": 500.0,
+                "debtor": "Test Client",
+                "due_date": "2025-11-30T00:00:00Z",
+                "account_id": self.test_account_id
+            }
+            
+            response = self.session.post(f"{API_BASE}/receivables", json=receivable_data)
+            self.log(f"Receivable creation response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                receivable = response.json()
+                test_receivable_id = receivable['id']
+                self.log(f"✅ Test receivable created: {receivable['name']} (ID: {test_receivable_id})")
+            else:
+                self.log(f"❌ Receivable creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # 3. CREATE Test Transaction
+            self.log("Step 3: Creating test transaction")
+            transaction_data = {
+                "account_id": self.test_account_id,
+                "type": "expense",
+                "amount": 200.0,
+                "category": "Debt Payment",
+                "description": "Test transaction for linking",
+                "date": "2025-10-17T12:00:00Z"
+            }
+            
+            response = self.session.post(f"{API_BASE}/transactions", json=transaction_data)
+            self.log(f"Transaction creation response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                transaction = response.json()
+                test_transaction_id = transaction['id']
+                self.log(f"✅ Test transaction created: {transaction['description']} (ID: {test_transaction_id})")
+            else:
+                self.log(f"❌ Transaction creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # 4. TEST Debt Payment Addition (CRITICAL)
+            self.log("Step 4: Testing POST /api/debts/{id}/payments - CRITICAL")
+            debt_payment_data = {
+                "date": "2025-10-17T12:00:00Z",
+                "amount": 200.0,
+                "notes": "Payment from linked transaction"
+            }
+            
+            response = self.session.post(f"{API_BASE}/debts/{test_debt_id}/payments", json=debt_payment_data)
+            self.log(f"Debt payment addition response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                updated_debt = response.json()
+                payments = updated_debt.get('payments', [])
+                
+                if len(payments) > 0:
+                    payment = payments[-1]  # Get the last payment
+                    self.log(f"✅ Payment added to debt successfully: €{payment.get('amount')} on {payment.get('date')}")
+                    
+                    # Verify remaining amount is updated
+                    expected_remaining = 1000.0 - 200.0  # 800.0
+                    actual_remaining = updated_debt.get('remaining_amount', 0)
+                    if abs(actual_remaining - expected_remaining) < 0.01:
+                        self.log(f"✅ Debt remaining amount correctly updated: €{actual_remaining}")
+                    else:
+                        self.log(f"❌ Debt remaining amount incorrect: expected €{expected_remaining}, got €{actual_remaining}", "ERROR")
+                        return False
+                        
+                    # Verify payment fields
+                    required_fields = ['date', 'amount', 'notes']
+                    missing_fields = [field for field in required_fields if field not in payment]
+                    if missing_fields:
+                        self.log(f"❌ Missing payment fields: {missing_fields}", "ERROR")
+                        return False
+                    else:
+                        self.log("✅ All payment fields present and correct")
+                        
+                else:
+                    self.log("❌ No payments found in updated debt", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Debt payment addition failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # 5. TEST Receivable Payment Addition (CRITICAL)
+            self.log("Step 5: Testing POST /api/receivables/{id}/payments - CRITICAL")
+            receivable_payment_data = {
+                "date": "2025-10-17T12:00:00Z",
+                "amount": 150.0,
+                "notes": "Payment from linked transaction"
+            }
+            
+            response = self.session.post(f"{API_BASE}/receivables/{test_receivable_id}/payments", json=receivable_payment_data)
+            self.log(f"Receivable payment addition response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                updated_receivable = response.json()
+                payments = updated_receivable.get('payments', [])
+                
+                if len(payments) > 0:
+                    payment = payments[-1]  # Get the last payment
+                    self.log(f"✅ Payment added to receivable successfully: €{payment.get('amount')} on {payment.get('date')}")
+                    
+                    # Verify remaining amount is updated
+                    expected_remaining = 500.0 - 150.0  # 350.0
+                    actual_remaining = updated_receivable.get('remaining_amount', 0)
+                    if abs(actual_remaining - expected_remaining) < 0.01:
+                        self.log(f"✅ Receivable remaining amount correctly updated: €{actual_remaining}")
+                    else:
+                        self.log(f"❌ Receivable remaining amount incorrect: expected €{expected_remaining}, got €{actual_remaining}", "ERROR")
+                        return False
+                        
+                    # Verify payment fields
+                    required_fields = ['date', 'amount', 'notes']
+                    missing_fields = [field for field in required_fields if field not in payment]
+                    if missing_fields:
+                        self.log(f"❌ Missing payment fields: {missing_fields}", "ERROR")
+                        return False
+                    else:
+                        self.log("✅ All payment fields present and correct")
+                        
+                else:
+                    self.log("❌ No payments found in updated receivable", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Receivable payment addition failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # 6. TEST Transaction Update with Linked Fields
+            self.log("Step 6: Testing transaction update with linked debt/receivable fields")
+            
+            # Update transaction with linked_debt_id
+            update_data_debt = {
+                "account_id": self.test_account_id,
+                "type": "expense",
+                "amount": 200.0,
+                "category": "Debt Payment",
+                "description": "Test transaction linked to debt",
+                "date": "2025-10-17T12:00:00Z",
+                "linked_debt_id": test_debt_id
+            }
+            
+            response = self.session.put(f"{API_BASE}/transactions/{test_transaction_id}", json=update_data_debt)
+            self.log(f"Transaction update with linked_debt_id response: {response.status_code}")
+            
+            if response.status_code == 200:
+                updated_transaction = response.json()
+                if updated_transaction.get('linked_debt_id') == test_debt_id:
+                    self.log(f"✅ Transaction successfully linked to debt: {test_debt_id}")
+                else:
+                    self.log(f"❌ Transaction debt linking failed: expected {test_debt_id}, got {updated_transaction.get('linked_debt_id')}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Transaction update with debt link failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # Update transaction with linked_receivable_id
+            update_data_receivable = {
+                "account_id": self.test_account_id,
+                "type": "income",
+                "amount": 150.0,
+                "category": "Receivable Payment",
+                "description": "Test transaction linked to receivable",
+                "date": "2025-10-17T12:00:00Z",
+                "linked_receivable_id": test_receivable_id
+            }
+            
+            response = self.session.put(f"{API_BASE}/transactions/{test_transaction_id}", json=update_data_receivable)
+            self.log(f"Transaction update with linked_receivable_id response: {response.status_code}")
+            
+            if response.status_code == 200:
+                updated_transaction = response.json()
+                if updated_transaction.get('linked_receivable_id') == test_receivable_id:
+                    self.log(f"✅ Transaction successfully linked to receivable: {test_receivable_id}")
+                else:
+                    self.log(f"❌ Transaction receivable linking failed: expected {test_receivable_id}, got {updated_transaction.get('linked_receivable_id')}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Transaction update with receivable link failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # 7. VERIFY Transaction Persistence
+            self.log("Step 7: Verifying transaction linked fields persist")
+            response = self.session.get(f"{API_BASE}/transactions/{test_transaction_id}")
+            
+            if response.status_code == 200:
+                retrieved_transaction = response.json()
+                if retrieved_transaction.get('linked_receivable_id') == test_receivable_id:
+                    self.log("✅ Transaction linked fields persist correctly")
+                else:
+                    self.log("❌ Transaction linked fields do not persist", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Transaction retrieval failed: {response.status_code}", "ERROR")
+                return False
+            
+            self.log("✅ ALL TRANSACTION LINKING TESTS PASSED")
+            return True
+            
+        except Exception as e:
+            self.log(f"❌ Transaction linking test error: {str(e)}", "ERROR")
+            return False
+            
+        finally:
+            # Cleanup test data
+            self.log("Cleaning up test data...")
+            if test_transaction_id:
+                try:
+                    self.session.delete(f"{API_BASE}/transactions/{test_transaction_id}")
+                    self.log("✅ Test transaction cleaned up")
+                except:
+                    self.log("⚠️ Test transaction cleanup failed")
+            
+            if test_debt_id:
+                try:
+                    self.session.delete(f"{API_BASE}/debts/{test_debt_id}")
+                    self.log("✅ Test debt cleaned up")
+                except:
+                    self.log("⚠️ Test debt cleanup failed")
+            
+            if test_receivable_id:
+                try:
+                    self.session.delete(f"{API_BASE}/receivables/{test_receivable_id}")
+                    self.log("✅ Test receivable cleaned up")
+                except:
+                    self.log("⚠️ Test receivable cleanup failed")
+
     def run_all_tests(self):
         """Run all backend tests"""
         self.log(f"Starting FinanceApp Backend Tests - CRITICAL AUTHENTICATION FIX TESTING")
