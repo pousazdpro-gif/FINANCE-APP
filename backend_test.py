@@ -1223,7 +1223,10 @@ class FinanceAppTester:
             # 13. Test Investment CRUD (existing)
             results['investment_crud'] = self.test_investment_crud()
             
-            # 14. Test User Isolation (existing)
+            # 14. Test Investment Operations Update (THE MAIN FIX)
+            results['investment_operations_update'] = self.test_investment_operations_update()
+            
+            # 15. Test User Isolation (existing)
             if results['account_creation']:
                 results['user_isolation'] = self.test_user_isolation()
             
