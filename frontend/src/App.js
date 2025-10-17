@@ -1391,7 +1391,11 @@ const GoalsView = ({ goals, openModal, setGoals, onViewDetail }) => (
         const percentage = Math.min((currentAmount / targetAmount) * 100, 100);
         
         return (
-        <div key={goal.id} className="bg-white p-6 rounded-lg shadow">
+        <div 
+          key={goal.id} 
+          className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => onViewDetail && onViewDetail(goal)}
+        >
           <div className="flex justify-between items-start mb-4">
             <div className="flex-1">
               <div className="font-semibold text-lg">{goal.name}</div>
