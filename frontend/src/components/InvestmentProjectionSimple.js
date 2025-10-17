@@ -342,7 +342,9 @@ const InvestmentProjectionSimple = () => {
             </div>
             <div className="flex justify-between">
               <span>Gains annuels (moyenne):</span>
-              <span className="font-semibold">+{(finalData.gains / years).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €</span>
+              <span className="font-semibold">
+                +{years > 0 ? (finalData.gains / years).toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : '0'} €
+              </span>
             </div>
             <div className="flex justify-between">
               <span>Valeur à 10 ans:</span>
