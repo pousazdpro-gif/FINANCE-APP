@@ -1192,6 +1192,7 @@ class FinanceAppTester:
                 test_debt_id = debt['id']
                 self.log(f"✅ Test debt created: {debt['name']} (ID: {test_debt_id})")
                 self.log(f"DEBUG: Created debt - total_amount: {debt.get('total_amount')}, remaining_amount: {debt.get('remaining_amount')}")
+                self.log(f"DEBUG: Created debt (camelCase) - totalAmount: {debt.get('totalAmount')}, remainingAmount: {debt.get('remainingAmount')}")
             else:
                 self.log(f"❌ Debt creation failed: {response.status_code} - {response.text}", "ERROR")
                 return False
