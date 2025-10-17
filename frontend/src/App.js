@@ -11,7 +11,7 @@ import { Pie, Bar, Line } from 'react-chartjs-2';
 import { 
   accountsAPI, transactionsAPI, investmentsAPI, goalsAPI, debtsAPI, 
   receivablesAPI, productsAPI, shoppingListsAPI, bankConnectionsAPI, 
-  dashboardAPI, dataAPI, categoriesAPI, searchAPI
+  dashboardAPI, dataAPI, categoriesAPI, searchAPI, preferencesAPI
 } from './services/api';
 import AuthButton from './components/AuthButton';
 import LoginRequired from './components/LoginRequired';
