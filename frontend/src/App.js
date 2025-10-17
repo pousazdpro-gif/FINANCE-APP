@@ -416,7 +416,7 @@ function App() {
               {currentView === 'shopping' && <ShoppingView products={products} shoppingLists={shoppingLists} openModal={openModal} setProducts={setProducts} setShoppingLists={setShoppingLists} />}
               {currentView === 'banks' && <BanksView bankConnections={bankConnections} accounts={accounts} openModal={openModal} setBankConnections={setBankConnections} />}
               {currentView === 'tasks' && <EisenhowerMatrix />}
-              {currentView === 'ocr' && <AdvancedOCRScanner onTransactionsImported={async (txns) => {
+              {currentView === 'ocr' && <GranularOCRScanner onTransactionsImported={async (txns) => {
                 console.log('Importing transactions:', txns);
                 // Importer toutes les transactions
                 for (const txn of txns) {
