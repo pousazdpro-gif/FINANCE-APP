@@ -1215,6 +1215,8 @@ class FinanceAppTester:
                 receivable = response.json()
                 test_receivable_id = receivable['id']
                 self.log(f"✅ Test receivable created: {receivable['name']} (ID: {test_receivable_id})")
+                self.log(f"DEBUG: Created receivable - total_amount: {receivable.get('total_amount')}, remaining_amount: {receivable.get('remaining_amount')}")
+                self.log(f"DEBUG: Created receivable (camelCase) - totalAmount: {receivable.get('totalAmount')}, remainingAmount: {receivable.get('remainingAmount')}")
             else:
                 self.log(f"❌ Receivable creation failed: {response.status_code} - {response.text}", "ERROR")
                 return False
