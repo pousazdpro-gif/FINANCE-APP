@@ -651,9 +651,9 @@ const DashboardView = ({ data, accounts, transactions }) => {
   if (!data) return <div>Chargement des données...</div>;
 
   const pieData = {
-    labels: accounts.map(acc => acc.name),
+    labels: (accounts || []).map(acc => acc.name),
     datasets: [{
-      data: accounts.map(acc => acc.current_balance),
+      data: (accounts || []).map(acc => acc.current_balance || 0),
       backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
     }],
   };
