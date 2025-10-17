@@ -1445,9 +1445,9 @@ const DebtsView = ({ debts, openModal, setDebts, onViewDetail }) => (
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {debts.map((debt) => {
-        const totalAmount = debt.total_amount || 0;
-        const remainingAmount = debt.remaining_amount || totalAmount;
-        const interestRate = debt.interest_rate || 0;
+        const totalAmount = debt.totalAmount || debt.total_amount || 0;
+        const remainingAmount = debt.remainingAmount || debt.remaining_amount || totalAmount;
+        const interestRate = debt.interestRate || debt.interest_rate || 0;
         const progressPercent = totalAmount > 0 ? ((totalAmount - remainingAmount) / totalAmount * 100) : 0;
         
         return (
