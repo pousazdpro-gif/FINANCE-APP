@@ -636,6 +636,8 @@ function App() {
           onUpdate={async (id, data) => {
             await receivablesAPI.update(id, data);
             await loadAllData();
+            const updated = await receivablesAPI.getAll();
+            setSelectedReceivable(updated.data.find(r => r.id === id));
           }}
           onAddPayment={async (id, payment) => {
             await receivablesAPI.addPayment(id, payment);
