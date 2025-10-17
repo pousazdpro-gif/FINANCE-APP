@@ -715,19 +715,19 @@ const DashboardView = ({ data, accounts, transactions }) => {
       </div>
 
       {/* Investment Performance */}
-      {data.total_invested > 0 && (
+      {(data.total_invested || 0) > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 rounded-lg shadow-lg">
             <div className="text-sm opacity-90">Capital Investi</div>
-            <div className="text-2xl font-bold mt-1">{data.total_invested.toFixed(2)} €</div>
+            <div className="text-2xl font-bold mt-1">{(data.total_invested || 0).toFixed(2)} €</div>
           </div>
-          <div className={`bg-gradient-to-r ${data.investment_gains >= 0 ? 'from-green-500 to-emerald-600' : 'from-red-500 to-rose-600'} text-white p-6 rounded-lg shadow-lg`}>
+          <div className={`bg-gradient-to-r ${(data.investment_gains || 0) >= 0 ? 'from-green-500 to-emerald-600' : 'from-red-500 to-rose-600'} text-white p-6 rounded-lg shadow-lg`}>
             <div className="text-sm opacity-90">Plus/Moins-Value</div>
-            <div className="text-2xl font-bold mt-1">{data.investment_gains.toFixed(2)} €</div>
+            <div className="text-2xl font-bold mt-1">{(data.investment_gains || 0).toFixed(2)} €</div>
           </div>
-          <div className={`bg-gradient-to-r ${data.investment_gains_percent >= 0 ? 'from-green-500 to-emerald-600' : 'from-red-500 to-rose-600'} text-white p-6 rounded-lg shadow-lg`}>
+          <div className={`bg-gradient-to-r ${(data.investment_gains_percent || 0) >= 0 ? 'from-green-500 to-emerald-600' : 'from-red-500 to-rose-600'} text-white p-6 rounded-lg shadow-lg`}>
             <div className="text-sm opacity-90">Rendement</div>
-            <div className="text-2xl font-bold mt-1">{data.investment_gains_percent.toFixed(2)} %</div>
+            <div className="text-2xl font-bold mt-1">{(data.investment_gains_percent || 0).toFixed(2)} %</div>
           </div>
         </div>
       )}
