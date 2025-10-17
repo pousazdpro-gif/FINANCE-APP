@@ -602,6 +602,8 @@ function App() {
           onUpdate={async (id, data) => {
             await debtsAPI.update(id, data);
             await loadAllData();
+            const updated = await debtsAPI.getAll();
+            setSelectedDebt(updated.data.find(d => d.id === id));
           }}
           onAddPayment={async (id, payment) => {
             await debtsAPI.addPayment(id, payment);
