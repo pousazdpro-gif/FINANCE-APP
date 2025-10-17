@@ -2138,6 +2138,354 @@ class FinanceAppTester:
         self.log("✅ RECEIVABLE MODIFICATION TEST PASSED")
         return True
 
+    def test_account_balance_calculation(self):
+        """Test account balance calculation fix - THE MAIN FIX"""
+        self.log("=== Testing Account Balance Calculation Fix - THE MAIN FIX ===")
+        
+        # Test 1: Account Balance Calculation with initial balance + income - expenses
+        self.log("Test 1: Account Balance Calculation (initial_balance + income - expenses)")
+        
+        # Create account with initial balance 1000€
+        account_data = {
+            "name": "Balance Test Account",
+            "type": "checking",
+            "currency": "EUR",
+            "initial_balance": 1000.0,
+            "icon": "wallet",
+            "color": "#4f46e5"
+        }
+        
+        test_account_id = None
+        try:
+            response = self.session.post(f"{API_BASE}/accounts", json=account_data)
+            self.log(f"Balance test account creation response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                account = response.json()
+                test_account_id = account['id']
+                self.log(f"✅ Balance test account created: {account['name']} (ID: {test_account_id})")
+                self.log(f"Initial balance: €{account.get('initial_balance', 0)}")
+            else:
+                self.log(f"❌ Balance test account creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Balance test account creation error: {str(e)}", "ERROR")
+            return False
+        
+        # Create 3 income transactions: +500€, +300€, +200€ (total +1000€)
+        income_transactions = [
+            {"amount": 500.0, "description": "Income 1"},
+            {"amount": 300.0, "description": "Income 2"},
+            {"amount": 200.0, "description": "Income 3"}
+        ]
+        
+        created_transaction_ids = []
+        
+        self.log("Creating 3 income transactions: +500€, +300€, +200€")
+        for i, income in enumerate(income_transactions):
+            transaction_data = {
+                "account_id": test_account_id,
+                "type": "income",
+                "amount": income["amount"],
+                "category": "Salary",
+                "description": income["description"],
+                "date": f"2025-10-{17+i}T10:00:00Z"
+            }
+            
+            try:
+                response = self.session.post(f"{API_BASE}/transactions", json=transaction_data)
+                if response.status_code in [200, 201]:
+                    transaction = response.json()
+                    created_transaction_ids.append(transaction['id'])
+                    self.log(f"✅ Income transaction created: €{income['amount']} - {income['description']}")
+                else:
+                    self.log(f"❌ Income transaction creation failed: {response.status_code}", "ERROR")
+                    return False
+            except Exception as e:
+                self.log(f"❌ Income transaction creation error: {str(e)}", "ERROR")
+                return False
+        
+        # Create 2 expense transactions: -150€, -250€ (total -400€)
+        expense_transactions = [
+            {"amount": 150.0, "description": "Expense 1"},
+            {"amount": 250.0, "description": "Expense 2"}
+        ]
+        
+        self.log("Creating 2 expense transactions: -150€, -250€")
+        for i, expense in enumerate(expense_transactions):
+            transaction_data = {
+                "account_id": test_account_id,
+                "type": "expense",
+                "amount": expense["amount"],
+                "category": "Groceries",
+                "description": expense["description"],
+                "date": f"2025-10-{20+i}T10:00:00Z"
+            }
+            
+            try:
+                response = self.session.post(f"{API_BASE}/transactions", json=transaction_data)
+                if response.status_code in [200, 201]:
+                    transaction = response.json()
+                    created_transaction_ids.append(transaction['id'])
+                    self.log(f"✅ Expense transaction created: €{expense['amount']} - {expense['description']}")
+                else:
+                    self.log(f"❌ Expense transaction creation failed: {response.status_code}", "ERROR")
+                    return False
+            except Exception as e:
+                self.log(f"❌ Expense transaction creation error: {str(e)}", "ERROR")
+                return False
+        
+        # GET /api/accounts and verify current_balance = 1000 + 1000 - 400 = 1600€
+        self.log("Testing GET /api/accounts - verifying balance calculation")
+        try:
+            response = self.session.get(f"{API_BASE}/accounts")
+            self.log(f"Accounts list response: {response.status_code}")
+            
+            if response.status_code == 200:
+                accounts = response.json()
+                test_account = next((acc for acc in accounts if acc['id'] == test_account_id), None)
+                
+                if test_account:
+                    initial_balance = test_account.get('initial_balance', 0)
+                    current_balance = test_account.get('current_balance', 0)
+                    expected_balance = 1000.0 + 1000.0 - 400.0  # 1600€
+                    
+                    self.log(f"Account balance details:")
+                    self.log(f"  Initial balance: €{initial_balance}")
+                    self.log(f"  Current balance: €{current_balance}")
+                    self.log(f"  Expected balance: €{expected_balance}")
+                    
+                    if abs(current_balance - expected_balance) < 0.01:
+                        self.log(f"✅ Account balance correctly calculated: €{current_balance}")
+                    else:
+                        self.log(f"❌ Account balance incorrect: expected €{expected_balance}, got €{current_balance}", "ERROR")
+                        return False
+                else:
+                    self.log("❌ Test account not found in accounts list", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Accounts list failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Accounts list error: {str(e)}", "ERROR")
+            return False
+        
+        # Test 2: Account Balance Updates After Transaction Changes
+        self.log("Test 2: Account Balance Updates After Transaction Changes")
+        
+        # Add a new expense transaction: -100€
+        self.log("Adding new expense transaction: -100€")
+        new_expense_data = {
+            "account_id": test_account_id,
+            "type": "expense",
+            "amount": 100.0,
+            "category": "Transport",
+            "description": "New expense transaction",
+            "date": "2025-10-22T10:00:00Z"
+        }
+        
+        try:
+            response = self.session.post(f"{API_BASE}/transactions", json=new_expense_data)
+            if response.status_code in [200, 201]:
+                transaction = response.json()
+                created_transaction_ids.append(transaction['id'])
+                self.log(f"✅ New expense transaction created: €{new_expense_data['amount']}")
+            else:
+                self.log(f"❌ New expense transaction creation failed: {response.status_code}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ New expense transaction creation error: {str(e)}", "ERROR")
+            return False
+        
+        # GET /api/accounts and verify current_balance = 1600 - 100 = 1500€
+        self.log("Verifying updated balance after new transaction")
+        try:
+            response = self.session.get(f"{API_BASE}/accounts")
+            if response.status_code == 200:
+                accounts = response.json()
+                test_account = next((acc for acc in accounts if acc['id'] == test_account_id), None)
+                
+                if test_account:
+                    current_balance = test_account.get('current_balance', 0)
+                    expected_balance = 1600.0 - 100.0  # 1500€
+                    
+                    self.log(f"Updated balance: €{current_balance} (expected: €{expected_balance})")
+                    
+                    if abs(current_balance - expected_balance) < 0.01:
+                        self.log(f"✅ Account balance correctly updated after new transaction: €{current_balance}")
+                    else:
+                        self.log(f"❌ Account balance update incorrect: expected €{expected_balance}, got €{current_balance}", "ERROR")
+                        return False
+                else:
+                    self.log("❌ Test account not found in accounts list", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Accounts list failed: {response.status_code}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Accounts list error: {str(e)}", "ERROR")
+            return False
+        
+        # Test 3: Multiple Accounts
+        self.log("Test 3: Multiple Accounts Balance Calculation")
+        
+        # Create Account A (initial 500€)
+        account_a_data = {
+            "name": "Account A",
+            "type": "checking",
+            "currency": "EUR",
+            "initial_balance": 500.0,
+            "icon": "wallet",
+            "color": "#10b981"
+        }
+        
+        account_a_id = None
+        try:
+            response = self.session.post(f"{API_BASE}/accounts", json=account_a_data)
+            if response.status_code in [200, 201]:
+                account = response.json()
+                account_a_id = account['id']
+                self.log(f"✅ Account A created: €{account.get('initial_balance', 0)} initial balance")
+            else:
+                self.log(f"❌ Account A creation failed: {response.status_code}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Account A creation error: {str(e)}", "ERROR")
+            return False
+        
+        # Create Account B (initial 1000€)
+        account_b_data = {
+            "name": "Account B",
+            "type": "savings",
+            "currency": "EUR",
+            "initial_balance": 1000.0,
+            "icon": "piggy-bank",
+            "color": "#f59e0b"
+        }
+        
+        account_b_id = None
+        try:
+            response = self.session.post(f"{API_BASE}/accounts", json=account_b_data)
+            if response.status_code in [200, 201]:
+                account = response.json()
+                account_b_id = account['id']
+                self.log(f"✅ Account B created: €{account.get('initial_balance', 0)} initial balance")
+            else:
+                self.log(f"❌ Account B creation failed: {response.status_code}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Account B creation error: {str(e)}", "ERROR")
+            return False
+        
+        # Add transaction to Account A: +200€ income
+        self.log("Adding +200€ income to Account A")
+        account_a_transaction = {
+            "account_id": account_a_id,
+            "type": "income",
+            "amount": 200.0,
+            "category": "Bonus",
+            "description": "Account A income",
+            "date": "2025-10-23T10:00:00Z"
+        }
+        
+        try:
+            response = self.session.post(f"{API_BASE}/transactions", json=account_a_transaction)
+            if response.status_code in [200, 201]:
+                transaction = response.json()
+                created_transaction_ids.append(transaction['id'])
+                self.log(f"✅ Account A transaction created: +€{account_a_transaction['amount']}")
+            else:
+                self.log(f"❌ Account A transaction creation failed: {response.status_code}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Account A transaction creation error: {str(e)}", "ERROR")
+            return False
+        
+        # Add transaction to Account B: -150€ expense
+        self.log("Adding -150€ expense to Account B")
+        account_b_transaction = {
+            "account_id": account_b_id,
+            "type": "expense",
+            "amount": 150.0,
+            "category": "Shopping",
+            "description": "Account B expense",
+            "date": "2025-10-23T11:00:00Z"
+        }
+        
+        try:
+            response = self.session.post(f"{API_BASE}/transactions", json=account_b_transaction)
+            if response.status_code in [200, 201]:
+                transaction = response.json()
+                created_transaction_ids.append(transaction['id'])
+                self.log(f"✅ Account B transaction created: -€{account_b_transaction['amount']}")
+            else:
+                self.log(f"❌ Account B transaction creation failed: {response.status_code}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Account B transaction creation error: {str(e)}", "ERROR")
+            return False
+        
+        # Verify Account A balance = 500 + 200 = 700€ and Account B balance = 1000 - 150 = 850€
+        self.log("Verifying multiple accounts balances")
+        try:
+            response = self.session.get(f"{API_BASE}/accounts")
+            if response.status_code == 200:
+                accounts = response.json()
+                
+                account_a = next((acc for acc in accounts if acc['id'] == account_a_id), None)
+                account_b = next((acc for acc in accounts if acc['id'] == account_b_id), None)
+                
+                if account_a and account_b:
+                    account_a_balance = account_a.get('current_balance', 0)
+                    account_b_balance = account_b.get('current_balance', 0)
+                    
+                    expected_a_balance = 500.0 + 200.0  # 700€
+                    expected_b_balance = 1000.0 - 150.0  # 850€
+                    
+                    self.log(f"Account A balance: €{account_a_balance} (expected: €{expected_a_balance})")
+                    self.log(f"Account B balance: €{account_b_balance} (expected: €{expected_b_balance})")
+                    
+                    if (abs(account_a_balance - expected_a_balance) < 0.01 and 
+                        abs(account_b_balance - expected_b_balance) < 0.01):
+                        self.log(f"✅ Multiple accounts balances correctly calculated")
+                        self.log(f"   Account A: €{account_a_balance} ✓")
+                        self.log(f"   Account B: €{account_b_balance} ✓")
+                    else:
+                        self.log(f"❌ Multiple accounts balances incorrect", "ERROR")
+                        return False
+                else:
+                    self.log("❌ Test accounts not found in accounts list", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Accounts list failed: {response.status_code}", "ERROR")
+                return False
+        except Exception as e:
+            self.log(f"❌ Multiple accounts verification error: {str(e)}", "ERROR")
+            return False
+        
+        # Cleanup all created transactions and accounts
+        self.log("Cleaning up test data")
+        
+        # Delete transactions
+        for transaction_id in created_transaction_ids:
+            try:
+                self.session.delete(f"{API_BASE}/transactions/{transaction_id}")
+            except:
+                pass
+        
+        # Delete accounts
+        for account_id in [test_account_id, account_a_id, account_b_id]:
+            if account_id:
+                try:
+                    self.session.delete(f"{API_BASE}/accounts/{account_id}")
+                except:
+                    pass
+        
+        self.log("✅ ALL ACCOUNT BALANCE CALCULATION TESTS PASSED")
+        return True
+
     def run_all_tests(self):
         """Run all backend tests"""
         self.log(f"Starting FinanceApp Backend Tests - CRITICAL AUTHENTICATION FIX TESTING")
