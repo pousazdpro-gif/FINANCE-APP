@@ -1262,6 +1262,7 @@ class FinanceAppTester:
                     
                     # Debug: Show the full debt object
                     self.log(f"DEBUG: Updated debt - total_amount: {updated_debt.get('total_amount')}, remaining_amount: {updated_debt.get('remaining_amount')}")
+                    self.log(f"DEBUG: Updated debt (camelCase) - totalAmount: {updated_debt.get('totalAmount')}, remainingAmount: {updated_debt.get('remainingAmount')}")
                     
                     # Verify remaining amount is updated
                     expected_remaining = 1000.0 - 200.0  # 800.0
