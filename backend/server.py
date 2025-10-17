@@ -1598,9 +1598,14 @@ async def delete_debt_payment(debt_id: str, payment_index: int, request: Request
     
     payments.pop(payment_index)
     
+    # Recalculate remaining amount
+    total_amount = debt.get('total_amount', debt.get('totalAmount', 0))
+    total_paid = sum(p.get('amount', 0) for p in payments)
+    new_remaining = total_amount - total_paid
+    
     await db.debts.update_one(
         {"id": debt_id, "user_email": user_email},
-        {"$set": {"payments": payments}}
+        {"$set": {"payments": payments, "remainingAmount": new_remaining}}
     )
     
     return {"message": "Payment deleted successfully"}
