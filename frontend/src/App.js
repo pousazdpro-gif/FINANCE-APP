@@ -537,6 +537,8 @@ function App() {
           onUpdate={async (id, data) => {
             await investmentsAPI.update(id, data);
             await loadAllData();
+            const updated = await investmentsAPI.getAll();
+            setSelectedInvestment(updated.data.find(inv => inv.id === id));
           }}
           onAddOperation={async (id, operation) => {
             await investmentsAPI.addOperation(id, operation);
