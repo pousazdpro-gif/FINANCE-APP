@@ -29,6 +29,16 @@ app = FastAPI(title="FinanceApp API")
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Add exception handler for validation errors
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    logger.error(f"Validation error on {request.url}: {exc.errors()}")
+    logger.error(f"Request body: {await request.body()}")
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors(), "body": str(await request.body())}
+    )
+
 
 # ============================================================================
 # HELPER FUNCTIONS FOR DATA CONVERSION
