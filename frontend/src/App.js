@@ -880,7 +880,7 @@ const DashboardView = ({ data, accounts, transactions }) => {
                 <span className="text-sm text-gray-500 ml-2">{txn.category}</span>
               </div>
               <span className={`font-semibold ${txn.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-                {txn.type === 'income' ? '+' : '-'}{(txn.amount || 0).toFixed(2)} €
+                {txn.type === 'income' ? '+' : '-'}{formatAmount(txn.amount)}
               </span>
             </div>
           ))}
