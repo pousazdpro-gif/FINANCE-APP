@@ -1508,15 +1508,21 @@ async def add_debt_payment(debt_id: str, input: DebtPaymentCreate, request: Requ
     payment_dict = payment.model_dump()
     payment_dict['date'] = payment_dict['date'].isoformat()
     
-    # Update remaining amount
-    new_remaining = remaining_amount - input.amount
+    # First add the payment
+    await db.debts.update_one(
+        {"id": debt_id, "user_email": user_email},
+        {"$push": {"payments": payment_dict}}
+    )
+    
+    # Then recalculate remaining amount from total payments
+    updated_debt = await db.debts.find_one({"id": debt_id}, {"_id": 0})
+    payments = updated_debt.get('payments', [])
+    total_paid = sum(p.get('amount', 0) for p in payments)
+    new_remaining = total_amount - total_paid
     
     await db.debts.update_one(
         {"id": debt_id, "user_email": user_email},
-        {
-            "$push": {"payments": payment_dict},
-            "$set": {"remainingAmount": new_remaining}  # Use camelCase for database
-        }
+        {"$set": {"remainingAmount": new_remaining}}  # Use camelCase for database
     )
     
     # Create linked transaction if account_id exists
