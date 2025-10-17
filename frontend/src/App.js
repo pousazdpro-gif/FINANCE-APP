@@ -2476,38 +2476,65 @@ const Modal = ({ type, data, onClose, onSave, accounts, categories, setCategorie
           )}
           {type === 'receivable' && (
             <>
-              <input
-                type="text"
-                placeholder="Nom de la créance"
-                value={formData.name || ''}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Débiteur"
-                value={formData.debtor || ''}
-                onChange={(e) => setFormData({ ...formData, debtor: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Montant"
-                value={formData.amount || 0}
-                onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-              <input
-                type="date"
-                placeholder="Date d'échéance"
-                value={formData.due_date ? formData.due_date.split('T')[0] : ''}
-                onChange={(e) => setFormData({ ...formData, due_date: e.target.value ? new Date(e.target.value).toISOString() : null })}
-                className="w-full px-3 py-2 border rounded-lg"
-              />
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Nom de la créance *
+                  <span className="text-xs text-gray-500 ml-2">(Ex: Facture client X)</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Nom de la créance"
+                  value={formData.name || ''}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Débiteur *
+                  <span className="text-xs text-gray-500 ml-2">(Qui vous doit l'argent?)</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Débiteur"
+                  value={formData.debtor || ''}
+                  onChange={(e) => setFormData({ ...formData, debtor: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  💰 Montant total *
+                  <span className="text-xs text-gray-500 ml-2">(Combien vous est dû?)</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Ex: 400"
+                  value={formData.total_amount || ''}
+                  onChange={(e) => setFormData({ ...formData, total_amount: parseFloat(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border rounded-lg text-lg font-semibold"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  📅 Date d'échéance
+                </label>
+                <input
+                  type="date"
+                  placeholder="Date d'échéance"
+                  value={formData.due_date ? formData.due_date.split('T')[0] : ''}
+                  onChange={(e) => setFormData({ ...formData, due_date: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
+              
               <label className="flex items-center space-x-2">
                 <input
                   type="checkbox"
