@@ -699,6 +699,8 @@ function App() {
         <LinkTransactionModal
           transaction={linkTransactionModal.transaction}
           investments={investments}
+          debts={debts}
+          receivables={receivables}
           onClose={() => setLinkTransactionModal({ show: false, transaction: null })}
           onLink={handleLinkTransaction}
         />
