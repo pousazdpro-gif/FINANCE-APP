@@ -1994,7 +1994,7 @@ class FinanceAppTester:
                     total_amount == 1500.0):
                     self.log("✅ Debt PUT update successful - name and total_amount changed")
                 else:
-                    self.log(f"❌ Debt PUT update failed: name='{updated_debt.get('name')}', total_amount=€{updated_debt.get('total_amount')}", "ERROR")
+                    self.log(f"❌ Debt PUT update failed: name='{updated_debt.get('name')}', total_amount=€{total_amount}", "ERROR")
                     return False
                     
             else:
