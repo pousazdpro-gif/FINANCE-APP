@@ -2013,12 +2013,13 @@ class FinanceAppTester:
                 debts = response.json()
                 updated_debt = next((d for d in debts if d['id'] == test_debt_id), None)
                 
+                total_amount = updated_debt.get('total_amount') or updated_debt.get('totalAmount') if updated_debt else None
                 if (updated_debt and 
                     updated_debt.get('name') == "Updated Debt" and 
-                    updated_debt.get('total_amount') == 1500.0):
+                    total_amount == 1500.0):
                     self.log("✅ Debt changes verified - GET returns updated values")
                 else:
-                    self.log(f"❌ Debt changes not persisted: name='{updated_debt.get('name') if updated_debt else 'None'}', total_amount=€{updated_debt.get('total_amount') if updated_debt else 'None'}", "ERROR")
+                    self.log(f"❌ Debt changes not persisted: name='{updated_debt.get('name') if updated_debt else 'None'}', total_amount=€{total_amount}", "ERROR")
                     return False
             else:
                 self.log(f"❌ Debt verification failed: {response.status_code}", "ERROR")
