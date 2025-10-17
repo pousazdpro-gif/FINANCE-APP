@@ -999,15 +999,15 @@ const TransactionsView = ({ transactions, accounts, openModal, setTransactions, 
         </div>
         <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg shadow">
           <div className="text-xs opacity-90">Revenus (ce mois)</div>
-          <div className="text-2xl font-bold">+{(income || 0).toFixed(2)} €</div>
+          <div className="text-2xl font-bold">+{formatAmount(income)}</div>
         </div>
         <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-4 rounded-lg shadow">
           <div className="text-xs opacity-90">Dépenses (ce mois)</div>
-          <div className="text-2xl font-bold">-{(expenses || 0).toFixed(2)} €</div>
+          <div className="text-2xl font-bold">-{formatAmount(expenses)}</div>
         </div>
         <div className={`bg-gradient-to-r ${balance >= 0 ? 'from-indigo-500 to-indigo-600' : 'from-orange-500 to-orange-600'} text-white p-4 rounded-lg shadow`}>
           <div className="text-xs opacity-90">Solde (ce mois)</div>
-          <div className="text-2xl font-bold">{(balance || 0).toFixed(2)} €</div>
+          <div className="text-2xl font-bold">{formatAmount(balance)}</div>
         </div>
       </div>
       
