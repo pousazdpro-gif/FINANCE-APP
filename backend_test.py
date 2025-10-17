@@ -1259,6 +1259,9 @@ class FinanceAppTester:
                     payment = payments[-1]  # Get the last payment
                     self.log(f"✅ Payment added to debt successfully: €{payment.get('amount')} on {payment.get('date')}")
                     
+                    # Debug: Show the full debt object
+                    self.log(f"DEBUG: Updated debt - total_amount: {updated_debt.get('total_amount')}, remaining_amount: {updated_debt.get('remaining_amount')}")
+                    
                     # Verify remaining amount is updated
                     expected_remaining = 1000.0 - 200.0  # 800.0
                     actual_remaining = updated_debt.get('remaining_amount', 0)
