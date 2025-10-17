@@ -1661,22 +1661,16 @@ async def add_receivable_payment(receivable_id: str, input: ReceivablePaymentCre
     if not receivable:
         raise HTTPException(status_code=404, detail="Receivable not found")
     
-    # Apply field mapping to handle camelCase/snake_case conversion
-    receivable = convert_camel_to_snake(receivable, RECEIVABLE_FIELD_MAP)
-    
-    # Ensure amounts have defaults (same logic as GET endpoint)
-    if 'total_amount' not in receivable:
-        receivable['total_amount'] = 0
-    if 'remaining_amount' not in receivable:
-        receivable['remaining_amount'] = receivable.get('total_amount', 0)
+    # Handle both camelCase (from aliases) and snake_case field names
+    total_amount = receivable.get('total_amount', receivable.get('totalAmount', 0))
+    remaining_amount = receivable.get('remaining_amount', receivable.get('remainingAmount', total_amount))
     
     payment = ReceivablePayment(date=input.date, amount=input.amount, notes=input.notes)
     payment_dict = payment.model_dump()
     payment_dict['date'] = payment_dict['date'].isoformat()
     
-    # Update remaining amount with safe default
-    current_remaining = receivable.get('remaining_amount', receivable.get('total_amount', 0))
-    new_remaining = current_remaining - input.amount
+    # Update remaining amount
+    new_remaining = remaining_amount - input.amount
     
     await db.receivables.update_one(
         {"id": receivable_id, "user_email": user_email},
