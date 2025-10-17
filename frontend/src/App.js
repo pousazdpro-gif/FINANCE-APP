@@ -425,7 +425,7 @@ function App() {
               {currentView === 'dashboard' && <DashboardView data={dashboardData} accounts={accounts} transactions={transactions} formatAmount={formatAmount} />}
               {currentView === 'accounts' && <AccountsView accounts={accounts} openModal={openModal} setAccounts={setAccounts} onTransferClick={() => setShowTransferModal(true)} />}
               {currentView === 'transactions' && <TransactionsView transactions={transactions} accounts={accounts} openModal={openModal} setTransactions={setTransactions} investments={investments} onLinkToInvestment={(txn) => setLinkTransactionModal({ show: true, transaction: txn })} formatAmount={formatAmount} />}
-              {currentView === 'investments' && <InvestmentsView investments={investments} openModal={openModal} setInvestments={setInvestments} onViewDetail={(inv) => { setSelectedInvestment(inv); setShowInvestmentDetail(true); }} />}
+              {currentView === 'investments' && <InvestmentsView investments={investments} openModal={openModal} setInvestments={setInvestments} onViewDetail={(inv) => { setSelectedInvestment(inv); setShowInvestmentDetail(true); }} formatAmount={formatAmount} />}
               {currentView === 'goals' && <GoalsView goals={goals} openModal={openModal} setGoals={setGoals} />}
               {currentView === 'debts' && <DebtsView debts={debts} openModal={openModal} setDebts={setDebts} onViewDetail={(debt) => { setSelectedDebt(debt); setShowDebtDetail(true); }} />}
               {currentView === 'receivables' && <ReceivablesView receivables={receivables} openModal={openModal} setReceivables={setReceivables} onViewDetail={(rec) => { setSelectedReceivable(rec); setShowReceivableDetail(true); }} />}
