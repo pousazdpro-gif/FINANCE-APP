@@ -1918,6 +1918,10 @@ class FinanceAppTester:
             if results['account_creation']:
                 results['transaction_linking_debts_receivables'] = self.test_transaction_linking_to_debts_and_receivables()
             
+            # 17. Test Debt and Receivable Calculations (COMPREHENSIVE CALCULATION FIXES)
+            if results['account_creation']:
+                results['debt_receivable_calculations'] = self.test_debt_and_receivable_calculations()
+            
         finally:
             # Cleanup
             self.cleanup_test_account()
