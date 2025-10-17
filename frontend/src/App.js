@@ -728,10 +728,10 @@ const DashboardView = ({ data, accounts, transactions }) => {
     <div className="space-y-6" data-testid="dashboard-view">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Valeur Nette" value={`${(data.net_worth || 0).toFixed(2)} €`} color="indigo" />
-        <StatCard title="Solde Total" value={`${(data.total_balance || 0).toFixed(2)} €`} color="green" />
-        <StatCard title="Investissements" value={`${(data.total_investments || 0).toFixed(2)} €`} color="blue" />
-        <StatCard title="Dettes" value={`${(data.total_debts || 0).toFixed(2)} €`} color="red" />
+        <StatCard title="Valeur Nette" value={formatAmount(data.net_worth)} color="indigo" />
+        <StatCard title="Solde Total" value={formatAmount(data.total_balance)} color="green" />
+        <StatCard title="Investissements" value={formatAmount(data.total_investments)} color="blue" />
+        <StatCard title="Dettes" value={formatAmount(data.total_debts)} color="red" />
       </div>
 
       {/* Investment Performance */}
