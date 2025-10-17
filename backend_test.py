@@ -1858,7 +1858,9 @@ class FinanceAppTester:
                 goal = response.json()
                 test_goal_id = goal['id']
                 self.log(f"✅ Goal created: {goal['name']} (ID: {test_goal_id})")
-                self.log(f"Initial values - target_amount: €{goal.get('target_amount')}, current_amount: €{goal.get('current_amount')}")
+                target_amount = goal.get('target_amount') or goal.get('targetAmount')
+                current_amount = goal.get('current_amount') or goal.get('currentAmount')
+                self.log(f"Initial values - target_amount: €{target_amount}, current_amount: €{current_amount}")
             else:
                 self.log(f"❌ Goal creation failed: {response.status_code} - {response.text}", "ERROR")
                 return False
