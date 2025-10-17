@@ -273,6 +273,23 @@ class InvestmentCreate(BaseModel):
     depreciation_rate: Optional[float] = None
     monthly_costs: Optional[float] = None
 
+class InvestmentUpdate(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    name: Optional[str] = None
+    symbol: Optional[str] = None
+    type: Optional[str] = None
+    quantity: Optional[float] = None
+    average_price: Optional[float] = None
+    current_price: Optional[float] = None
+    currency: Optional[str] = None
+    operations: Optional[List[InvestmentOperation]] = None
+    purchase_date: Optional[datetime] = None
+    initial_value: Optional[float] = None
+    depreciation_rate: Optional[float] = None
+    monthly_costs: Optional[float] = None
+    linked_transaction_id: Optional[str] = None
+
 class InvestmentOperationCreate(BaseModel):
     date: datetime
     type: InvestmentOperationType
