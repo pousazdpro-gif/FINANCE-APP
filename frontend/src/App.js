@@ -1383,8 +1383,8 @@ const GoalsView = ({ goals, openModal, setGoals }) => (
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {goals.map((goal) => {
-        const currentAmount = goal.current_amount || 0;
-        const targetAmount = goal.target_amount || 1; // Avoid division by zero
+        const currentAmount = goal.currentAmount || goal.current_amount || 0;
+        const targetAmount = goal.targetAmount || goal.target_amount || 1; // Avoid division by zero
         const percentage = Math.min((currentAmount / targetAmount) * 100, 100);
         
         return (
