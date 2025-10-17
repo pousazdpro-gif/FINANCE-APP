@@ -90,17 +90,18 @@ const InvestmentProjectionSimple = () => {
               </span>
               <input
                 type="number"
-                min="10"
+                min="0"
                 max="10000000"
+                step="100"
                 value={initialAmount}
-                onChange={(e) => setInitialAmount(Number(e.target.value) || 0)}
+                onChange={(e) => setInitialAmount(Number(e.target.value) >= 0 ? Number(e.target.value) : 0)}
                 className="text-xl font-bold text-indigo-600 border-2 border-indigo-300 rounded px-3 py-1 w-40 text-right"
               />
               <span className="text-lg font-bold text-indigo-600">€</span>
             </label>
             <input
               type="range"
-              min="10"
+              min="0"
               max="100000"
               step="100"
               value={Math.min(initialAmount, 100000)}
@@ -108,8 +109,8 @@ const InvestmentProjectionSimple = () => {
               className="w-full h-3 bg-indigo-200 rounded-lg appearance-none cursor-pointer"
             />
             <div className="flex justify-between text-xs text-gray-500">
-              <span>10 €</span>
-              <span>100 000 € (max slider: 100k, éditable jusqu'à 10M)</span>
+              <span>0 €</span>
+              <span>100 000 € (slider max 100k, saisie jusqu'à 10M)</span>
             </div>
           </div>
 
