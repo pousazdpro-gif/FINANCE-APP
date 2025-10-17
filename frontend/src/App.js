@@ -858,7 +858,7 @@ const DashboardView = ({ data, accounts, transactions }) => {
                     <span className="font-medium text-gray-900">{cat.name}</span>
                   </div>
                   <span className="text-lg font-bold text-red-600">
-                    {(cat.amount || 0).toFixed(2)} €
+                    {formatAmount(cat.amount)}
                   </span>
                 </div>
               ))}
