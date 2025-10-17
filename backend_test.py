@@ -1264,9 +1264,9 @@ class FinanceAppTester:
                     self.log(f"DEBUG: Updated debt - total_amount: {updated_debt.get('total_amount')}, remaining_amount: {updated_debt.get('remaining_amount')}")
                     self.log(f"DEBUG: Updated debt (camelCase) - totalAmount: {updated_debt.get('totalAmount')}, remainingAmount: {updated_debt.get('remainingAmount')}")
                     
-                    # Verify remaining amount is updated
+                    # Verify remaining amount is updated (check camelCase field names)
                     expected_remaining = 1000.0 - 200.0  # 800.0
-                    actual_remaining = updated_debt.get('remaining_amount', 0)
+                    actual_remaining = updated_debt.get('remainingAmount', updated_debt.get('remaining_amount', 0))
                     if abs(actual_remaining - expected_remaining) < 0.01:
                         self.log(f"✅ Debt remaining amount correctly updated: €{actual_remaining}")
                     else:
