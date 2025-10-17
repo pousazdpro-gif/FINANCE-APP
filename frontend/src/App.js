@@ -1078,7 +1078,7 @@ const TransactionsView = ({ transactions, accounts, openModal, setTransactions, 
 };
 
 // Investments, Goals, Debts, Receivables Views (Similar structure)
-const InvestmentsView = ({ investments, openModal, setInvestments, onViewDetail }) => {
+const InvestmentsView = ({ investments, openModal, setInvestments, onViewDetail, formatAmount }) => {
   // Calculate portfolio stats
   const totalValue = investments.reduce((sum, inv) => sum + (inv.quantity * inv.current_price), 0);
   const totalInvested = investments.reduce((sum, inv) => {
