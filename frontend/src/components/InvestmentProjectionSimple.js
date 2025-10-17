@@ -8,54 +8,58 @@ const InvestmentProjectionSimple = () => {
   const [annualReturn, setAnnualReturn] = useState(7);
 
   // Calcul en temps réel - recalcule à chaque changement
-  const months = years * 12;
-  const monthlyReturn = annualReturn / 100 / 12;
+  const months = Math.max(0, years * 12);
+  const monthlyReturn = Math.max(0, annualReturn) / 100 / 12;
   
-  // Calcul valeur finale
-  let finalTotal = initialAmount;
-  let finalInvested = initialAmount;
+  // Calcul valeur finale - gestion des valeurs zéro
+  let finalTotal = Math.max(0, initialAmount);
+  let finalInvested = Math.max(0, initialAmount);
 
-  for (let month = 1; month <= months; month++) {
-    finalTotal += monthlyAmount;
-    finalInvested += monthlyAmount;
-    finalTotal = finalTotal * (1 + monthlyReturn);
+  if (months > 0) {
+    for (let month = 1; month <= months; month++) {
+      finalTotal += Math.max(0, monthlyAmount);
+      finalInvested += Math.max(0, monthlyAmount);
+      finalTotal = finalTotal * (1 + monthlyReturn);
+    }
   }
 
   const finalGains = finalTotal - finalInvested;
   const finalRoi = finalInvested > 0 ? ((finalTotal - finalInvested) / finalInvested * 100) : 0;
 
   const finalData = {
-    total: finalTotal,
-    invested: finalInvested,
-    gains: finalGains,
-    roi: finalRoi
+    total: finalTotal || 0,
+    invested: finalInvested || 0,
+    gains: finalGains || 0,
+    roi: finalRoi || 0
   };
 
   // Calcul tableau année par année
   const yearlyData = [];
-  let yearTotal = initialAmount;
-  let yearInvested = initialAmount;
+  let yearTotal = Math.max(0, initialAmount);
+  let yearInvested = Math.max(0, initialAmount);
 
   yearlyData.push({
     year: 0,
-    total: initialAmount,
-    invested: initialAmount,
+    total: initialAmount || 0,
+    invested: initialAmount || 0,
     gains: 0
   });
 
-  for (let year = 1; year <= years; year++) {
-    for (let month = 1; month <= 12; month++) {
-      yearTotal += monthlyAmount;
-      yearInvested += monthlyAmount;
-      yearTotal = yearTotal * (1 + monthlyReturn);
+  if (years > 0) {
+    for (let year = 1; year <= years; year++) {
+      for (let month = 1; month <= 12; month++) {
+        yearTotal += Math.max(0, monthlyAmount);
+        yearInvested += Math.max(0, monthlyAmount);
+        yearTotal = yearTotal * (1 + monthlyReturn);
+      }
+      
+      yearlyData.push({
+        year: year,
+        total: yearTotal || 0,
+        invested: yearInvested || 0,
+        gains: (yearTotal - yearInvested) || 0
+      });
     }
-    
-    yearlyData.push({
-      year: year,
-      total: yearTotal,
-      invested: yearInvested,
-      gains: yearTotal - yearInvested
-    });
   }
 
   return (
