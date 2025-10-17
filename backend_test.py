@@ -1986,11 +1986,12 @@ class FinanceAppTester:
             
             if response.status_code == 200:
                 updated_debt = response.json()
-                self.log(f"Updated values - name: '{updated_debt.get('name')}', total_amount: €{updated_debt.get('total_amount')}")
+                total_amount = updated_debt.get('total_amount') or updated_debt.get('totalAmount')
+                self.log(f"Updated values - name: '{updated_debt.get('name')}', total_amount: €{total_amount}")
                 
                 # Verify the changes persist
                 if (updated_debt.get('name') == "Updated Debt" and 
-                    updated_debt.get('total_amount') == 1500.0):
+                    total_amount == 1500.0):
                     self.log("✅ Debt PUT update successful - name and total_amount changed")
                 else:
                     self.log(f"❌ Debt PUT update failed: name='{updated_debt.get('name')}', total_amount=€{updated_debt.get('total_amount')}", "ERROR")
