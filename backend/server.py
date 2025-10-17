@@ -1725,15 +1725,21 @@ async def add_receivable_payment(receivable_id: str, input: ReceivablePaymentCre
     payment_dict = payment.model_dump()
     payment_dict['date'] = payment_dict['date'].isoformat()
     
-    # Update remaining amount
-    new_remaining = remaining_amount - input.amount
+    # First add the payment
+    await db.receivables.update_one(
+        {"id": receivable_id, "user_email": user_email},
+        {"$push": {"payments": payment_dict}}
+    )
+    
+    # Then recalculate remaining amount from total payments
+    updated_receivable = await db.receivables.find_one({"id": receivable_id}, {"_id": 0})
+    payments = updated_receivable.get('payments', [])
+    total_paid = sum(p.get('amount', 0) for p in payments)
+    new_remaining = total_amount - total_paid
     
     await db.receivables.update_one(
         {"id": receivable_id, "user_email": user_email},
-        {
-            "$push": {"payments": payment_dict},
-            "$set": {"remaining_amount": new_remaining}  # Use snake_case for receivables (no aliases)
-        }
+        {"$set": {"remaining_amount": new_remaining}}  # Use snake_case for receivables (no aliases)
     )
     
     # Create linked transaction if account_id exists
