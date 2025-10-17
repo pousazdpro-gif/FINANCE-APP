@@ -665,6 +665,22 @@ function App() {
         />
       )}
       
+      {showGoalDetail && selectedGoal && (
+        <GoalDetailModal
+          goal={selectedGoal}
+          onClose={() => {
+            setShowGoalDetail(false);
+            setSelectedGoal(null);
+          }}
+          onUpdate={async (id, data) => {
+            await goalsAPI.update(id, data);
+            await loadAllData();
+            const updated = await goalsAPI.getAll();
+            setSelectedGoal(updated.data.find(g => g.id === id));
+          }}
+        />
+      )}
+      
       {/* CSV Importer Modal */}
       {showCSVImporter && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
