@@ -9,10 +9,20 @@ const GoalDetailModal = ({ goal, onClose, onUpdate, onAddProgress }) => {
     e.preventDefault();
     const newAmount = parseFloat(progressAmount);
     if (newAmount > 0) {
+      // Extract current values with fallback
+      const currentAmountValue = goal.currentAmount || goal.current_amount || 0;
+      const targetAmountValue = goal.targetAmount || goal.target_amount || 0;
+      
+      // Create update payload with snake_case fields (what backend expects)
       const updatedGoal = {
-        ...goal,
-        current_amount: (goal.currentAmount || goal.current_amount || 0) + newAmount
+        name: goal.name,
+        target_amount: targetAmountValue,
+        current_amount: currentAmountValue + newAmount,
+        deadline: goal.deadline,
+        category: goal.category || 'savings',
+        color: goal.color || '#10b981'
       };
+      
       await onUpdate(goal.id, updatedGoal);
       setProgressAmount(0);
       setShowProgressForm(false);
