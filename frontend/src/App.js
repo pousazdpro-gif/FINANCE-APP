@@ -52,6 +52,7 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
   const [modalData, setModalData] = useState({});
+  const [preferredCurrency, setPreferredCurrency] = useState('EUR');
   const [loading, setLoading] = useState(false);
   const [showInvestmentDetail, setShowInvestmentDetail] = useState(false);
   const [selectedInvestment, setSelectedInvestment] = useState(null);
