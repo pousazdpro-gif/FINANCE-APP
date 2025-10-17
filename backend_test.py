@@ -1310,6 +1310,10 @@ class FinanceAppTester:
                     payment = payments[-1]  # Get the last payment
                     self.log(f"✅ Payment added to receivable successfully: €{payment.get('amount')} on {payment.get('date')}")
                     
+                    # Debug: Show the full receivable object
+                    self.log(f"DEBUG: Updated receivable - total_amount: {updated_receivable.get('total_amount')}, remaining_amount: {updated_receivable.get('remaining_amount')}")
+                    self.log(f"DEBUG: Updated receivable (camelCase) - totalAmount: {updated_receivable.get('totalAmount')}, remainingAmount: {updated_receivable.get('remainingAmount')}")
+                    
                     # Verify remaining amount is updated (check camelCase field names)
                     expected_remaining = 500.0 - 150.0  # 350.0
                     actual_remaining = updated_receivable.get('remainingAmount', updated_receivable.get('remaining_amount', 0))
