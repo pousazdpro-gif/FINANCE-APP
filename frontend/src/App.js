@@ -771,13 +771,13 @@ const DashboardView = ({ data, accounts, transactions }) => {
                   <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="px-4 py-2 text-sm text-gray-900">{trend.month}</td>
                     <td className="px-4 py-2 text-sm text-right text-green-600 font-semibold">
-                      +{(trend.income || 0).toFixed(2)} €
+                      +{formatAmount(trend.income)}
                     </td>
                     <td className="px-4 py-2 text-sm text-right text-red-600 font-semibold">
-                      -{(trend.expenses || 0).toFixed(2)} €
+                      -{formatAmount(trend.expenses)}
                     </td>
                     <td className="px-4 py-2 text-sm text-right text-indigo-600 font-semibold">
-                      {(trend.savings || 0).toFixed(2)} €
+                      {formatAmount(trend.savings)}
                     </td>
                   </tr>
                 ))}
