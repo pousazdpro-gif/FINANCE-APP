@@ -955,7 +955,7 @@ async def add_investment_operation(investment_id: str, input: InvestmentOperatio
     return updated
 
 @api_router.put("/investments/{investment_id}", response_model=Investment)
-async def update_investment(investment_id: str, input: InvestmentCreate, request: Request):
+async def update_investment(investment_id: str, input: InvestmentUpdate, request: Request):
     user = await get_current_user(request, db)
     user_email = user['email'] if user else 'anonymous'
     
@@ -963,7 +963,15 @@ async def update_investment(investment_id: str, input: InvestmentCreate, request
     if not investment:
         raise HTTPException(status_code=404, detail="Investment not found")
     
-    update_data = input.model_dump()
+    # Only update fields that are provided (not None)
+    update_data = {k: v for k, v in input.model_dump(exclude_none=True).items() if v is not None}
+    
+    # Convert operations dates to ISO strings for MongoDB
+    if 'operations' in update_data:
+        for op in update_data['operations']:
+            if isinstance(op.get('date'), datetime):
+                op['date'] = op['date'].isoformat()
+    
     result = await db.investments.update_one(
         {"id": investment_id, "user_email": user_email}, 
         {"$set": update_data}
