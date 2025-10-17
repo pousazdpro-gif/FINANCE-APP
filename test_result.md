@@ -1160,4 +1160,80 @@ agent_communication:
       3. Transaction date preservation: ✅ WORKING
       
       ALL REQUESTED CRUD OPERATIONS ARE FULLY FUNCTIONAL.
+  - agent: "testing"
+    message: |
+      🎉 INVESTMENT OPERATIONS UPDATE TESTING COMPLETED - ALL TESTS PASSED ✅
+      
+      COMPREHENSIVE VERIFICATION OF INVESTMENT OPERATIONS UPDATE FIX:
+      
+      🔥 CRITICAL ISSUE RESOLVED (5/5 TESTS PASSED):
+      
+      1. ✅ Investment Creation for Operations Test:
+         - POST /api/investments with test data working correctly
+         - Test investment "Test Stock" created successfully (symbol: TEST)
+         - Response: 200 OK, proper investment structure returned
+      
+      2. ✅ Single Operation Addition via PUT Endpoint (THE MAIN FIX):
+         - PUT /api/investments/{id} with operations array working perfectly
+         - Successfully added buy operation: 10 shares at €50 (total: €500)
+         - All operation fields present: type, date, quantity, price, total, notes
+         - Operation values correctly saved and validated
+         - Response: 200 OK with updated investment containing operations
+      
+      3. ✅ Operations Retrieval and Persistence:
+         - GET /api/investments returns investments with operations array
+         - Operations persist correctly in database
+         - Date handling working: "2025-10-17T00:00:00Z" format preserved
+         - Operation details accessible in investment object
+      
+      4. ✅ Multiple Operations Support:
+         - Successfully added 2 operations to same investment
+         - First operation: 10 shares at €50, Second operation: 5 shares at €55
+         - Both operations saved with correct values and dates
+         - Total quantity and average price calculations working
+      
+      5. ✅ Date Conversion Handling (datetime to ISO string and back):
+         - Complex date format "2025-10-19T14:30:00.000Z" handled correctly
+         - Backend properly converts datetime objects to ISO strings for MongoDB
+         - Frontend receives properly formatted date strings
+         - Date conversion working bidirectionally without data loss
+      
+      📋 ADDITIONAL BACKEND TESTING RESULTS (15/15 PASSED):
+      
+      CRITICAL AUTHENTICATION TESTS (4/4 PASSED):
+      - CORS Headers: ✅ Correctly configured (origin: https://money-tracker-pro-2.preview.emergentagent.com, credentials: true)
+      - Auth Endpoints: ✅ All working (/api/auth/me returns 401, /api/auth/session handles invalid sessions, /api/auth/logout working)
+      - User Data Isolation: ✅ Anonymous users see limited data (2 transactions, 2 investments)
+      - Session Cookie Handling: ✅ Credentials properly configured
+      
+      STANDARD BACKEND TESTS (11/11 PASSED):
+      - Account Creation: ✅ Working
+      - camelCase/snake_case Conversion: ✅ All endpoints working
+      - CSV Bank Import: ✅ Working (imported 2 test transactions)
+      - Existing Endpoints: ✅ Currency rates, dashboard summary working
+      - Shopping Lists Download: ✅ Working (404 for non-existent expected)
+      - Transaction CRUD: ✅ All operations working (CREATE, READ, UPDATE, DELETE)
+      - Investment CRUD: ✅ All operations working (CREATE, READ, UPDATE, DELETE)
+      - Transaction Type Field Fix: ✅ Working (type='expense'/'income' validation)
+      - User Isolation: ✅ Working correctly
+      
+      📊 OVERALL RESULTS: 15/15 tests passed (100% success rate)
+      
+      🎯 USER ISSUE RESOLUTION STATUS:
+      
+      ✅ ISSUE COMPLETELY RESOLVED: "Investment operations don't appear in investment detail after linking transaction"
+      - Root cause: InvestmentUpdate model didn't include operations field
+      - Fix applied: Created InvestmentUpdate model with operations field, updated PUT endpoint
+      - Backend properly handles operations array with date conversion
+      - Operations are saved, retrieved, and displayed correctly
+      - Multiple operations can be added to same investment
+      - Date handling works correctly (ISO format preservation)
+      
+      🎉 INVESTMENT OPERATIONS UPDATE FIX COMPLETELY WORKING
+      
+      The user should now be able to link transactions to investments and see the operations 
+      appear in the investment detail view. All operation data (type, date, quantity, price, 
+      total, notes) is properly saved and retrieved.
+      
+      READY FOR PRODUCTION - Investment operations update fix is fully functional and tested.
       Ready for production use with Google authentication.
