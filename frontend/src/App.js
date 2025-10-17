@@ -775,7 +775,28 @@ const DashboardView = ({ data, accounts, transactions }) => {
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Top Catégories de Dépenses</h3>
-          {categoriesData ? <Pie data={categoriesData} /> : <p className="text-gray-500">Aucune donnée</p>}
+          {data.top_categories && data.top_categories.length > 0 ? (
+            <div className="space-y-3">
+              {data.top_categories.map((cat, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div 
+                      className="w-4 h-4 rounded"
+                      style={{ 
+                        backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#6366f1'][idx % 5]
+                      }}
+                    ></div>
+                    <span className="font-medium text-gray-900">{cat.name}</span>
+                  </div>
+                  <span className="text-lg font-bold text-red-600">
+                    {(cat.amount || 0).toFixed(2)} €
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-8">Aucune dépense enregistrée</p>
+          )}
         </div>
       </div>
 
