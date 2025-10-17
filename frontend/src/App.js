@@ -839,7 +839,7 @@ const AccountsView = ({ accounts, openModal, setAccounts, onTransferClick }) => 
               </div>
             </div>
             <div className="text-2xl font-bold text-indigo-600">
-              {account.current_balance.toFixed(2)} {account.currency}
+              {(account.current_balance || 0).toFixed(2)} {account.currency || 'EUR'}
             </div>
           </div>
         ))}
