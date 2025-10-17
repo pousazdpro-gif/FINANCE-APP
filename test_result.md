@@ -636,6 +636,23 @@ agent_communication:
         agent: "testing"
         comment: "✅ TESTED: PUT /api/investments/{id} THE NEW ENDPOINT working perfectly. Successfully updated investment name from 'Apple Inc.' to 'Apple Inc. (Updated)'. User verification enforced. Response: 200 OK. Also tested 404 for non-existent investments. Stuck count reset to 0 as issue is fully resolved."
 
+  - task: "Investment Operations Update"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported that when they link a transaction to an investment, the operation doesn't appear in the investment detail"
+      - working: true
+        agent: "main"
+        comment: "Created new InvestmentUpdate model that includes operations field. Changed PUT /investments/{id} endpoint to use InvestmentUpdate instead of InvestmentCreate. Added proper handling for operations array with date conversion"
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE TESTING COMPLETED: Investment operations update functionality working perfectly. All tests passed (15/15): ✅ Single operation addition via PUT endpoint working correctly ✅ Multiple operations can be added and saved ✅ Operations dates properly handled (datetime to ISO string and back) ✅ All operation fields present and values correctly saved ✅ Operations are returned in GET /api/investments requests ✅ Date conversion working correctly (2025-10-19T14:30:00Z format) ✅ User can link transactions to investments and operations appear in investment details. The main fix is fully functional and ready for production."
 frontend:
   - task: "Transaction Form with Date Field"
     implemented: true
