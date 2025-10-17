@@ -314,17 +314,8 @@ const InvestmentProjectionNew = () => {
               max="15"
               step="0.5"
               value={annualReturn}
-              onChange={(e) => {
-                const newValue = parseFloat(e.target.value);
-                console.log('Rendement Annuel changed to:', newValue);
-                setAnnualReturn(newValue);
-              }}
-              onInput={(e) => {
-                const newValue = parseFloat(e.target.value);
-                setAnnualReturn(newValue);
-              }}
-              className="w-full h-3 bg-gradient-to-r from-yellow-200 to-yellow-400 rounded-lg appearance-none cursor-pointer slider"
-              style={{ zIndex: 10, position: 'relative' }}
+              onChange={(e) => setAnnualReturn(Number(e.target.value))}
+              className="w-full h-3 bg-gradient-to-r from-yellow-200 to-yellow-400 rounded-lg appearance-none cursor-pointer"
             />
             <div className="flex justify-between text-xs text-gray-500">
               <span>0%</span>
