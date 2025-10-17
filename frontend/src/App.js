@@ -833,7 +833,7 @@ const DashboardView = ({ data, accounts, transactions }) => {
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-gray-700">Total</span>
                   <span className="text-xl font-bold text-indigo-600">
-                    {accounts.reduce((sum, acc) => sum + (acc.current_balance || 0), 0).toFixed(2)} €
+                    {formatAmount(accounts.reduce((sum, acc) => sum + (acc.current_balance || 0), 0))}
                   </span>
                 </div>
               </div>
