@@ -771,7 +771,56 @@ const DashboardView = ({ data, accounts, transactions }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Répartition des Comptes</h3>
-          {accounts.length > 0 ? <Pie data={pieData} /> : <p className="text-gray-500">Aucune donnée</p>}
+          {accounts.length > 0 ? (
+            <div className="space-y-3">
+              {accounts.map((account, idx) => {
+                const total = accounts.reduce((sum, acc) => sum + (acc.current_balance || 0), 0);
+                const percentage = total > 0 ? ((account.current_balance || 0) / total * 100) : 0;
+                const colors = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+                
+                return (
+                  <div key={account.id} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div 
+                          className="w-4 h-4 rounded"
+                          style={{ backgroundColor: colors[idx % colors.length] }}
+                        ></div>
+                        <span className="font-medium text-gray-900">{account.name}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lg font-bold text-gray-900">
+                          {(account.current_balance || 0).toFixed(2)} {account.currency || 'EUR'}
+                        </span>
+                        <span className="text-sm text-gray-500 ml-2">
+                          ({percentage.toFixed(1)}%)
+                        </span>
+                      </div>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="h-2 rounded-full transition-all"
+                        style={{ 
+                          backgroundColor: colors[idx % colors.length],
+                          width: `${percentage}%`
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="pt-3 mt-3 border-t border-gray-200">
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-gray-700">Total</span>
+                  <span className="text-xl font-bold text-indigo-600">
+                    {accounts.reduce((sum, acc) => sum + (acc.current_balance || 0), 0).toFixed(2)} €
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-8">Aucun compte créé</p>
+          )}
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Top Catégories de Dépenses</h3>
