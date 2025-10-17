@@ -69,6 +69,8 @@ function App() {
   const [selectedDebt, setSelectedDebt] = useState(null);
   const [showReceivableDetail, setShowReceivableDetail] = useState(false);
   const [selectedReceivable, setSelectedReceivable] = useState(null);
+  const [showGoalDetail, setShowGoalDetail] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState(null);
   const [categories, setCategories] = useState([]);
   const [showCSVImporter, setShowCSVImporter] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
