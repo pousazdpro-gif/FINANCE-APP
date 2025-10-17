@@ -2486,6 +2486,323 @@ class FinanceAppTester:
         self.log("✅ ALL ACCOUNT BALANCE CALCULATION TESTS PASSED")
         return True
 
+    def test_debt_creation_and_update(self):
+        """Test debt creation and update - DEBUG CRITICAL ISSUE"""
+        self.log("=== Testing Debt Creation and Update - DEBUG CRITICAL ISSUE ===")
+        
+        test_debt_id = None
+        
+        try:
+            # Test 1: Create a new debt with specific amounts
+            self.log("Test 1: Creating debt with name='Test Debt', creditor='Bank', total_amount=2000, remaining_amount=2000")
+            debt_data = {
+                "name": "Test Debt",
+                "creditor": "Bank", 
+                "total_amount": 2000,
+                "remaining_amount": 2000,
+                "interest_rate": 5.0,
+                "due_date": "2025-12-31T00:00:00Z"
+            }
+            
+            response = self.session.post(f"{API_BASE}/debts", json=debt_data)
+            self.log(f"Debt creation response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                debt = response.json()
+                test_debt_id = debt['id']
+                self.log(f"✅ Debt created successfully: {debt['name']} (ID: {test_debt_id})")
+                
+                # Print exact field values returned
+                self.log("=== EXACT FIELD VALUES RETURNED ===")
+                self.log(f"total_amount (snake_case): {debt.get('total_amount')}")
+                self.log(f"remaining_amount (snake_case): {debt.get('remaining_amount')}")
+                self.log(f"totalAmount (camelCase): {debt.get('totalAmount')}")
+                self.log(f"remainingAmount (camelCase): {debt.get('remainingAmount')}")
+                self.log(f"creditor: {debt.get('creditor')}")
+                self.log(f"name: {debt.get('name')}")
+                
+                # Verify amounts are not zero
+                total_amt = debt.get('total_amount') or debt.get('totalAmount', 0)
+                remaining_amt = debt.get('remaining_amount') or debt.get('remainingAmount', 0)
+                
+                if total_amt == 2000 and remaining_amt == 2000:
+                    self.log("✅ Debt amounts correctly stored (total=2000, remaining=2000)")
+                else:
+                    self.log(f"❌ Debt amounts incorrect: total={total_amt}, remaining={remaining_amt} (expected 2000, 2000)", "ERROR")
+                    return False
+                    
+            else:
+                self.log(f"❌ Debt creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # Test 2: GET the created debt to verify persistence
+            self.log("Test 2: GET the created debt to verify field persistence")
+            response = self.session.get(f"{API_BASE}/debts")
+            self.log(f"GET debts response: {response.status_code}")
+            
+            if response.status_code == 200:
+                debts = response.json()
+                created_debt = next((d for d in debts if d['id'] == test_debt_id), None)
+                
+                if created_debt:
+                    self.log("=== RETRIEVED DEBT FIELD VALUES ===")
+                    self.log(f"total_amount (snake_case): {created_debt.get('total_amount')}")
+                    self.log(f"remaining_amount (snake_case): {created_debt.get('remaining_amount')}")
+                    self.log(f"totalAmount (camelCase): {created_debt.get('totalAmount')}")
+                    self.log(f"remainingAmount (camelCase): {created_debt.get('remainingAmount')}")
+                    
+                    # Verify amounts are still correct
+                    total_amt = created_debt.get('total_amount') or created_debt.get('totalAmount', 0)
+                    remaining_amt = created_debt.get('remaining_amount') or created_debt.get('remainingAmount', 0)
+                    
+                    if total_amt == 2000 and remaining_amt == 2000:
+                        self.log("✅ Debt amounts correctly retrieved (total=2000, remaining=2000)")
+                    else:
+                        self.log(f"❌ Retrieved debt amounts incorrect: total={total_amt}, remaining={remaining_amt}", "ERROR")
+                        return False
+                else:
+                    self.log("❌ Created debt not found in GET response", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ GET debts failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # Test 3: Update the debt to change total_amount to 3000
+            self.log("Test 3: Updating debt to change total_amount to 3000")
+            update_data = {
+                "name": "Test Debt",
+                "creditor": "Bank",
+                "total_amount": 3000,
+                "remaining_amount": 3000,  # Also update remaining to match
+                "interest_rate": 5.0,
+                "due_date": "2025-12-31T00:00:00Z"
+            }
+            
+            response = self.session.put(f"{API_BASE}/debts/{test_debt_id}", json=update_data)
+            self.log(f"Debt update response: {response.status_code}")
+            
+            if response.status_code == 200:
+                updated_debt = response.json()
+                self.log("=== UPDATED DEBT FIELD VALUES ===")
+                self.log(f"total_amount (snake_case): {updated_debt.get('total_amount')}")
+                self.log(f"remaining_amount (snake_case): {updated_debt.get('remaining_amount')}")
+                self.log(f"totalAmount (camelCase): {updated_debt.get('totalAmount')}")
+                self.log(f"remainingAmount (camelCase): {updated_debt.get('remainingAmount')}")
+                
+                # Verify total_amount is now 3000
+                total_amt = updated_debt.get('total_amount') or updated_debt.get('totalAmount', 0)
+                
+                if total_amt == 3000:
+                    self.log("✅ Debt total_amount correctly updated to 3000")
+                else:
+                    self.log(f"❌ Debt total_amount update failed: expected 3000, got {total_amt}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Debt update failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # Test 4: GET the debt again to verify update persistence
+            self.log("Test 4: GET debt again to verify update persistence")
+            response = self.session.get(f"{API_BASE}/debts")
+            
+            if response.status_code == 200:
+                debts = response.json()
+                updated_debt = next((d for d in debts if d['id'] == test_debt_id), None)
+                
+                if updated_debt:
+                    self.log("=== FINAL RETRIEVED DEBT FIELD VALUES ===")
+                    self.log(f"total_amount (snake_case): {updated_debt.get('total_amount')}")
+                    self.log(f"remaining_amount (snake_case): {updated_debt.get('remaining_amount')}")
+                    self.log(f"totalAmount (camelCase): {updated_debt.get('totalAmount')}")
+                    self.log(f"remainingAmount (camelCase): {updated_debt.get('remainingAmount')}")
+                    
+                    # Final verification
+                    total_amt = updated_debt.get('total_amount') or updated_debt.get('totalAmount', 0)
+                    
+                    if total_amt == 3000:
+                        self.log("✅ Debt update persistence verified (total_amount=3000)")
+                    else:
+                        self.log(f"❌ Debt update not persisted: expected 3000, got {total_amt}", "ERROR")
+                        return False
+                else:
+                    self.log("❌ Updated debt not found in final GET response", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Final GET debts failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            self.log("✅ ALL DEBT CREATION AND UPDATE TESTS PASSED")
+            return True
+            
+        except Exception as e:
+            self.log(f"❌ Debt creation/update test error: {str(e)}", "ERROR")
+            return False
+        finally:
+            # Cleanup
+            if test_debt_id:
+                try:
+                    self.session.delete(f"{API_BASE}/debts/{test_debt_id}")
+                    self.log("✅ Test debt cleaned up")
+                except:
+                    self.log("⚠️ Test debt cleanup failed")
+
+    def test_goal_creation_and_update(self):
+        """Test goal creation and update - DEBUG CRITICAL ISSUE"""
+        self.log("=== Testing Goal Creation and Update - DEBUG CRITICAL ISSUE ===")
+        
+        test_goal_id = None
+        
+        try:
+            # Test 1: Create a goal with specific amounts
+            self.log("Test 1: Creating goal with name='Test Goal', target_amount=5000, current_amount=1000")
+            goal_data = {
+                "name": "Test Goal",
+                "target_amount": 5000,
+                "current_amount": 1000,
+                "deadline": "2025-12-31T00:00:00Z",
+                "category": "savings"
+            }
+            
+            response = self.session.post(f"{API_BASE}/goals", json=goal_data)
+            self.log(f"Goal creation response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                goal = response.json()
+                test_goal_id = goal['id']
+                self.log(f"✅ Goal created successfully: {goal['name']} (ID: {test_goal_id})")
+                
+                # Print exact field values returned
+                self.log("=== EXACT FIELD VALUES RETURNED ===")
+                self.log(f"target_amount (snake_case): {goal.get('target_amount')}")
+                self.log(f"current_amount (snake_case): {goal.get('current_amount')}")
+                self.log(f"targetAmount (camelCase): {goal.get('targetAmount')}")
+                self.log(f"currentAmount (camelCase): {goal.get('currentAmount')}")
+                self.log(f"name: {goal.get('name')}")
+                
+                # Verify amounts are correct
+                target_amt = goal.get('target_amount') or goal.get('targetAmount', 0)
+                current_amt = goal.get('current_amount') or goal.get('currentAmount', 0)
+                
+                if target_amt == 5000 and current_amt == 1000:
+                    self.log("✅ Goal amounts correctly stored (target=5000, current=1000)")
+                else:
+                    self.log(f"❌ Goal amounts incorrect: target={target_amt}, current={current_amt} (expected 5000, 1000)", "ERROR")
+                    return False
+                    
+            else:
+                self.log(f"❌ Goal creation failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # Test 2: GET the created goal to verify persistence
+            self.log("Test 2: GET the created goal to verify field persistence")
+            response = self.session.get(f"{API_BASE}/goals")
+            self.log(f"GET goals response: {response.status_code}")
+            
+            if response.status_code == 200:
+                goals = response.json()
+                created_goal = next((g for g in goals if g['id'] == test_goal_id), None)
+                
+                if created_goal:
+                    self.log("=== RETRIEVED GOAL FIELD VALUES ===")
+                    self.log(f"target_amount (snake_case): {created_goal.get('target_amount')}")
+                    self.log(f"current_amount (snake_case): {created_goal.get('current_amount')}")
+                    self.log(f"targetAmount (camelCase): {created_goal.get('targetAmount')}")
+                    self.log(f"currentAmount (camelCase): {created_goal.get('currentAmount')}")
+                    
+                    # Verify amounts are still correct
+                    target_amt = created_goal.get('target_amount') or created_goal.get('targetAmount', 0)
+                    current_amt = created_goal.get('current_amount') or created_goal.get('currentAmount', 0)
+                    
+                    if target_amt == 5000 and current_amt == 1000:
+                        self.log("✅ Goal amounts correctly retrieved (target=5000, current=1000)")
+                    else:
+                        self.log(f"❌ Retrieved goal amounts incorrect: target={target_amt}, current={current_amt}", "ERROR")
+                        return False
+                else:
+                    self.log("❌ Created goal not found in GET response", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ GET goals failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # Test 3: Update the goal to change current_amount to 2000
+            self.log("Test 3: Updating goal to change current_amount to 2000")
+            update_data = {
+                "name": "Test Goal",
+                "target_amount": 5000,
+                "current_amount": 2000,  # Changed from 1000 to 2000
+                "deadline": "2025-12-31T00:00:00Z",
+                "category": "savings"
+            }
+            
+            response = self.session.put(f"{API_BASE}/goals/{test_goal_id}", json=update_data)
+            self.log(f"Goal update response: {response.status_code}")
+            
+            if response.status_code == 200:
+                updated_goal = response.json()
+                self.log("=== UPDATED GOAL FIELD VALUES ===")
+                self.log(f"target_amount (snake_case): {updated_goal.get('target_amount')}")
+                self.log(f"current_amount (snake_case): {updated_goal.get('current_amount')}")
+                self.log(f"targetAmount (camelCase): {updated_goal.get('targetAmount')}")
+                self.log(f"currentAmount (camelCase): {updated_goal.get('currentAmount')}")
+                
+                # Verify current_amount is now 2000
+                current_amt = updated_goal.get('current_amount') or updated_goal.get('currentAmount', 0)
+                
+                if current_amt == 2000:
+                    self.log("✅ Goal current_amount correctly updated to 2000")
+                else:
+                    self.log(f"❌ Goal current_amount update failed: expected 2000, got {current_amt}", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Goal update failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            # Test 4: GET the goal again to verify update persistence
+            self.log("Test 4: GET goal again to verify update persistence")
+            response = self.session.get(f"{API_BASE}/goals")
+            
+            if response.status_code == 200:
+                goals = response.json()
+                updated_goal = next((g for g in goals if g['id'] == test_goal_id), None)
+                
+                if updated_goal:
+                    self.log("=== FINAL RETRIEVED GOAL FIELD VALUES ===")
+                    self.log(f"target_amount (snake_case): {updated_goal.get('target_amount')}")
+                    self.log(f"current_amount (snake_case): {updated_goal.get('current_amount')}")
+                    self.log(f"targetAmount (camelCase): {updated_goal.get('targetAmount')}")
+                    self.log(f"currentAmount (camelCase): {updated_goal.get('currentAmount')}")
+                    
+                    # Final verification
+                    current_amt = updated_goal.get('current_amount') or updated_goal.get('currentAmount', 0)
+                    
+                    if current_amt == 2000:
+                        self.log("✅ Goal update persistence verified (current_amount=2000)")
+                    else:
+                        self.log(f"❌ Goal update not persisted: expected 2000, got {current_amt}", "ERROR")
+                        return False
+                else:
+                    self.log("❌ Updated goal not found in final GET response", "ERROR")
+                    return False
+            else:
+                self.log(f"❌ Final GET goals failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+            
+            self.log("✅ ALL GOAL CREATION AND UPDATE TESTS PASSED")
+            return True
+            
+        except Exception as e:
+            self.log(f"❌ Goal creation/update test error: {str(e)}", "ERROR")
+            return False
+        finally:
+            # Cleanup
+            if test_goal_id:
+                try:
+                    self.session.delete(f"{API_BASE}/goals/{test_goal_id}")
+                    self.log("✅ Test goal cleaned up")
+                except:
+                    self.log("⚠️ Test goal cleanup failed")
+
     def run_all_tests(self):
         """Run all backend tests"""
         self.log(f"Starting FinanceApp Backend Tests - CRITICAL AUTHENTICATION FIX TESTING")
