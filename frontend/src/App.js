@@ -65,9 +65,13 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [linkTransactionModal, setLinkTransactionModal] = useState({ show: false, transaction: null });
 
-  // Load all data
+  // Load all data - but wait a bit for authentication to complete
   useEffect(() => {
-    loadAllData();
+    // Delay initial load to ensure authentication is checked first
+    const timer = setTimeout(() => {
+      loadAllData();
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   const loadAllData = async () => {
