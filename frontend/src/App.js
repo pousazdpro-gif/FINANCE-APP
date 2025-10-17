@@ -1596,7 +1596,9 @@ const Modal = ({ type, data, onClose, onSave, accounts }) => {
         case 'transaction':
           const transactionData = {
             ...formData,
-            date: formData.date || new Date().toISOString()
+            date: formData.date || new Date().toISOString(),
+            tags: formData.tags || [],
+            is_recurring: formData.is_recurring || false
           };
           if (data.id) {
             await transactionsAPI.update(data.id, transactionData);
