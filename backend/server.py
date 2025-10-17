@@ -1657,6 +1657,11 @@ async def create_receivable(input: ReceivableCreate, request: Request):
     if doc.get('due_date'):
         doc['due_date'] = doc['due_date'].isoformat()
     doc['user_email'] = user_email
+    
+    # Initialize remaining_amount = total_amount if not set
+    if 'remaining_amount' not in doc or doc['remaining_amount'] is None:
+        doc['remaining_amount'] = doc.get('total_amount', 0)
+    
     await db.receivables.insert_one(doc)
     return receivable
 
