@@ -171,7 +171,7 @@ const OCRScanner = ({ onTransactionsExtracted }) => {
           <label className="flex flex-col items-center justify-center border-4 border-dashed border-gray-300 rounded-xl p-12 cursor-pointer hover:border-indigo-500 transition-colors">
             <input
               type="file"
-              accept="image/*,.pdf"
+              accept="image/*"
               onChange={handleFileChange}
               className="hidden"
             />
