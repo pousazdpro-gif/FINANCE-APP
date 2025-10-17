@@ -53,6 +53,11 @@ function App() {
   const [modalType, setModalType] = useState('');
   const [modalData, setModalData] = useState({});
   const [preferredCurrency, setPreferredCurrency] = useState('EUR');
+  
+  // Helper to format amount with preferred currency
+  const formatAmount = (amount) => {
+    return `${(amount || 0).toFixed(2)} ${preferredCurrency}`;
+  };
   const [loading, setLoading] = useState(false);
   const [showInvestmentDetail, setShowInvestmentDetail] = useState(false);
   const [selectedInvestment, setSelectedInvestment] = useState(null);
