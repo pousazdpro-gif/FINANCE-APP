@@ -1495,7 +1495,7 @@ async def add_debt_payment(debt_id: str, input: DebtPaymentCreate, request: Requ
         {"id": debt_id, "user_email": user_email},
         {
             "$push": {"payments": payment_dict},
-            "$set": {"remaining_amount": new_remaining}
+            "$set": {"remainingAmount": new_remaining}  # Use camelCase for database
         }
     )
     
