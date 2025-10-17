@@ -662,7 +662,7 @@ const DashboardView = ({ data, accounts, transactions }) => {
     labels: ['Revenus', 'Dépenses'],
     datasets: [{
       label: 'Montant (€)',
-      data: [data.monthly_income, data.monthly_expenses],
+      data: [(data.monthly_income || 0), (data.monthly_expenses || 0)],
       backgroundColor: ['#10b981', '#ef4444'],
     }],
   };
