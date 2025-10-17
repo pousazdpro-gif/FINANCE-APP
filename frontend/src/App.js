@@ -65,13 +65,21 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [linkTransactionModal, setLinkTransactionModal] = useState({ show: false, transaction: null });
 
-  // Load all data - but wait a bit for authentication to complete
+  // Load all data AFTER authentication is confirmed
   useEffect(() => {
-    // Delay initial load to ensure authentication is checked first
-    const timer = setTimeout(() => {
+    const handleAuthReady = (event) => {
+      console.log('Auth ready event received:', event.detail);
+      // Load data regardless of auth status
+      // Backend will return appropriate data based on session
       loadAllData();
-    }, 1000);
-    return () => clearTimeout(timer);
+    };
+
+    // Listen for auth-ready event from LoginRequired component
+    window.addEventListener('auth-ready', handleAuthReady);
+
+    return () => {
+      window.removeEventListener('auth-ready', handleAuthReady);
+    };
   }, []);
 
   const loadAllData = async () => {
