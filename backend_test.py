@@ -257,6 +257,188 @@ class FinanceAppTester:
             self.log(f"❌ Account creation error: {str(e)}", "ERROR")
             return False
     
+    def test_transaction_creation_with_type_field(self):
+        """Test transaction creation with 'type' field - THE MAIN FIX"""
+        self.log("=== Testing Transaction Creation with 'type' Field - THE MAIN FIX ===")
+        
+        if not self.test_account_id:
+            self.log("❌ No test account available for transaction testing", "ERROR")
+            return False
+        
+        # Test 1: CREATE Transaction with type='expense' (minimal valid data)
+        self.log("Testing POST /api/transactions with type='expense' (minimal valid data)")
+        transaction_data_expense = {
+            "account_id": self.test_account_id,
+            "description": "Test transaction",
+            "amount": 100,
+            "category": "Test",
+            "type": "expense",
+            "date": "2025-10-17T00:00:00Z",
+            "tags": [],
+            "is_recurring": False
+        }
+        
+        try:
+            response = self.session.post(f"{API_BASE}/transactions", json=transaction_data_expense)
+            self.log(f"Transaction creation (expense) response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                transaction = response.json()
+                expense_transaction_id = transaction['id']
+                self.log(f"✅ Transaction with type='expense' created successfully: {transaction['description']} (ID: {expense_transaction_id})")
+                
+                # Verify the type field is correctly set
+                if transaction.get('type') == 'expense':
+                    self.log("✅ Transaction type field correctly set to 'expense'")
+                else:
+                    self.log(f"❌ Transaction type field incorrect: expected 'expense', got '{transaction.get('type')}'", "ERROR")
+                    return False
+                    
+                # Verify all required fields are present
+                required_fields = ['id', 'account_id', 'type', 'amount', 'category', 'description', 'date']
+                missing_fields = [field for field in required_fields if field not in transaction]
+                if missing_fields:
+                    self.log(f"❌ Missing required fields in response: {missing_fields}", "ERROR")
+                    return False
+                else:
+                    self.log("✅ All required fields present in transaction response")
+                    
+                # Cleanup
+                self.session.delete(f"{API_BASE}/transactions/{expense_transaction_id}")
+                
+            else:
+                self.log(f"❌ Transaction creation (expense) failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Transaction creation (expense) error: {str(e)}", "ERROR")
+            return False
+        
+        # Test 2: CREATE Transaction with type='income'
+        self.log("Testing POST /api/transactions with type='income'")
+        transaction_data_income = {
+            "account_id": self.test_account_id,
+            "description": "Test income transaction",
+            "amount": 200,
+            "category": "Salary",
+            "type": "income",
+            "date": "2025-10-17T00:00:00Z",
+            "tags": [],
+            "is_recurring": False
+        }
+        
+        try:
+            response = self.session.post(f"{API_BASE}/transactions", json=transaction_data_income)
+            self.log(f"Transaction creation (income) response: {response.status_code}")
+            
+            if response.status_code in [200, 201]:
+                transaction = response.json()
+                income_transaction_id = transaction['id']
+                self.log(f"✅ Transaction with type='income' created successfully: {transaction['description']} (ID: {income_transaction_id})")
+                
+                # Verify the type field is correctly set
+                if transaction.get('type') == 'income':
+                    self.log("✅ Transaction type field correctly set to 'income'")
+                else:
+                    self.log(f"❌ Transaction type field incorrect: expected 'income', got '{transaction.get('type')}'", "ERROR")
+                    return False
+                    
+                # Cleanup
+                self.session.delete(f"{API_BASE}/transactions/{income_transaction_id}")
+                
+            else:
+                self.log(f"❌ Transaction creation (income) failed: {response.status_code} - {response.text}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Transaction creation (income) error: {str(e)}", "ERROR")
+            return False
+        
+        # Test 3: Test transaction creation WITHOUT type field (should fail with 422)
+        self.log("Testing POST /api/transactions WITHOUT type field (should fail with 422)")
+        transaction_data_no_type = {
+            "account_id": self.test_account_id,
+            "description": "Test transaction without type",
+            "amount": 50,
+            "category": "Test",
+            "date": "2025-10-17T00:00:00Z",
+            "tags": [],
+            "is_recurring": False
+            # Note: 'type' field is intentionally missing
+        }
+        
+        try:
+            response = self.session.post(f"{API_BASE}/transactions", json=transaction_data_no_type)
+            self.log(f"Transaction creation (no type) response: {response.status_code}")
+            
+            if response.status_code == 422:
+                self.log("✅ Transaction creation correctly fails with 422 when 'type' field is missing")
+                
+                # Check if the error message mentions the 'type' field
+                try:
+                    error_response = response.json()
+                    error_details = str(error_response)
+                    if 'type' in error_details.lower():
+                        self.log("✅ Error response correctly mentions missing 'type' field")
+                    else:
+                        self.log("⚠️ Error response doesn't specifically mention 'type' field")
+                except:
+                    self.log("⚠️ Could not parse error response JSON")
+                    
+            else:
+                self.log(f"❌ Transaction creation should fail with 422 when 'type' missing, got {response.status_code}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ Transaction creation (no type) error: {str(e)}", "ERROR")
+            return False
+        
+        # Test 4: Verify transaction is assigned to correct user
+        self.log("Testing that transaction is assigned to correct user")
+        transaction_data_user_test = {
+            "account_id": self.test_account_id,
+            "description": "User assignment test",
+            "amount": 75,
+            "category": "Test",
+            "type": "expense",
+            "date": "2025-10-17T00:00:00Z",
+            "tags": [],
+            "is_recurring": False
+        }
+        
+        try:
+            response = self.session.post(f"{API_BASE}/transactions", json=transaction_data_user_test)
+            if response.status_code in [200, 201]:
+                transaction = response.json()
+                user_test_transaction_id = transaction['id']
+                
+                # Verify we can retrieve this transaction (user isolation working)
+                response = self.session.get(f"{API_BASE}/transactions/{user_test_transaction_id}")
+                if response.status_code == 200:
+                    retrieved_transaction = response.json()
+                    if retrieved_transaction['id'] == user_test_transaction_id:
+                        self.log("✅ Transaction correctly assigned to user (can retrieve own transaction)")
+                    else:
+                        self.log("❌ Transaction user assignment issue", "ERROR")
+                        return False
+                else:
+                    self.log(f"❌ Could not retrieve created transaction: {response.status_code}", "ERROR")
+                    return False
+                    
+                # Cleanup
+                self.session.delete(f"{API_BASE}/transactions/{user_test_transaction_id}")
+                
+            else:
+                self.log(f"❌ User assignment test transaction creation failed: {response.status_code}", "ERROR")
+                return False
+                
+        except Exception as e:
+            self.log(f"❌ User assignment test error: {str(e)}", "ERROR")
+            return False
+        
+        self.log("✅ ALL TRANSACTION CREATION WITH 'TYPE' FIELD TESTS PASSED")
+        return True
+
     def test_transaction_crud(self):
         """Test full CRUD operations for transactions"""
         self.log("=== Testing Transaction CRUD Operations ===")
