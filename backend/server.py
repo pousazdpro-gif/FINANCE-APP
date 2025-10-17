@@ -603,12 +603,33 @@ async def get_accounts(request: Request):
     query = {"user_email": user['email']} if user else {"user_email": "anonymous"}
     
     accounts = await db.accounts.find(query, {"_id": 0}).to_list(1000)
+    
+    # Calculate current balance for each account based on transactions
     for acc in accounts:
         # Convert camelCase to snake_case
         acc = convert_camel_to_snake(acc, ACCOUNT_FIELD_MAP)
         
         # Handle dates
         acc = convert_dates_from_string(acc, ['created_at'])
+        
+        # Get all transactions for this account
+        account_id = acc.get('id')
+        transactions = await db.transactions.find({
+            "user_email": query["user_email"],
+            "$or": [
+                {"account_id": account_id},
+                {"accountId": account_id}
+            ]
+        }, {"_id": 0}).to_list(None)
+        
+        # Calculate balance: initial_balance + income - expenses
+        initial_balance = acc.get('initial_balance', 0)
+        income = sum(t.get('amount', 0) for t in transactions if t.get('type') == 'income')
+        expenses = sum(t.get('amount', 0) for t in transactions if t.get('type') == 'expense')
+        
+        # Update current_balance with calculated value
+        acc['current_balance'] = initial_balance + income - expenses
+    
     return accounts
 
 @api_router.get("/accounts/{account_id}", response_model=Account)
