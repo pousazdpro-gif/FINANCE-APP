@@ -456,7 +456,11 @@ function App() {
               {currentView === 'reports' && <ReportsView transactions={transactions} />}
               {currentView === 'settings' && <SettingsPanel onClose={() => setCurrentView('dashboard')} onSave={(prefs) => {
                 console.log('Preferences saved:', prefs);
+                if (prefs.preferred_currency) {
+                  setPreferredCurrency(prefs.preferred_currency);
+                }
                 loadAllData();
+                setCurrentView('dashboard');
               }} />}
             </>
           )}
