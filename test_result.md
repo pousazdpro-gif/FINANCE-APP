@@ -715,10 +715,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "LinkTransactionModal - Support Multiple Entity Types"
-    - "App.js - Handle Transaction Linking to All Entity Types"
-    - "Mobile Responsive Design"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
