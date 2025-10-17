@@ -2511,7 +2511,8 @@ class FinanceAppTester:
             'transaction_linking_debts_receivables': False,
             'goal_modification': False,
             'debt_modification': False,
-            'receivable_modification': False
+            'receivable_modification': False,
+            'account_balance_calculation': False
         }
         
         try:
