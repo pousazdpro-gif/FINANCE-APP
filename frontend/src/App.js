@@ -438,6 +438,8 @@ function App() {
           onClose={closeModal}
           onSave={loadAllData}
           accounts={accounts}
+          categories={categories}
+          setCategories={setCategories}
         />
       )}
       
