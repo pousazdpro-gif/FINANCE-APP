@@ -2816,6 +2816,8 @@ class FinanceAppTester:
             'session_cookie_handling': False,
             'authentication': False,
             'account_creation': False,
+            'debt_creation_and_update': False,
+            'goal_creation_and_update': False,
             'camelcase_conversion': False,
             'csv_bank_import': False,
             'existing_endpoints': False,
