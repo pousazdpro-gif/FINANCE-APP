@@ -1172,6 +1172,7 @@ class FinanceAppTester:
             'transaction_type_field_fix': False,
             'transaction_crud': False,
             'investment_crud': False,
+            'investment_operations_update': False,
             'user_isolation': False
         }
         
