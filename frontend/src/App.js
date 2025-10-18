@@ -1124,8 +1124,16 @@ const TransactionsView = ({ transactions, accounts, openModal, setTransactions, 
                     </button>
                     <button 
                       onClick={() => onLinkToInvestment(txn)} 
-                      className="text-blue-600 hover:text-blue-900"
-                      title="Lier à un investissement"
+                      className={`${
+                        txn.linked_investment_id || txn.linked_debt_id || txn.linked_receivable_id
+                          ? 'text-red-600 hover:text-red-900'
+                          : 'text-blue-600 hover:text-blue-900'
+                      }`}
+                      title={
+                        txn.linked_investment_id || txn.linked_debt_id || txn.linked_receivable_id
+                          ? '🔗 Déjà liée'
+                          : 'Lier à un investissement/dette/créance'
+                      }
                     >
                       <LinkIcon size={16} />
                     </button>
