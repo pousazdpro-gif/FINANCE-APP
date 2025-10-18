@@ -2264,9 +2264,6 @@ const Modal = ({ type, data, onClose, onSave, accounts, categories, setCategorie
                     </p>
                   </div>
                 </>
-              )}                    className="w-full px-3 py-2 border rounded-lg"
-                  />
-                </>
               )}
               
               {/* Pour Immobilier */}
