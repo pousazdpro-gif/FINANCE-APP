@@ -2207,28 +2207,64 @@ const Modal = ({ type, data, onClose, onSave, accounts, categories, setCategorie
               {/* Pour Compte Trading */}
               {formData.type === 'trading_account' && (
                 <>
-                  <input
-                    type="text"
-                    placeholder="Nom du broker/plateforme"
-                    value={formData.symbol || ''}
-                    onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg"
-                  />
-                  <input
-                    type="number"
-                    step="0.01"
-                    placeholder="Capital initial du compte"
-                    value={formData.initial_value || 0}
-                    onChange={(e) => setFormData({ ...formData, initial_value: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border rounded-lg"
-                  />
-                  <input
-                    type="number"
-                    step="0.01"
-                    placeholder="Solde actuel du compte"
-                    value={formData.current_price || 0}
-                    onChange={(e) => setFormData({ ...formData, current_price: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border rounded-lg"
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Nom du Broker/Plateforme *
+                      <span className="text-xs text-gray-500 ml-2">(Ex: Interactive Brokers, Trading212)</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Interactive Brokers"
+                      value={formData.symbol || ''}
+                      onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      💰 Capital Initial du Compte
+                      <span className="text-xs text-gray-500 ml-2">(Premier dépôt/versement)</span>
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={formData.initial_value || 0}
+                      onChange={(e) => setFormData({ ...formData, initial_value: parseFloat(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 border rounded-lg text-lg font-semibold"
+                    />
+                    <p className="text-xs text-blue-600">
+                      💡 C'est le montant que vous transférez sur ce compte de trading
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      📊 Solde Actuel du Compte
+                      <span className="text-xs text-gray-500 ml-2">(Après gains/pertes)</span>
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={formData.current_price || 0}
+                      onChange={(e) => setFormData({ ...formData, current_price: parseFloat(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 border rounded-lg text-lg font-semibold"
+                    />
+                    <p className="text-xs text-green-600">
+                      ✅ Mettre à jour régulièrement pour suivre la performance
+                    </p>
+                  </div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-sm text-blue-800">
+                      <strong>📌 Important pour Compte Trading :</strong><br/>
+                      • Utilisez "Ajouter opération" → Type "Achat" pour enregistrer les DÉPÔTS<br/>
+                      • Utilisez Type "Vente" pour les RETRAITS<br/>
+                      • Le montant = montant transféré (pas de prix par unité)<br/>
+                      • La performance sera calculée automatiquement
+                    </p>
+                  </div>
+                </>
+              )}                    className="w-full px-3 py-2 border rounded-lg"
                   />
                 </>
               )}
