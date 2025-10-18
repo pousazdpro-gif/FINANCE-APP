@@ -1125,12 +1125,16 @@ const TransactionsView = ({ transactions, accounts, openModal, setTransactions, 
                     <button 
                       onClick={() => onLinkToInvestment(txn)} 
                       className={`${
-                        txn.linked_investment_id || txn.linked_debt_id || txn.linked_receivable_id
+                        txn.linked_investment_id || txn.linkedInvestmentId || 
+                        txn.linked_debt_id || txn.linkedDebtId || 
+                        txn.linked_receivable_id || txn.linkedReceivableId
                           ? 'text-red-600 hover:text-red-900'
                           : 'text-blue-600 hover:text-blue-900'
                       }`}
                       title={
-                        txn.linked_investment_id || txn.linked_debt_id || txn.linked_receivable_id
+                        txn.linked_investment_id || txn.linkedInvestmentId || 
+                        txn.linked_debt_id || txn.linkedDebtId || 
+                        txn.linked_receivable_id || txn.linkedReceivableId
                           ? '🔗 Déjà liée'
                           : 'Lier à un investissement/dette/créance'
                       }
