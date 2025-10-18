@@ -267,6 +267,12 @@ class Investment(BaseModel):
     depreciation_rate: Optional[float] = None  # For mining rigs (annual %)
     monthly_costs: Optional[float] = None  # For real estate, mining rigs
     linked_transaction_id: Optional[str] = None  # Link to transaction
+    # Calculated fields (SMART)
+    total_invested: Optional[float] = 0.0  # Total capital invested
+    current_value: Optional[float] = 0.0  # Current market value
+    realized_gains: Optional[float] = 0.0  # Gains from sales/withdrawals
+    unrealized_gains: Optional[float] = 0.0  # Current gains (not sold yet)
+    performance_percent: Optional[float] = 0.0  # Total performance %
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class InvestmentCreate(BaseModel):
