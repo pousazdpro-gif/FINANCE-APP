@@ -1950,64 +1950,120 @@ const Modal = ({ type, data, onClose, onSave, accounts, categories, setCategorie
           )}
           {type === 'transaction' && (
             <>
-              <select
-                value={formData.account_id || ''}
-                onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              >
-                <option value="">Sélectionner un compte</option>
-                {accounts && accounts.length > 0 ? (
-                  accounts.map(acc => (
-                    <option key={acc.id} value={acc.id}>{acc.name} ({acc.currency})</option>
-                  ))
-                ) : (
-                  <option disabled>Aucun compte disponible</option>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Compte *
+                </label>
+                <select
+                  value={formData.account_id || ''}
+                  onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                >
+                  <option value="">Sélectionner un compte</option>
+                  {accounts && accounts.length > 0 ? (
+                    accounts.map(acc => (
+                      <option key={acc.id} value={acc.id}>{acc.name} ({acc.currency})</option>
+                    ))
+                  ) : (
+                    <option disabled>Aucun compte disponible</option>
+                  )}
+                </select>
+                {accounts && accounts.length === 0 && (
+                  <p className="text-sm text-red-600">⚠️ Créez d'abord un compte dans la section Comptes</p>
                 )}
-              </select>
-              {accounts && accounts.length === 0 && (
-                <p className="text-sm text-red-600">⚠️ Créez d'abord un compte dans la section Comptes</p>
-              )}
-              <input
-                type="date"
-                placeholder="Date"
-                value={formData.date ? new Date(formData.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
-                onChange={(e) => setFormData({ ...formData, date: new Date(e.target.value).toISOString() })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Description"
-                value={formData.description || ''}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-              <input
-                type="number"
-                placeholder="Montant"
-                value={formData.amount || 0}
-                onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-              <select
-                value={formData.type || 'expense'}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg"
-              >
-                <option value="expense">Dépense</option>
-                <option value="income">Revenu</option>
-              </select>
-              <input
-                type="text"
-                placeholder="Catégorie"
-                value={formData.category || ''}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Date *
+                </label>
+                <input
+                  type="date"
+                  placeholder="Date"
+                  value={formData.date ? new Date(formData.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
+                  onChange={(e) => setFormData({ ...formData, date: new Date(e.target.value).toISOString() })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Description *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex: Courses Migros"
+                  value={formData.description || ''}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Montant *
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={formData.amount || ''}
+                    onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Devise *
+                  </label>
+                  <select
+                    value={formData.currency || 'CHF'}
+                    onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                    required
+                  >
+                    <option value="CHF">CHF (Franc Suisse)</option>
+                    <option value="EUR">EUR (Euro)</option>
+                    <option value="USD">USD (Dollar)</option>
+                    <option value="GBP">GBP (Livre)</option>
+                    <option value="BTC">BTC (Bitcoin)</option>
+                    <option value="ETH">ETH (Ethereum)</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Type *
+                </label>
+                <select
+                  value={formData.type || 'expense'}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                >
+                  <option value="expense">💸 Dépense</option>
+                  <option value="income">💰 Revenu</option>
+                </select>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Catégorie *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex: Alimentation, Transport, Salaire..."
+                  value={formData.category || ''}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                />
+              </div>
             </>
           )}
           {type === 'product' && (
