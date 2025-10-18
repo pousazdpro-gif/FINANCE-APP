@@ -270,6 +270,7 @@ function App() {
       setModalData({
         ...data,
         type: 'expense',
+        currency: 'CHF',  // Default to CHF
         tags: [],
         is_recurring: false,
         date: new Date().toISOString()
