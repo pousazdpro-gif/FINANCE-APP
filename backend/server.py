@@ -204,6 +204,7 @@ class Transaction(BaseModel):
     account_id: str
     type: TransactionType
     amount: float
+    currency: str = "CHF"  # Default currency
     category: str
     description: str
     date: datetime
@@ -223,6 +224,7 @@ class TransactionCreate(BaseModel):
     account_id: str
     type: TransactionType
     amount: float
+    currency: str = "CHF"  # Default currency
     category: str
     description: str
     date: datetime
