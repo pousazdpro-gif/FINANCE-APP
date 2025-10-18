@@ -1111,7 +1111,7 @@ const TransactionsView = ({ transactions, accounts, openModal, setTransactions, 
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{txn.description}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{txn.category}</td>
                 <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${txn.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-                  {txn.type === 'income' ? '+' : '-'}{txn.amount.toFixed(2)} €
+                  {txn.type === 'income' ? '+' : '-'}{txn.amount.toFixed(2)} {txn.currency || 'CHF'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <div className="flex items-center space-x-2">
