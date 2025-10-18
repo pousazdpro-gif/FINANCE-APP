@@ -947,30 +947,136 @@ async def add_investment_operation(investment_id: str, input: InvestmentOperatio
         {"$push": {"operations": operation_dict}}
     )
     
-    # Recalculate investment totals
+    # Recalculate investment totals BASED ON TYPE
     updated = await db.investments.find_one({"id": investment_id}, {"_id": 0})
     operations = updated.get('operations', [])
+    investment_type = updated.get('type', 'stock')
     
-    # Calculate totals based on operations
-    buy_ops = [op for op in operations if op.get('type') == 'buy']
-    sell_ops = [op for op in operations if op.get('type') == 'sell']
-    
-    total_bought_quantity = sum(op.get('quantity', 0) for op in buy_ops)
-    total_sold_quantity = sum(op.get('quantity', 0) for op in sell_ops)
-    current_quantity = total_bought_quantity - total_sold_quantity
-    
-    total_bought_cost = sum(op.get('total', op.get('quantity', 0) * op.get('price', 0)) for op in buy_ops)
-    average_price = total_bought_cost / total_bought_quantity if total_bought_quantity > 0 else 0
-    
-    # Update investment with calculated values
-    await db.investments.update_one(
-        {"id": investment_id},
-        {"$set": {
-            "quantity": current_quantity,
-            "average_price": average_price,
-            "current_price": average_price if updated.get('current_price', 0) == 0 else updated.get('current_price')
-        }}
-    )
+    # SMART CALCULATION BASED ON INVESTMENT TYPE
+    if investment_type in ['stock', 'crypto']:
+        # TYPE 1: UNIT-BASED (actions, crypto)
+        # Calculate quantity and average price
+        buy_ops = [op for op in operations if op.get('type') == 'buy']
+        sell_ops = [op for op in operations if op.get('type') == 'sell']
+        
+        total_bought_quantity = sum(op.get('quantity', 0) for op in buy_ops)
+        total_sold_quantity = sum(op.get('quantity', 0) for op in sell_ops)
+        current_quantity = total_bought_quantity - total_sold_quantity
+        
+        total_bought_cost = sum(op.get('total', op.get('quantity', 0) * op.get('price', 0)) for op in buy_ops)
+        total_sold_revenue = sum(op.get('total', op.get('quantity', 0) * op.get('price', 0)) for op in sell_ops)
+        
+        average_price = total_bought_cost / total_bought_quantity if total_bought_quantity > 0 else 0
+        
+        # Calculate gains/losses
+        realized_gains = total_sold_revenue - (average_price * total_sold_quantity) if total_sold_quantity > 0 else 0
+        current_value = current_quantity * updated.get('current_price', average_price)
+        unrealized_gains = current_value - (average_price * current_quantity)
+        total_invested = total_bought_cost - total_sold_revenue  # Net invested
+        performance = ((current_value - total_invested) / total_invested * 100) if total_invested > 0 else 0
+        
+        await db.investments.update_one(
+            {"id": investment_id},
+            {"$set": {
+                "quantity": current_quantity,
+                "average_price": average_price,
+                "total_invested": total_invested,
+                "current_value": current_value,
+                "realized_gains": realized_gains,
+                "unrealized_gains": unrealized_gains,
+                "performance_percent": performance,
+                "current_price": updated.get('current_price', average_price)
+            }}
+        )
+        
+    elif investment_type == 'trading_account':
+        # TYPE 2: ACCOUNT-BASED (compte de trading)
+        # Operations are TRANSFERS (deposits/withdrawals)
+        # No units, just capital in/out
+        deposits = [op for op in operations if op.get('type') in ['buy', 'deposit', 'transfer_in']]
+        withdrawals = [op for op in operations if op.get('type') in ['sell', 'withdrawal', 'transfer_out']]
+        
+        # Total is the AMOUNT, not quantity x price
+        total_deposited = sum(op.get('total', op.get('quantity', 0) * op.get('price', 1)) for op in deposits)
+        total_withdrawn = sum(op.get('total', op.get('quantity', 0) * op.get('price', 1)) for op in withdrawals)
+        
+        net_invested = total_deposited - total_withdrawn
+        current_value = updated.get('current_price', net_invested)  # current_price = account balance
+        profit_loss = current_value - net_invested
+        performance = (profit_loss / net_invested * 100) if net_invested > 0 else 0
+        
+        await db.investments.update_one(
+            {"id": investment_id},
+            {"$set": {
+                "quantity": 1,  # Always 1 for account type
+                "average_price": net_invested,  # Capital investi
+                "total_invested": net_invested,
+                "current_value": current_value,
+                "realized_gains": 0,  # No realized gains until withdrawal
+                "unrealized_gains": profit_loss,
+                "performance_percent": performance,
+                "current_price": current_value
+            }}
+        )
+        
+    elif investment_type == 'real_estate':
+        # TYPE 3: REAL ESTATE
+        # Purchase + expenses + rental income
+        purchase_ops = [op for op in operations if op.get('type') in ['buy', 'purchase']]
+        expense_ops = [op for op in operations if op.get('type') in ['maintenance', 'expense']]
+        income_ops = [op for op in operations if op.get('type') in ['rental_income', 'income']]
+        
+        purchase_price = sum(op.get('total', 0) for op in purchase_ops)
+        total_expenses = sum(op.get('total', 0) for op in expense_ops)
+        total_income = sum(op.get('total', 0) for op in income_ops)
+        
+        total_invested = purchase_price + total_expenses
+        current_value = updated.get('current_price', purchase_price)
+        capital_gain = current_value - purchase_price
+        net_income = total_income - total_expenses
+        total_return = capital_gain + net_income
+        performance = (total_return / total_invested * 100) if total_invested > 0 else 0
+        
+        await db.investments.update_one(
+            {"id": investment_id},
+            {"$set": {
+                "quantity": 1,
+                "average_price": purchase_price,
+                "total_invested": total_invested,
+                "current_value": current_value,
+                "realized_gains": net_income,
+                "unrealized_gains": capital_gain,
+                "performance_percent": performance,
+                "current_price": current_value
+            }}
+        )
+        
+    else:
+        # TYPE 4: OTHER (bonds, P2P lending, mining)
+        # Default to simple calculation
+        all_ops = operations
+        total_invested = sum(op.get('total', 0) for op in all_ops if op.get('type') in ['buy', 'deposit'])
+        total_withdrawn = sum(op.get('total', 0) for op in all_ops if op.get('type') in ['sell', 'withdrawal'])
+        total_income = sum(op.get('total', 0) for op in all_ops if op.get('type') in ['interest', 'dividend', 'income'])
+        
+        net_invested = total_invested - total_withdrawn
+        current_value = updated.get('current_price', net_invested)
+        total_return = (current_value - net_invested) + total_income
+        performance = (total_return / net_invested * 100) if net_invested > 0 else 0
+        
+        await db.investments.update_one(
+            {"id": investment_id},
+            {"$set": {
+                "quantity": 1,
+                "average_price": net_invested,
+                "total_invested": net_invested,
+                "current_value": current_value,
+                "realized_gains": total_income,
+                "unrealized_gains": current_value - net_invested,
+                "performance_percent": performance,
+                "current_price": current_value
+            }}
+        )
     
     # Get final updated investment
     updated = await db.investments.find_one({"id": investment_id}, {"_id": 0})
