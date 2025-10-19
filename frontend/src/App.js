@@ -2126,14 +2126,52 @@ const Modal = ({ type, data, onClose, onSave, accounts, categories, setCategorie
                 <label className="block text-sm font-medium text-gray-700">
                   Catégorie *
                 </label>
-                <input
-                  type="text"
-                  placeholder="Ex: Alimentation, Transport, Salaire..."
-                  value={formData.category || ''}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
-                  required
-                />
+                {existingCategories.length > 0 ? (
+                  <select
+                    value={formData.category || ''}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                    required
+                  >
+                    <option value="">-- Choisir une catégorie --</option>
+                    <optgroup label="⭐ Fréquentes">
+                      {existingCategories.slice(0, 5).map(cat => (
+                        <option key={cat.name} value={cat.name}>
+                          {cat.name} ({cat.count} trans)
+                        </option>
+                      ))}
+                    </optgroup>
+                    {existingCategories.length > 5 && (
+                      <optgroup label="📊 Autres">
+                        {existingCategories.slice(5).map(cat => (
+                          <option key={cat.name} value={cat.name}>
+                            {cat.name} ({cat.count})
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                    <option value="__new__">+ Nouvelle catégorie...</option>
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    placeholder="Ex: Alimentation, Transport, Salaire..."
+                    value={formData.category || ''}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                    required
+                  />
+                )}
+                {formData.category === '__new__' && (
+                  <input
+                    type="text"
+                    placeholder="Nom de la nouvelle catégorie"
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="w-full px-3 py-2 border border-indigo-500 rounded-lg mt-2"
+                    autoFocus
+                    required
+                  />
+                )}
               </div>
             </>
           )}
