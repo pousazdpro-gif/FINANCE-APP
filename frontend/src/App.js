@@ -1829,7 +1829,7 @@ const SimpleListView = ({ items, title, onAdd, onDelete, renderItem }) => (
 );
 
 // Modal Component (Simplified - you'll need to expand this)
-const Modal = ({ type, data, onClose, onSave, accounts, categories, setCategories }) => {
+const Modal = ({ type, data, onClose, onSave, accounts, categories, setCategories, transactions = [] }) => {
   const [formData, setFormData] = useState(data || {});
   const [loading, setLoading] = useState(false);
 
@@ -1839,6 +1839,22 @@ const Modal = ({ type, data, onClose, onSave, accounts, categories, setCategorie
       setFormData(data);
     }
   }, [data]);
+
+  // Extract unique categories from transactions with frequency
+  const existingCategories = useMemo(() => {
+    if (!transactions || transactions.length === 0) return [];
+    
+    const catMap = {};
+    transactions.forEach(t => {
+      if (t.category) {
+        catMap[t.category] = (catMap[t.category] || 0) + 1;
+      }
+    });
+    
+    return Object.entries(catMap)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count); // Sort by frequency
+  }, [transactions]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
