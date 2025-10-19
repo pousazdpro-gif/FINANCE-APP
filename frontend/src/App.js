@@ -28,6 +28,7 @@ import InvestmentProjection from './components/InvestmentProjectionSimple';
 import DebtDetailModal from './components/DebtDetailModal';
 import ReceivableDetailModal from './components/ReceivableDetailModal';
 import GoalDetailModal from './components/GoalDetailModal';
+import DashboardViewPremium from './components/DashboardViewPremium';
 import ReportsView from './components/ReportsView';
 import CSVImporter from './components/CSVImporter';
 import LinkTransactionModal from './components/LinkTransactionModal';
