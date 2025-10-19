@@ -469,7 +469,7 @@ function App() {
             </div>
           ) : (
             <>
-              {currentView === 'dashboard' && <DashboardView data={dashboardData} accounts={accounts} transactions={transactions} formatAmount={formatAmount} />}
+              {currentView === 'dashboard' && <DashboardViewPremium accounts={accounts} transactions={transactions} investments={investments} debts={debts} receivables={receivables} goals={goals} formatAmount={formatAmount} />}
               {currentView === 'accounts' && <AccountsView accounts={accounts} openModal={openModal} setAccounts={setAccounts} onTransferClick={() => setShowTransferModal(true)} />}
               {currentView === 'transactions' && <TransactionsView transactions={transactions} accounts={accounts} openModal={openModal} setTransactions={setTransactions} investments={investments} onLinkToInvestment={(txn) => setLinkTransactionModal({ show: true, transaction: txn })} formatAmount={formatAmount} />}
               {currentView === 'investments' && <InvestmentsView investments={investments} openModal={openModal} setInvestments={setInvestments} onViewDetail={(inv) => { setSelectedInvestment(inv); setShowInvestmentDetail(true); }} formatAmount={formatAmount} />}
