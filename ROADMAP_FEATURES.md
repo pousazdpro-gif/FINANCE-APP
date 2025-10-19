@@ -538,6 +538,9 @@ Dettes : -2,500.00 CHF
 
 ## 🚀 Priorisation Suggérée
 
+### Phase 0 - BUGS CRITIQUES (Priorité IMMÉDIATE)
+1. ⚠️ **Multi-comptes Google (H0)** - Déconnexion et changement de compte
+
 ### Phase 1 - Fondations (Priorité CRITIQUE)
 1. Système comptes avancé (A1, A2, A3, A4)
 2. Catégories & sous-catégories (B1, B2, B3)
