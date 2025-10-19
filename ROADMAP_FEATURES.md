@@ -473,6 +473,33 @@ Dettes : -2,500.00 CHF
 
 ## 🔐 H. Sécurité & Données
 
+### H0. BUG CRITIQUE - Multi-Comptes Google ⚠️
+
+**Problème actuel :**
+- Impossible de se connecter avec un autre compte Google
+- L'utilisateur reste bloqué avec le premier compte utilisé
+- Pas de possibilité de repartir à zéro avec un nouveau compte
+
+**Fonctionnalités à implémenter :**
+- [ ] Bouton "Déconnexion" fonctionnel
+- [ ] Effacement complet de la session
+- [ ] Permettre connexion avec différent compte Google
+- [ ] Option "Commencer avec nouveau compte"
+- [ ] Séparation complète des données par compte Google
+- [ ] Bouton "Supprimer toutes mes données" (RGPD)
+- [ ] Confirmation sécurisée avant suppression
+
+**Priorité :** CRITIQUE - À corriger avant Phase 1
+
+**Workflow attendu :**
+```
+1. Utilisateur connecté avec compte-a@gmail.com
+2. Clic "Déconnexion" → Session effacée
+3. Retour écran login
+4. Connexion avec compte-b@gmail.com → Nouveaux données vierges
+5. Chaque compte a ses propres données isolées
+```
+
 ### H1. Sauvegarde Automatique
 
 **Fonctionnalités :**
