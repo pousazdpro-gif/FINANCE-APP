@@ -25,6 +25,48 @@
 
 ---
 
+## 🚀 EN COURS - Quick Wins Anti-Finary
+
+### ⚡ Phase Immédiate (Commencé maintenant)
+
+**1. Dashboard Premium avec Graphiques d'Évolution** 🔥
+- **Temps :** 3-4h
+- **Impact :** ÉNORME - C'est la première chose que l'utilisateur voit
+- **Objectif :** Surpasser le dashboard Finary
+
+**Fonctionnalités :**
+- [ ] Graphique évolution valeur nette (30j, 3m, 6m, 1a, Max)
+- [ ] Graphique évolution par catégorie d'actif
+- [ ] Camembert répartition actifs (avec %)
+- [ ] KPIs en temps réel :
+  - Valeur nette totale
+  - Variation jour/semaine/mois (€ + %)
+  - Performance YTD (%)
+  - Meilleur/pire actif du mois
+- [ ] Top 5 investissements (performance)
+- [ ] Top 5 dépenses du mois
+- [ ] Alertes importantes (dettes échues, objectifs proches)
+
+**Design :**
+```
+┌─ 💰 Valeur Nette ─────────────────────────┐
+│  45,678.90 CHF                            │
+│  ↗ +2,340 (+5.4%) ce mois                │
+│                                           │
+│  [Graphique ligne 12 mois]                │
+│  Interactive, zoom, tooltip               │
+└───────────────────────────────────────────┘
+
+┌─ 📊 Répartition Actifs ───────────────────┐
+│  [Camembert coloré]                       │
+│  • Investissements (62%) - 28,340 CHF    │
+│  • Liquidités (33%) - 15,234 CHF         │
+│  • Dettes (-5%) - -2,500 CHF             │
+└───────────────────────────────────────────┘
+```
+
+---
+
 ## 🎯 Philosophie de l'Application
 
 **Principes directeurs :**
