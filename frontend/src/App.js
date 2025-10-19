@@ -1822,6 +1822,13 @@ const Modal = ({ type, data, onClose, onSave, accounts, categories, setCategorie
   const [formData, setFormData] = useState(data || {});
   const [loading, setLoading] = useState(false);
 
+  // Update formData when data prop changes (for edit mode)
+  useEffect(() => {
+    if (data) {
+      setFormData(data);
+    }
+  }, [data]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
