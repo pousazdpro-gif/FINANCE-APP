@@ -732,6 +732,17 @@ function App() {
           onLink={handleLinkTransaction}
         />
       )}
+      {/* Floating Action Button - Quick Add Transaction */}
+      <button
+        onClick={() => openModal('transaction', {})}
+        className="fixed bottom-6 right-6 bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all hover:scale-110 z-40 group"
+        title="Nouvelle transaction rapide (N)"
+      >
+        <Plus size={28} />
+        <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white px-3 py-1 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+          Nouvelle Transaction
+        </span>
+      </button>
     </div>
     </LoginRequired>
   );
