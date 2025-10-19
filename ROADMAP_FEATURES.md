@@ -1,8 +1,27 @@
 # 🗺️ FinanceApp - Roadmap des Fonctionnalités à Implémenter
 
 **Date de création :** Janvier 2025
-**Statut :** En attente de développement
-**Priorité :** Critique pour expérience utilisateur optimale
+**Statut :** En développement actif
+**Priorité :** Dépasser Finary en qualité
+
+---
+
+## 🎯 Vision & Ambition
+
+**Mission :** Créer la **meilleure application de gestion financière personnelle**, surpassant Finary sur tous les aspects clés.
+
+### Objectifs Supériorité vs Finary
+
+| Critère | Finary | Objectif FinanceApp |
+|---------|--------|---------------------|
+| **Design** | 9/10 | **10/10** - Interface premium |
+| **Calculs** | 8/10 | **10/10** - Smart + précis |
+| **Pratique** | 7/10 | **10/10** - Workflow optimaux |
+| **Intuitif** | 8/10 | **10/10** - Zero learning curve |
+| **Rapidité** | 7/10 | **10/10** - < 1s toutes actions |
+| **Efficacité** | 8/10 | **10/10** - Maximum valeur/temps |
+
+**Positionnement unique :** *"L'alternative open-source, transparente et SUPÉRIEURE à Finary"*
 
 ---
 
