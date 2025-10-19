@@ -1934,31 +1934,53 @@ const Modal = ({ type, data, onClose, onSave, accounts, categories, setCategorie
         <form onSubmit={handleSubmit} className="space-y-4">
           {type === 'account' && (
             <>
-              <input
-                type="text"
-                placeholder="Nom du compte"
-                value={formData.name || ''}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-              <input
-                type="number"
-                placeholder="Solde initial"
-                value={formData.initial_balance || 0}
-                onChange={(e) => setFormData({ ...formData, initial_balance: parseFloat(e.target.value) })}
-                className="w-full px-3 py-2 border rounded-lg"
-                required
-              />
-              <select
-                value={formData.currency || 'EUR'}
-                onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg"
-              >
-                <option value="EUR">EUR</option>
-                <option value="USD">USD</option>
-                <option value="GBP">GBP</option>
-              </select>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Nom du compte *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex: Compte Courant UBS"
+                  value={formData.name || ''}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  💰 Solde Initial
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={formData.initial_balance || 0}
+                  onChange={(e) => setFormData({ ...formData, initial_balance: parseFloat(e.target.value) })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  💱 Devise du compte *
+                </label>
+                <select
+                  value={formData.currency || 'CHF'}
+                  onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg"
+                  required
+                >
+                  <option value="CHF">CHF (Franc Suisse)</option>
+                  <option value="EUR">EUR (Euro)</option>
+                  <option value="USD">USD (Dollar)</option>
+                  <option value="GBP">GBP (Livre Sterling)</option>
+                  <option value="BTC">BTC (Bitcoin)</option>
+                  <option value="ETH">ETH (Ethereum)</option>
+                </select>
+              </div>
             </>
           )}
           {type === 'transaction' && (
