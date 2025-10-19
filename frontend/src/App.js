@@ -529,6 +529,7 @@ function App() {
           accounts={accounts}
           categories={categories}
           setCategories={setCategories}
+          transactions={transactions}
         />
       )}
       
